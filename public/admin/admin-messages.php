@@ -11,6 +11,14 @@ if (!isset($_SESSION['admin_id'])) {
 }
 
 
+// Initialize Database
+try {
+    $db = new Database();
+    $conn = $db->getConnection();
+} catch (Exception $e) {
+    error_log("Database connection error: " . $e->getMessage());
+}
+
 // Handle AJAX POST request for sending SMS
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'send_sms') {
     header('Content-Type: application/json');
@@ -45,7 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                              VALUES (:staff_id, :appointment_id, :client_id, :message, NOW())";
                 $logStmt = $conn->prepare($logQuery);
                 $logStmt->execute([
-                    ':staff_id' => 'ADMIN_' . $adminId,
+                    ':staff_id' => 'ADMIN_' . ($_SESSION['admin_id'] ?? 'UNKNOWN'),
                     ':appointment_id' => $_POST['appointment_id'] ?? null,
                     ':client_id' => $_POST['client_id'] ?? null,
                     ':message' => $message
@@ -70,15 +78,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 // Fetch database appointments with client information
 $patientsJson = '[]';
 try {
-    $db = new Database();
-    $conn = $db->getConnection();
+    if (!isset($conn)) {
+        $db = new Database();
+        $conn = $db->getConnection();
+    }
 
     // Fetch appointments with client information
     $query = "SELECT 
                 a.appointment_id as id,
                 a.client_id,
                 CONCAT(a.patient_first_name, ' ', a.patient_last_name) as name,
-                a.patient_phone as phone,
+                COALESCE(c.phone, a.patient_phone) as phone,
                 a.appointment_id as appointment_id,
                 a.appointment_date as date,
                 a.appointment_time as time,
@@ -87,6 +97,7 @@ try {
                 a.notes
               FROM appointments a
               LEFT JOIN services s ON a.service_id = s.id
+              LEFT JOIN clients c ON a.client_id = c.client_id
               WHERE a.status != 'cancelled'
               ORDER BY a.client_id, a.appointment_date DESC";
 
@@ -550,9 +561,9 @@ $currentPage = 'messages';
                         <div class="form-group">
                             <label for="reminder-message" class="required">SMS Message</label>
                             <textarea id="reminder-message" class="form-control" rows="4" required 
-                                      placeholder="Enter your SMS message (max 160 characters)..."></textarea>
+                                      placeholder="Enter your SMS message..."></textarea>
                             <div class="form-help">
-                                Character count: <span id="char-count">0</span>/160 • 
+                                Character count: <span id="char-count">0</span>/1600 • 
                                 Use [Patient Name], [Appointment Date], [Appointment Time], [Appointment ID] as placeholders
                             </div>
                         </div>
@@ -790,7 +801,7 @@ $currentPage = 'messages';
         reminderMessage.addEventListener('input', function() {
             const count = this.value.length;
             charCount.textContent = count;
-            charCount.style.color = count > 160 ? 'var(--error)' : (count > 140 ? 'var(--warning)' : 'var(--dark)');
+            charCount.style.color = count > 1600 ? 'var(--error)' : (count > 1500 ? 'var(--warning)' : 'var(--dark)');
             updateSMSPreview();
         });
 
@@ -842,8 +853,8 @@ $currentPage = 'messages';
             }
             
             const message = reminderMessage.value.trim();
-            if (!message || message.length > 160) {
-                showNotification('Please enter a valid message (max 160 characters)', 'error');
+            if (!message || message.length > 1600) {
+                showNotification('Please enter a valid message (max 1600 characters)', 'error');
                 return;
             }
 

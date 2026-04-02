@@ -47,12 +47,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     if ($action === 'update_profile') {
         $firstName = trim($_POST['first_name'] ?? '');
         $lastName = trim($_POST['last_name'] ?? '');
+        $username = trim($_POST['username'] ?? '');
         $email = trim($_POST['email'] ?? '');
         $phone = trim($_POST['phone'] ?? '');
         
-        if (empty($firstName) || empty($lastName) || empty($email)) {
-            echo json_encode(['success' => false, 'message' => 'Required fields missing']);
-            exit;
+        if (empty($firstName) || empty($lastName) || empty($username) || empty($email)) {
+             echo json_encode(['success' => false, 'message' => 'Required fields missing']);
+             exit;
         }
 
         // Check if sensitive info changed and verify OTP if so
@@ -85,10 +86,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         }
 
         try {
-            $stmt = $conn->prepare("UPDATE admin_users SET first_name = :fn, last_name = :ln, email = :em, phone = :ph, updated_at = NOW() WHERE id = :id");
-            if ($stmt->execute([':fn' => $firstName, ':ln' => $lastName, ':em' => $email, ':ph' => $phone, ':id' => $adminId])) {
+            // Check if username is already taken by another admin
+            $checkStmt = $conn->prepare("SELECT id FROM admin_users WHERE username = :un AND id != :id");
+            $checkStmt->execute([':un' => $username, ':id' => $adminId]);
+            if ($checkStmt->fetch()) {
+                echo json_encode(['success' => false, 'message' => 'Username is already taken']);
+                exit;
+            }
+
+            $stmt = $conn->prepare("UPDATE admin_users SET first_name = :fn, last_name = :ln, username = :un, email = :em, phone = :ph, updated_at = NOW() WHERE id = :id");
+            if ($stmt->execute([':fn' => $firstName, ':ln' => $lastName, ':un' => $username, ':em' => $email, ':ph' => $phone, ':id' => $adminId])) {
                 $_SESSION['admin_first_name'] = $firstName;
                 $_SESSION['admin_last_name'] = $lastName;
+                $_SESSION['admin_username'] = $username;
                 $_SESSION['admin_email'] = $email;
                 $response = ['success' => true, 'message' => 'Profile updated successfully'];
             }
@@ -482,6 +492,12 @@ function iconOptions($selected = '') {
                             <div class="detail-table-header"><h4>Personal Details</h4></div>
                             <form id="admin-profile-form">
                                 <input type="hidden" name="action" value="update_profile">
+                                <div class="detail-table-row">
+                                    <div class="detail-table-label"><i class="fas fa-user-tag"></i> Login Username</div>
+                                    <div class="detail-table-value">
+                                        <input type="text" name="username" class="form-control" value="<?php echo htmlspecialchars($adminData['username'] ?? ''); ?>" required>
+                                    </div>
+                                </div>
                                 <div class="detail-table-row">
                                     <div class="detail-table-label"><i class="fas fa-id-card"></i> First Name</div>
                                     <div class="detail-table-value">

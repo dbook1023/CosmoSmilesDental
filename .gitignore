@@ -17,3 +17,6 @@ Thumbs.db
 # System generated logs
 /logs/
 *.log
+
+# Sensitive Database backups
+database_schema.sql

@@ -1952,10 +1952,13 @@ function updateEditSelectedTeethDisplay(teeth) {
     }
 }
 
-// Handle Form Submission
+// // Handle Form Submission
 if (editRecordForm) {
     editRecordForm.addEventListener('submit', function (e) {
         e.preventDefault();
+
+        // Show loading
+        showLoading(true);
 
         // Disable button
         const originalText = updateRecordBtn.innerHTML;
@@ -1963,27 +1966,32 @@ if (editRecordForm) {
         updateRecordBtn.disabled = true;
 
         const formData = new FormData(this);
-        formData.append('action', 'update_record');
-
-        // Note: For fields that use json array like surfaces and tooth numbers
-        // We handle their custom parsing here to array before inserting into 'record_data' object equivalent
+        
+        // Explicitly gather record data for reliability
         const recordData = {
-            record_id: formData.get('record_id'),
-            client_id: formData.get('client_id'),
-            record_type: formData.get('record_type'),
-            record_title: formData.get('record_title'),
-            record_date: formData.get('record_date'),
-            record_time: formData.get('record_time'),
-            duration: formData.get('duration'),
-            procedure: formData.get('procedure'),
-            description: formData.get('description'),
-            findings: formData.get('findings'),
-            notes: formData.get('notes'),
-            followup: formData.get('followup_instructions'),
+            record_id: document.getElementById('edit-record-id').value,
+            client_id: document.getElementById('edit-record-patient-id').value,
+            record_type: document.getElementById('edit-record-type').value,
+            record_title: document.getElementById('edit-record-title').value,
+            record_date: document.getElementById('edit-record-date').value,
+            record_time: document.getElementById('edit-record-time').value,
+            duration: document.getElementById('edit-record-duration').value,
+            procedure: document.getElementById('edit-record-procedure').value,
+            description: document.getElementById('edit-record-description').value,
+            findings: document.getElementById('edit-record-findings').value,
+            notes: document.getElementById('edit-record-notes').value,
+            followup: document.getElementById('edit-record-followup').value,
         };
 
-        try { recordData.tooth_numbers = JSON.parse(formData.get('tooth_numbers') || '[]'); } catch (e) { recordData.tooth_numbers = []; }
-        try { recordData.surfaces = JSON.parse(formData.get('surfaces') || '[]'); } catch (e) { recordData.surfaces = []; }
+        try { 
+            const toothInput = document.getElementById('edit-record-tooth-numbers');
+            recordData.tooth_numbers = toothInput ? JSON.parse(toothInput.value || '[]') : []; 
+        } catch (e) { recordData.tooth_numbers = []; }
+        
+        try { 
+            const surfaceInput = document.getElementById('edit-record-surfaces');
+            recordData.surfaces = surfaceInput ? JSON.parse(surfaceInput.value || '[]') : []; 
+        } catch (e) { recordData.surfaces = []; }
 
         const submitData = new FormData();
         submitData.append('csrf_token', getCsrfToken());
@@ -1995,8 +2003,12 @@ if (editRecordForm) {
             method: 'POST',
             body: submitData
         })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) throw new Error('Server returned ' + response.status);
+                return response.json();
+            })
             .then(data => {
+                showLoading(false);
                 updateRecordBtn.innerHTML = originalText;
                 updateRecordBtn.disabled = false;
 
@@ -2010,9 +2022,10 @@ if (editRecordForm) {
             })
             .catch(error => {
                 console.error('Error updating record:', error);
+                showLoading(false);
                 updateRecordBtn.innerHTML = originalText;
                 updateRecordBtn.disabled = false;
-                showNotification('error', 'System Error', 'Network timeout or server unavailable');
+                showNotification('error', 'System Error', 'Network timeout or server unavailable. Please check the logs.');
             });
     });
 }

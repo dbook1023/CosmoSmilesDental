@@ -569,8 +569,8 @@ $sidebarAdminRole = $admin_role;
                 <h3>Edit Patient Record</h3>
                 <button class="close-modal" id="close-edit-modal">&times;</button>
             </div>
+        <form id="edit-record-form">
             <div class="modal-body">
-                <form id="edit-record-form">
                     <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
                     <input type="hidden" id="edit-record-id" name="record_id" value="">
                     <input type="hidden" id="edit-record-patient-id" name="client_id" value="">
@@ -691,15 +691,14 @@ $sidebarAdminRole = $admin_role;
                             <label for="edit-record-followup">Follow-up Instructions</label>
                             <textarea id="edit-record-followup" class="form-control" name="followup_instructions" rows="3"></textarea>
                         </div>
-                    </div>
-                </form>
             </div>
             <div class="modal-footer">
-                <button class="btn" id="cancel-edit-record">Cancel</button>
-                <button class="btn btn-success" id="update-record-btn">
+                <button type="button" class="btn" id="cancel-edit-record">Cancel</button>
+                <button type="submit" class="btn btn-success" id="update-record-btn">
                     <i class="fas fa-save"></i> Update Record
                 </button>
             </div>
+        </form>
         </div>
     </div>
 

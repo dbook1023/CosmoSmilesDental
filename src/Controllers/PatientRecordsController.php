@@ -188,18 +188,9 @@ class PatientRecordsController {
         // Add clinic name
         $full_message = "$sms_message - $clinic_name";
         
-        // Truncate if too long
-        if (strlen($full_message) > 160) {
-            // Remove record title if it makes it too long
-            if ($record_title && strlen($full_message) > 160) {
-                $sms_message = "$greeting $patient_name. Your $type_info is now available in your patient portal. Login to view details.";
-                $full_message = "$sms_message - $clinic_name";
-            }
-            
-            // If still too long, shorten further
-            if (strlen($full_message) > 160) {
-                $full_message = substr($sms_message, 0, 140) . " - $clinic_name";
-            }
+        // Increased limit for multi-part SMS support
+        if (strlen($full_message) > 1600) {
+            $full_message = substr($full_message, 0, 1597) . "...";
         }
         
         return $full_message;

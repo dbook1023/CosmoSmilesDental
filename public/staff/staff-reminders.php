@@ -129,15 +129,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 // Fetch database appointments with client information
 $patientsJson = '[]';
 try {
-    $db = new Database();
-    $conn = $db->getConnection();
+    if (!isset($conn)) {
+        $db = new Database();
+        $conn = $db->getConnection();
+    }
 
     // Fetch appointments with client information
     $query = "SELECT 
                 a.appointment_id as id,
                 a.client_id,
                 CONCAT(a.patient_first_name, ' ', a.patient_last_name) as name,
-                a.patient_phone as phone,
+                COALESCE(c.phone, a.patient_phone) as phone,
                 a.appointment_id as appointment_id,
                 a.appointment_date as date,
                 a.appointment_time as time,
@@ -146,6 +148,7 @@ try {
                 a.notes
               FROM appointments a
               LEFT JOIN services s ON a.service_id = s.id
+              LEFT JOIN clients c ON a.client_id = c.client_id
               WHERE a.status != 'cancelled'
               ORDER BY a.client_id, a.appointment_date DESC";
 
@@ -199,7 +202,8 @@ catch (Exception $e) {
         /* Import Google Fonts */
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
         @import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap');
-/* CSS Variables */
+        
+        /* CSS Variables */
         :root {
             --primary: #03074f;
             --secondary: #0d5bb9;
@@ -1068,9 +1072,9 @@ catch (Exception $e) {
                         <div class="form-group">
                             <label for="reminder-message" class="required">SMS Message</label>
                             <textarea id="reminder-message" class="form-control" rows="4" required 
-                                      placeholder="Enter your SMS message (max 160 characters)..."></textarea>
+                                      placeholder="Enter your SMS message..."></textarea>
                             <div class="form-help">
-                                Character count: <span id="char-count">0</span>/160 • 
+                                Character count: <span id="char-count">0</span>/1600 • 
                                 Use [Patient Name], [Appointment Date], [Appointment Time], [Appointment ID] as placeholders
                             </div>
                         </div>
@@ -1378,14 +1382,7 @@ catch (Exception $e) {
         reminderMessage.addEventListener('input', function() {
             const count = this.value.length;
             charCount.textContent = count;
-            
-            if (count > 160) {
-                charCount.style.color = 'var(--error)';
-            } else if (count > 140) {
-                charCount.style.color = 'var(--warning)';
-            } else {
-                charCount.style.color = 'var(--dark)';
-            }
+            charCount.style.color = count > 1600 ? 'var(--error)' : (count > 1400 ? 'var(--warning)' : 'var(--dark)');
             
             updateSMSPreview();
         });
@@ -1441,9 +1438,9 @@ catch (Exception $e) {
                 reminderMessage.value = autoMessage;
                 charCount.textContent = autoMessage.length;
                 
-                if (autoMessage.length > 160) {
+                if (autoMessage.length > 1600) {
                     charCount.style.color = 'var(--error)';
-                } else if (autoMessage.length > 140) {
+                } else if (autoMessage.length > 1400) {
                     charCount.style.color = 'var(--warning)';
                 } else {
                     charCount.style.color = 'var(--dark)';
@@ -1476,8 +1473,8 @@ catch (Exception $e) {
                 return;
             }
             
-            if (message.length > 160) {
-                showNotification('SMS message cannot exceed 160 characters', 'error');
+            if (message.length > 1600) {
+                showNotification('SMS message cannot exceed 1600 characters', 'error');
                 return;
             }
             
@@ -1494,7 +1491,7 @@ catch (Exception $e) {
                 appointmentDate: selectedAppointment.date,
                 appointmentTime: selectedAppointment.time,
                 type: typeValue.replace(/-/g, ' '),
-                message: message,
+                message: smsContent.textContent, // Use the processed preview message
                 sendTime: sendTimeValue || 'immediately',
                 timestamp: new Date().toISOString()
             };
