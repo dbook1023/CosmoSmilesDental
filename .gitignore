@@ -1,0 +1,19 @@
+# Dependency directories
+/vendor/
+
+# Configuration files (SENSITIVE)
+.env
+
+# User uploads and temporary files
+/uploads/
+/tmp/
+
+# IDE and OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# System generated logs
+/logs/
+*.log

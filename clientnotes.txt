@@ -1,0 +1,19 @@
+appointment form, 
+
+personal info:
+fname 
+lname
+birthdate
+contactnum
+
+appointment details:
+service
+date
+appointment time
+preferred dentist
+additional notes
+payment option
+
+
+
+

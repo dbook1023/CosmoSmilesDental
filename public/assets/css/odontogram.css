@@ -1,0 +1,155 @@
+/* Odontogram Display Styles */
+.odontogram-display-container {
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+}
+
+.odontogram-section {
+    margin-bottom: 25px;
+}
+
+.odontogram-section:last-child {
+    margin-bottom: 0;
+}
+
+.tooth-numbers-display {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.tooth-number-badge {
+    background: linear-gradient(135deg, #0d5bb9, #1a7bd3);
+    color: white;
+    padding: 8px 15px;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    box-shadow: 0 2px 5px rgba(13, 91, 185, 0.2);
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.tooth-number-badge:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(13, 91, 185, 0.3);
+}
+
+.tooth-number-badge::before {
+    content: "🦷";
+    font-size: 1rem;
+}
+
+.surfaces-display {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.surface-badge {
+    background: white;
+    color: #2c3e50;
+    padding: 8px 15px;
+    border-radius: 20px;
+    font-weight: 500;
+    font-size: 0.9rem;
+    border: 2px solid;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.surface-badge.mesial {
+    border-color: #00a65a;
+    color: #00a65a;
+}
+
+.surface-badge.distal {
+    border-color: #f39c12;
+    color: #f39c12;
+}
+
+.surface-badge.occlusal {
+    border-color: #dd4b39;
+    color: #dd4b39;
+}
+
+.surface-badge.buccal {
+    border-color: #9b59b6;
+    color: #9b59b6;
+}
+
+.surface-badge.lingual {
+    border-color: #3498db;
+    color: #3498db;
+}
+
+.surface-badge.palatal {
+    border-color: #1abc9c;
+    color: #1abc9c;
+}
+
+.surface-badge:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.surface-badge i {
+    font-size: 0.9rem;
+}
+
+/* Empty state for odontogram */
+.odontogram-empty {
+    text-align: center;
+    padding: 30px;
+    color: #6c757d;
+}
+
+.odontogram-empty i {
+    font-size: 3rem;
+    margin-bottom: 15px;
+    opacity: 0.5;
+}
+
+.odontogram-empty p {
+    margin: 0;
+    font-style: italic;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .tooth-numbers-display,
+    .surfaces-display {
+        gap: 8px;
+    }
+    
+    .tooth-number-badge,
+    .surface-badge {
+        padding: 6px 12px;
+        font-size: 0.85rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .odontogram-display-container {
+        padding: 15px;
+    }
+    
+    .tooth-numbers-display,
+    .surfaces-display {
+        justify-content: center;
+    }
+    
+    .tooth-number-badge,
+    .surface-badge {
+        padding: 5px 10px;
+        font-size: 0.8rem;
+    }
+}
