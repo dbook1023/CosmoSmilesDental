@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../../config/database.php';
+require_once __DIR__ . '/../../config/env.php';
 require_once __DIR__ . '/../../src/Controllers/LoginController.php';
 
 // Start session and check if user is logged in
@@ -451,7 +452,15 @@ $profileImage = $profile_image;
           <div class="avatar">
             <?php 
             if(!empty($profile_image) && trim($profile_image) !== '' && $profile_image !== 'NULL'): 
-                $image_path = $baseDir . '../' . $profile_image;
+                $display_image = $profile_image;
+                if (strpos($display_image, 'uploads/avatar/') === false) {
+                    if (strpos($display_image, 'avatar/') === 0) {
+                        $display_image = 'uploads/' . $display_image;
+                    } else {
+                        $display_image = 'uploads/avatar/' . $display_image;
+                    }
+                }
+                $image_path = URL_ROOT . $display_image;
                 $timestamp = time();
             ?>
                 <img src="<?php echo htmlspecialchars($image_path); ?>?t=<?php echo $timestamp; ?>" 
@@ -812,6 +821,35 @@ $profileImage = $profile_image;
     </div>
   </div>
 
+  <!-- Image Upload Modal -->
+  <div class="confirmation-dialog" id="imageUploadModal">
+    <div class="dialog-box" style="max-width: 450px;">
+      <div class="dialog-icon">
+        <i class="fas fa-camera"></i>
+      </div>
+      <div class="dialog-header">
+        <h3>Update Profile Picture</h3>
+      </div>
+      <form id="imageUploadForm" action="profile.php" method="POST" enctype="multipart/form-data">
+        <div class="dialog-body">
+          <div id="imagePreview" style="margin-bottom: 15px; text-align: center;"></div>
+          <div style="margin-bottom: 15px;">
+            <label for="profileImageInput" style="display: block; padding: 12px; border: 2px dashed #cbd5e1; border-radius: 8px; text-align: center; cursor: pointer; transition: all 0.3s ease;">
+              <i class="fas fa-cloud-upload-alt" style="font-size: 1.5rem; color: var(--secondary); display: block; margin-bottom: 8px;"></i>
+              <span>Click to select an image</span>
+              <small style="display: block; color: #94a3b8; margin-top: 5px;">JPG, JPEG, PNG, GIF (Max 5MB)</small>
+            </label>
+            <input type="file" name="profile_image" id="profileImageInput" accept=".jpg,.jpeg,.png,.gif" style="display: none;">
+          </div>
+        </div>
+        <div class="dialog-actions">
+          <button type="button" class="dialog-btn cancel" id="cancelUploadBtn">Cancel</button>
+          <button type="submit" class="dialog-btn confirm">Upload</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <script src="../assets/js/profile.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', function() {
@@ -861,6 +899,23 @@ $profileImage = $profile_image;
             showMessageBox('error', '<?php echo addslashes($passwordMessage); ?>');
         }, 300);
         <?php endif; ?>
+
+        // Clear URL parameters to prevent message persistence on refresh
+        setTimeout(function() {
+            if (window.history.replaceState) {
+                const url = new URL(window.location.href);
+                let changed = false;
+                ['upload', 'update', 'password', 'section'].forEach(param => {
+                    if (url.searchParams.has(param)) {
+                        url.searchParams.delete(param);
+                        changed = true;
+                    }
+                });
+                if (changed) {
+                    window.history.replaceState(null, '', url.pathname + url.search + url.hash);
+                }
+            }
+        }, 500);
     });
   </script>
 </body>

@@ -1,4 +1,4 @@
-<?php
+<?php 
 // admin-patients.php
 
 // Start session at the very beginning
@@ -14,6 +14,7 @@ if (!isset($_SESSION['admin_id'])) {
 
 // Fix the require path - adjust based on your actual file structure
 require_once __DIR__ . '/../../config/database.php';
+require_once __DIR__ . '/../../config/env.php';
 
 // Handle API requests
 if (isset($_GET['action'])) {
@@ -189,7 +190,7 @@ $sidebarAdminRole = ($adminUser && strtolower($adminUser['role'] ?? '') === 'adm
     <title>Admin - Patients Management - Cosmo Smiles Dental</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="../assets/css/admin-patient.css">
-    <?php include 'includes/admin-sidebar-css.php'; ?>
+    <?php  include 'includes/admin-sidebar-css.php'; ?>
     <style>
         /* Modal Design Enhancements */
         .modal-content {
@@ -288,7 +289,7 @@ $sidebarAdminRole = ($adminUser && strtolower($adminUser['role'] ?? '') === 'adm
         }
 
         .form-group label::before {
-            content: "•";
+            content: "â€¢";
             color: var(--accent);
             font-size: 1.2rem;
         }
@@ -368,7 +369,7 @@ $sidebarAdminRole = ($adminUser && strtolower($adminUser['role'] ?? '') === 'adm
         }
 
         .form-text::before {
-            content: "ℹ";
+            content: "â„¹";
             font-size: 0.8rem;
             color: var(--secondary);
         }
@@ -828,10 +829,10 @@ $sidebarAdminRole = ($adminUser && strtolower($adminUser['role'] ?? '') === 'adm
         }
     </style>
 </head>
-<body data-success-message="<?php echo htmlspecialchars($success_message, ENT_QUOTES); ?>" 
-      data-error-message="<?php echo htmlspecialchars($error_message, ENT_QUOTES); ?>">
+<body data-success-message="<?php  echo htmlspecialchars($success_message, ENT_QUOTES); ?>" 
+      data-error-message="<?php  echo htmlspecialchars($error_message, ENT_QUOTES); ?>">
     
-    <?php include 'includes/admin-header.php'; ?>
+    <?php  include 'includes/admin-header.php'; ?>
 
     <!-- Overlay for mobile sidebar -->
     <div class="overlay"></div>
@@ -841,7 +842,7 @@ $sidebarAdminRole = ($adminUser && strtolower($adminUser['role'] ?? '') === 'adm
 
      <!-- Admin Dashboard Layout -->
     <div class="admin-container">
-        <?php include 'includes/admin-sidebar.php'; ?>
+        <?php  include 'includes/admin-sidebar.php'; ?>
 
         <!-- Main Content -->
         <main class="admin-main">
@@ -873,7 +874,7 @@ $sidebarAdminRole = ($adminUser && strtolower($adminUser['role'] ?? '') === 'adm
                     </div>
                     <div class="stat-content">
                         <h3>Total Patients</h3>
-                        <div class="stat-number"><?php echo $patientStats['total_patients']; ?></div>
+                        <div class="stat-number"><?php  echo $patientStats['total_patients']; ?></div>
                         <div class="stat-change positive">
                             <i class="fas fa-database"></i> All registered patients
                         </div>
@@ -886,7 +887,7 @@ $sidebarAdminRole = ($adminUser && strtolower($adminUser['role'] ?? '') === 'adm
                     </div>
                     <div class="stat-content">
                         <h3>Active Patients</h3>
-                        <div class="stat-number"><?php echo $patientStats['active_patients']; ?></div>
+                        <div class="stat-number"><?php  echo $patientStats['active_patients']; ?></div>
                         <div class="stat-change positive">
                             <i class="fas fa-calendar-check"></i> With appointments in last 90 days
                         </div>
@@ -899,13 +900,13 @@ $sidebarAdminRole = ($adminUser && strtolower($adminUser['role'] ?? '') === 'adm
                     </div>
                     <div class="stat-content">
                         <h3>New This Month</h3>
-                        <div class="stat-number"><?php echo $patientStats['new_this_month']; ?></div>
-                        <div class="stat-change <?php echo $patientStats['new_change'] >= 0 ? 'positive' : 'negative'; ?>">
-                            <?php if ($patientStats['new_change'] >= 0): ?>
-                                <i class="fas fa-arrow-up"></i> <?php echo $patientStats['new_change']; ?> from last month
-                            <?php else: ?>
-                                <i class="fas fa-arrow-down"></i> <?php echo abs($patientStats['new_change']); ?> from last month
-                            <?php endif; ?>
+                        <div class="stat-number"><?php  echo $patientStats['new_this_month']; ?></div>
+                        <div class="stat-change <?php  echo $patientStats['new_change'] >= 0 ? 'positive' : 'negative'; ?>">
+                            <?php  if ($patientStats['new_change'] >= 0): ?>
+                                <i class="fas fa-arrow-up"></i> <?php  echo $patientStats['new_change']; ?> from last month
+                            <?php  else: ?>
+                                <i class="fas fa-arrow-down"></i> <?php  echo abs($patientStats['new_change']); ?> from last month
+                            <?php  endif; ?>
                         </div>
                         <div class="stat-subtitle">
                             Based on account creation date
@@ -919,12 +920,12 @@ $sidebarAdminRole = ($adminUser && strtolower($adminUser['role'] ?? '') === 'adm
                     </div>
                     <div class="stat-content">
                         <h3>Inactive Patients</h3>
-                        <div class="stat-number"><?php echo $patientStats['inactive_patients']; ?></div>
+                        <div class="stat-number"><?php  echo $patientStats['inactive_patients']; ?></div>
                         <div class="stat-change">
                             <i class="fas fa-clock"></i> No appointments in 90+ days
                         </div>
                         <div class="stat-subtitle">
-                            <?php 
+                            <?php  
                             $inactive_percentage = $patientStats['total_patients'] > 0 
                                 ? round(($patientStats['inactive_patients'] / $patientStats['total_patients']) * 100, 1) 
                                 : 0;
@@ -942,28 +943,28 @@ $sidebarAdminRole = ($adminUser && strtolower($adminUser['role'] ?? '') === 'adm
                         <div class="filter-group">
                             <label for="status-filter">Status</label>
                             <select id="status-filter" name="status" class="filter-control">
-                                <option value="all" <?php echo ($filters['status'] === 'all') ? 'selected' : ''; ?>>All Statuses</option>
-                                <option value="active" <?php echo ($filters['status'] === 'active') ? 'selected' : ''; ?>>Active (Has pending, confirmed, or completed appointments in last 90 days)</option>
-                                <option value="inactive" <?php echo ($filters['status'] === 'inactive') ? 'selected' : ''; ?>>Inactive (No appointments in last 90 days)</option>
+                                <option value="all" <?php  echo ($filters['status'] === 'all') ? 'selected' : ''; ?>>All Statuses</option>
+                                <option value="active" <?php  echo ($filters['status'] === 'active') ? 'selected' : ''; ?>>Active (Has pending, confirmed, or completed appointments in last 90 days)</option>
+                                <option value="inactive" <?php  echo ($filters['status'] === 'inactive') ? 'selected' : ''; ?>>Inactive (No appointments in last 90 days)</option>
                             </select>
                         </div>
                         
                         <div class="filter-group">
                             <label for="gender-filter">Gender</label>
                             <select id="gender-filter" name="gender" class="filter-control">
-                                <option value="all" <?php echo ($filters['gender'] === 'all') ? 'selected' : ''; ?>>All Genders</option>
-                                <option value="male" <?php echo ($filters['gender'] === 'male') ? 'selected' : ''; ?>>Male</option>
-                                <option value="female" <?php echo ($filters['gender'] === 'female') ? 'selected' : ''; ?>>Female</option>
-                                <option value="other" <?php echo ($filters['gender'] === 'other') ? 'selected' : ''; ?>>Other</option>
+                                <option value="all" <?php  echo ($filters['gender'] === 'all') ? 'selected' : ''; ?>>All Genders</option>
+                                <option value="male" <?php  echo ($filters['gender'] === 'male') ? 'selected' : ''; ?>>Male</option>
+                                <option value="female" <?php  echo ($filters['gender'] === 'female') ? 'selected' : ''; ?>>Female</option>
+                                <option value="other" <?php  echo ($filters['gender'] === 'other') ? 'selected' : ''; ?>>Other</option>
                             </select>
                         </div>
                         
                         <div class="filter-group">
                             <label for="minor-filter">Age Group</label>
                             <select id="minor-filter" name="is_minor" class="filter-control">
-                                <option value="all" <?php echo ($filters['is_minor'] === 'all') ? 'selected' : ''; ?>>All Ages</option>
-                                <option value="1" <?php echo ($filters['is_minor'] === '1') ? 'selected' : ''; ?>>Minors (Under 18)</option>
-                                <option value="0" <?php echo ($filters['is_minor'] === '0') ? 'selected' : ''; ?>>Adults (18+)</option>
+                                <option value="all" <?php  echo ($filters['is_minor'] === 'all') ? 'selected' : ''; ?>>All Ages</option>
+                                <option value="1" <?php  echo ($filters['is_minor'] === '1') ? 'selected' : ''; ?>>Minors (Under 18)</option>
+                                <option value="0" <?php  echo ($filters['is_minor'] === '0') ? 'selected' : ''; ?>>Adults (18+)</option>
                             </select>
                         </div>
                         
@@ -971,7 +972,7 @@ $sidebarAdminRole = ($adminUser && strtolower($adminUser['role'] ?? '') === 'adm
                             <label for="search-filter">Search</label>
                             <input type="text" id="search-filter" name="search" class="filter-control" 
                                    placeholder="Search by name, ID, email or phone..."
-                                   value="<?php echo htmlspecialchars($filters['search']); ?>">
+                                   value="<?php  echo htmlspecialchars($filters['search']); ?>">
                         </div>
                         
                         <div class="filter-actions">
@@ -989,7 +990,7 @@ $sidebarAdminRole = ($adminUser && strtolower($adminUser['role'] ?? '') === 'adm
             <!-- Patient Table -->
             <div class="patient-table-container">
                 <div class="table-header">
-                    <h3>All Patients (<?php echo $totalPatients; ?> total)</h3>
+                    <h3>All Patients (<?php  echo $totalPatients; ?> total)</h3>
                     <div class="table-actions">
                         <button class="btn btn-success" onclick="exportPatients()">
                             <i class="fas fa-file-export"></i> Export
@@ -1011,19 +1012,19 @@ $sidebarAdminRole = ($adminUser && strtolower($adminUser['role'] ?? '') === 'adm
                             </tr>
                         </thead>
                         <tbody>
-                            <?php if (empty($patients)): ?>
+                            <?php  if (empty($patients)): ?>
                                 <tr>
                                     <td colspan="7" class="no-patients">
                                         <i class="fas fa-user-times"></i>
-                                        <p><?php echo isset($filters['search']) ? 'No patients found matching your search' : 'No patients found'; ?></p>
+                                        <p><?php  echo isset($filters['search']) ? 'No patients found matching your search' : 'No patients found'; ?></p>
                                         <button class="btn btn-primary" id="add-patient-btn-table">
                                             <i class="fas fa-plus"></i> Add First Patient
                                         </button>
                                     </td>
                                 </tr>
-                            <?php else: ?>
-                                <?php foreach ($patients as $patient): ?>
-                                    <?php
+                            <?php  else: ?>
+                                <?php  foreach ($patients as $patient): ?>
+                                    <?php 
                                     // Calculate age
                                     $birthdate = new DateTime($patient['birthdate']);
                                     $today = new DateTime();
@@ -1053,83 +1054,89 @@ $sidebarAdminRole = ($adminUser && strtolower($adminUser['role'] ?? '') === 'adm
                                         <td>
                                             <div class="patient-info">
                                                 <div class="patient-avatar">
-                                                    <?php if (!empty($patient['profile_image'])): ?>
-                                                        <img src="/Cosmo_Smiles_Dental_Clinic/<?php echo htmlspecialchars($patient['profile_image']); ?>" 
-                                                             alt="<?php echo htmlspecialchars($patient['first_name'] . ' ' . $patient['last_name']); ?>"
-                                                             onerror="this.onerror=null; this.parentNode.innerHTML='<i class=\'fas fa-user\'></i>';">
-                                                    <?php else: ?>
+                                                    <?php  
+                                                    $displayImage = $patient['profile_image'];
+                                                    if (!empty($displayImage) && strpos($displayImage, 'uploads/') === false) {
+                                                        $displayImage = 'uploads/avatar/' . $displayImage;
+                                                    }
+                                                    ?>
+                                                    <?php  if (!empty($displayImage)): ?>
+                                                        <img src="<?php  echo URL_ROOT . htmlspecialchars($displayImage); ?>" 
+                                                             alt="<?php  echo htmlspecialchars($patient['first_name'] . ' ' . $patient['last_name']); ?>"
+                                                             onerror="this.onerror=null; this.parentElement.innerHTML='<i class=\'fas fa-user\'></i>';">
+                                                    <?php  else: ?>
                                                         <i class="fas fa-user"></i>
-                                                    <?php endif; ?>
+                                                    <?php  endif; ?>
                                                 </div>
                                                 <div class="patient-details">
-                                                    <h4><?php echo htmlspecialchars($patient['first_name'] . ' ' . $patient['last_name']); ?>
-                                                        <?php if ($patient['parental_consent'] && $patient['is_minor']): ?>
+                                                    <h4><?php  echo htmlspecialchars($patient['first_name'] . ' ' . $patient['last_name']); ?>
+                                                        <?php  if ($patient['parental_consent'] && $patient['is_minor']): ?>
                                                             <span class="consent-badge" title="Parental Consent Given"><i class="fas fa-check-circle"></i></span>
-                                                        <?php endif; ?>
+                                                        <?php  endif; ?>
                                                     </h4>
-                                                    <p>ID: <?php echo htmlspecialchars($patient['client_id']); ?></p>
+                                                    <p>ID: <?php  echo htmlspecialchars($patient['client_id']); ?></p>
                                                 </div>
                                             </div>
                                         </td>
                                         <td>
-                                            <div><?php echo htmlspecialchars($patient['email']); ?></div>
-                                            <div><?php echo htmlspecialchars($patient['phone']); ?></div>
+                                            <div><?php  echo htmlspecialchars($patient['email']); ?></div>
+                                            <div><?php  echo htmlspecialchars($patient['phone']); ?></div>
                                         </td>
                                         <td>
-                                            <span class="age-badge <?php echo $ageClass; ?>">
-                                                <?php echo $age; ?> years
+                                            <span class="age-badge <?php  echo $ageClass; ?>">
+                                                <?php  echo $age; ?> years
                                             </span>
                                         </td>
-                                        <td><?php echo ucfirst($patient['gender']); ?></td>
-                                        <td><?php echo $lastVisit; ?></td>
+                                        <td><?php  echo ucfirst($patient['gender']); ?></td>
+                                        <td><?php  echo $lastVisit; ?></td>
                                         <td>
-                                            <span class="patient-status <?php echo $statusClass; ?>">
-                                                <?php echo $status; ?>
+                                            <span class="patient-status <?php  echo $statusClass; ?>">
+                                                <?php  echo $status; ?>
                                             </span>
                                         </td>
                                         <td>
                                             <div class="patient-actions">
                                                 <!-- VIEW - View Details -->
-                                                <button class="action-btn view" onclick="viewPatient(<?php echo $patient['id']; ?>)">
+                                                <button class="action-btn view" onclick="viewPatient(<?php  echo $patient['id']; ?>)">
                                                     <i class="fas fa-eye"></i> View
                                                 </button>
                                             </div>
                                         </td>
                                     </tr>
-                                <?php endforeach; ?>
-                            <?php endif; ?>
+                                <?php  endforeach; ?>
+                            <?php  endif; ?>
                         </tbody>
                     </table>
                 </div>
                 
-                <?php if ($totalPages > 1): ?>
+                <?php  if ($totalPages > 1): ?>
                 <div class="pagination">
                     <div class="pagination-info">
-                        Showing <?php echo (($currentPageNum - 1) * $limit) + 1; ?> to <?php echo min($currentPageNum * $limit, $totalPatients); ?> of <?php echo $totalPatients; ?> patients
+                        Showing <?php  echo (($currentPageNum - 1) * $limit) + 1; ?> to <?php  echo min($currentPageNum * $limit, $totalPatients); ?> of <?php  echo $totalPatients; ?> patients
                     </div>
                     <div class="pagination-controls">
-                        <?php if ($currentPageNum > 1): ?>
-                            <a href="?<?php echo http_build_query(array_merge($filters, ['page' => $currentPageNum - 1])); ?>" class="pagination-btn">
+                        <?php  if ($currentPageNum > 1): ?>
+                            <a href="?<?php  echo http_build_query(array_merge($filters, ['page' => $currentPageNum - 1])); ?>" class="pagination-btn">
                                 <i class="fas fa-chevron-left"></i>
                             </a>
-                        <?php endif; ?>
+                        <?php  endif; ?>
                         
-                        <?php for ($i = 1; $i <= $totalPages; $i++): ?>
-                            <?php if ($i == $currentPageNum): ?>
-                                <span class="pagination-btn active"><?php echo $i; ?></span>
-                            <?php else: ?>
-                                <a href="?<?php echo http_build_query(array_merge($filters, ['page' => $i])); ?>" class="pagination-btn"><?php echo $i; ?></a>
-                            <?php endif; ?>
-                        <?php endfor; ?>
+                        <?php  for ($i = 1; $i <= $totalPages; $i++): ?>
+                            <?php  if ($i == $currentPageNum): ?>
+                                <span class="pagination-btn active"><?php  echo $i; ?></span>
+                            <?php  else: ?>
+                                <a href="?<?php  echo http_build_query(array_merge($filters, ['page' => $i])); ?>" class="pagination-btn"><?php  echo $i; ?></a>
+                            <?php  endif; ?>
+                        <?php  endfor; ?>
                         
-                        <?php if ($currentPageNum < $totalPages): ?>
-                            <a href="?<?php echo http_build_query(array_merge($filters, ['page' => $currentPageNum + 1])); ?>" class="pagination-btn">
+                        <?php  if ($currentPageNum < $totalPages): ?>
+                            <a href="?<?php  echo http_build_query(array_merge($filters, ['page' => $currentPageNum + 1])); ?>" class="pagination-btn">
                                 <i class="fas fa-chevron-right"></i>
                             </a>
-                        <?php endif; ?>
+                        <?php  endif; ?>
                     </div>
                 </div>
-                <?php endif; ?>
+                <?php  endif; ?>
             </div>
         </main>
     </div>
@@ -1158,7 +1165,7 @@ $sidebarAdminRole = ($adminUser && strtolower($adminUser['role'] ?? '') === 'adm
                         <div class="form-group">
                             <label for="birthdate">Date of Birth *</label>
                             <input type="date" id="birthdate" name="birthdate" class="form-control" required 
-                                   max="<?php echo date('Y-m-d'); ?>">
+                                   max="<?php  echo date('Y-m-d'); ?>">
                         </div>
                         <div class="form-group">
                             <label for="gender">Gender *</label>
@@ -1194,7 +1201,7 @@ $sidebarAdminRole = ($adminUser && strtolower($adminUser['role'] ?? '') === 'adm
                     </div>
                     
                     <input type="hidden" name="action" value="create_patient">
-                    <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
+                    <input type="hidden" name="csrf_token" value="<?php  echo $_SESSION['csrf_token']; ?>">
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn" id="cancel-add-patient">
@@ -1276,6 +1283,7 @@ $sidebarAdminRole = ($adminUser && strtolower($adminUser['role'] ?? '') === 'adm
             window.location.href = `?action=export_patients&${queryString}`;
         }
     </script>
+    <script>window.URL_ROOT = "<?php echo URL_ROOT; ?>";</script>
     <script src="../assets/js/admin-patient.js"></script>
 </body>
 </html>

@@ -1,4 +1,4 @@
-<?php
+<?php 
 session_start();
 require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../../src/Controllers/AdminServiceController.php';
@@ -118,7 +118,7 @@ $sidebarAdminRole = (strtolower($admin_role) === 'admin') ? 'Administrator' : uc
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin - Services Management - Cosmo Smiles Dental</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <?php include 'includes/admin-sidebar-css.php'; ?>
+    <?php  include 'includes/admin-sidebar-css.php'; ?>
     <style>        
         /* Buttons */
         .btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 24px; background: var(--secondary); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; transition: all 0.3s ease; font-family: "Open Sans", sans-serif; font-size: 0.9rem; white-space: nowrap; text-decoration: none; }
@@ -222,17 +222,17 @@ $sidebarAdminRole = (strtolower($admin_role) === 'admin') ? 'Administrator' : uc
     <!-- Overlay for mobile sidebar -->
     <div class="overlay"></div>
 
-    <?php include 'includes/admin-header.php'; ?>
+    <?php  include 'includes/admin-header.php'; ?>
 
     <div class="admin-container">
         <!-- Sidebar -->
-        <?php include 'includes/admin-sidebar.php'; ?>
+        <?php  include 'includes/admin-sidebar.php'; ?>
 
         <main class="admin-main">
             <div class="dashboard-header">
                 <div class="header-content">
                     <h1>Services Management</h1>
-                    <p>Manage dental treatments, pricing (₱), and availability</p>
+                    <p>Manage dental treatments, pricing (â‚±), and availability</p>
                 </div>
                 <div class="header-actions">
                     <div class="date-display">
@@ -251,28 +251,28 @@ $sidebarAdminRole = (strtolower($admin_role) === 'admin') ? 'Administrator' : uc
                     <div class="stat-icon"><i class="fas fa-teeth"></i></div>
                     <div class="stat-content">
                         <h3>Total Services</h3>
-                        <div class="stat-number"><?php echo isset($stats['total']) ? $stats['total'] : 0; ?></div>
+                        <div class="stat-number"><?php  echo isset($stats['total']) ? $stats['total'] : 0; ?></div>
                     </div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-icon" style="color:var(--success);"><i class="fas fa-check-circle"></i></div>
                     <div class="stat-content">
                         <h3>Active Services</h3>
-                        <div class="stat-number"><?php echo isset($stats['active']) ? $stats['active'] : 0; ?></div>
+                        <div class="stat-number"><?php  echo isset($stats['active']) ? $stats['active'] : 0; ?></div>
                     </div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-icon" style="color:var(--error);"><i class="fas fa-times-circle"></i></div>
                     <div class="stat-content">
                         <h3>Inactive</h3>
-                        <div class="stat-number"><?php echo isset($stats['inactive']) ? $stats['inactive'] : 0; ?></div>
+                        <div class="stat-number"><?php  echo isset($stats['inactive']) ? $stats['inactive'] : 0; ?></div>
                     </div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-icon" style="color:var(--warning);"><i class="fas fa-coins"></i></div>
                     <div class="stat-content">
                         <h3>Avg. Rate</h3>
-                        <div class="stat-number">₱<?php echo isset($stats['avg_price']) ? number_format($stats['avg_price'], 0) : 0; ?></div>
+                        <div class="stat-number">â‚±<?php  echo isset($stats['avg_price']) ? number_format($stats['avg_price'], 0) : 0; ?></div>
                     </div>
                 </div>
             </div>
@@ -281,14 +281,14 @@ $sidebarAdminRole = (strtolower($admin_role) === 'admin') ? 'Administrator' : uc
                 <form method="GET" class="filter-row">
                     <div class="filter-group">
                         <label>Search Service</label>
-                        <input type="text" name="search" class="filter-control" placeholder="Search by name..." value="<?php echo htmlspecialchars($search); ?>">
+                        <input type="text" name="search" class="filter-control" placeholder="Search by name..." value="<?php  echo htmlspecialchars($search); ?>">
                     </div>
                     <div class="filter-group">
                         <label>Status</label>
                         <select name="status" class="filter-control" onchange="this.form.submit()">
-                            <option value="all" <?php echo $status === 'all' ? 'selected' : ''; ?>>All Statuses</option>
-                            <option value="1" <?php echo $status === '1' ? 'selected' : ''; ?>>Active Only</option>
-                            <option value="0" <?php echo $status === '0' ? 'selected' : ''; ?>>Inactive Only</option>
+                            <option value="all" <?php  echo $status === 'all' ? 'selected' : ''; ?>>All Statuses</option>
+                            <option value="1" <?php  echo $status === '1' ? 'selected' : ''; ?>>Active Only</option>
+                            <option value="0" <?php  echo $status === '0' ? 'selected' : ''; ?>>Inactive Only</option>
                         </select>
                     </div>
                     <div class="filter-actions">
@@ -309,41 +309,41 @@ $sidebarAdminRole = (strtolower($admin_role) === 'admin') ? 'Administrator' : uc
                                 <th>Treatment Name</th>
                                 <th>Description</th>
                                 <th>Duration</th>
-                                <th>Rate (₱)</th>
+                                <th>Rate (â‚±)</th>
                                 <th>Status</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <?php if (empty($services)): ?>
+                            <?php  if (empty($services)): ?>
                             <tr><td colspan="6" style="text-align:center; padding:40px; color:#666;">No services found.</td></tr>
-                            <?php else: ?>
-                            <?php foreach ($services as $s): ?>
+                            <?php  else: ?>
+                            <?php  foreach ($services as $s): ?>
                             <tr>
-                                <td data-label="Treatment Name"><strong><?php echo htmlspecialchars($s['name']); ?></strong></td>
+                                <td data-label="Treatment Name"><strong><?php  echo htmlspecialchars($s['name']); ?></strong></td>
                                 <td data-label="Description">
-                                    <?php echo htmlspecialchars(substr($s['description'], 0, 100)) . (strlen($s['description']) > 100 ? '...' : ''); ?>
+                                    <?php  echo htmlspecialchars(substr($s['description'], 0, 100)) . (strlen($s['description']) > 100 ? '...' : ''); ?>
                                 </td>
-                                <td data-label="Duration"><i class="far fa-clock"></i> <?php echo $s['duration_minutes']; ?> mins</td>
-                                <td data-label="Rate (₱)"><strong>₱<?php echo number_format($s['price'], 2); ?></strong></td>
+                                <td data-label="Duration"><i class="far fa-clock"></i> <?php  echo $s['duration_minutes']; ?> mins</td>
+                                <td data-label="Rate (â‚±)"><strong>â‚±<?php  echo number_format($s['price'], 2); ?></strong></td>
                                 <td data-label="Status">
-                                    <span class="status-badge <?php echo $s['is_active'] ? 'status-active' : 'status-inactive'; ?>">
-                                        <?php echo $s['is_active'] ? 'Active' : 'Inactive'; ?>
+                                    <span class="status-badge <?php  echo $s['is_active'] ? 'status-active' : 'status-inactive'; ?>">
+                                        <?php  echo $s['is_active'] ? 'Active' : 'Inactive'; ?>
                                     </span>
                                 </td>
                                 <td data-label="Actions">
                                     <div style="display:flex; gap:10px; justify-content: flex-end;">
-                                        <button class="btn btn-sm" style="background:var(--light-accent); color:var(--secondary);" onclick='openModal("edit", <?php echo json_encode($s); ?>)'><i class="fas fa-edit"></i> Edit</button>
-                                        <?php if ($s['is_active']): ?>
-                                        <button class="btn btn-sm btn-warning" onclick="deactivateService(<?php echo $s['id']; ?>, '<?php echo addslashes($s['name']); ?>')"><i class="fas fa-ban"></i> Deactivate</button>
-                                        <?php else: ?>
-                                        <button class="btn btn-sm btn-success" onclick="activateService(<?php echo $s['id']; ?>, '<?php echo addslashes($s['name']); ?>')"><i class="fas fa-check-circle"></i> Activate</button>
-                                        <?php endif; ?>
+                                        <button class="btn btn-sm" style="background:var(--light-accent); color:var(--secondary);" onclick='openModal("edit", <?php  echo json_encode($s); ?>)'><i class="fas fa-edit"></i> Edit</button>
+                                        <?php  if ($s['is_active']): ?>
+                                        <button class="btn btn-sm btn-warning" onclick="deactivateService(<?php  echo $s['id']; ?>, '<?php  echo addslashes($s['name']); ?>')"><i class="fas fa-ban"></i> Deactivate</button>
+                                        <?php  else: ?>
+                                        <button class="btn btn-sm btn-success" onclick="activateService(<?php  echo $s['id']; ?>, '<?php  echo addslashes($s['name']); ?>')"><i class="fas fa-check-circle"></i> Activate</button>
+                                        <?php  endif; ?>
                                     </div>
                                 </td>
                             </tr>
-                            <?php endforeach; ?>
-                            <?php endif; ?>
+                            <?php  endforeach; ?>
+                            <?php  endif; ?>
                         </tbody>
                     </table>
                 </div>
@@ -379,7 +379,7 @@ $sidebarAdminRole = (strtolower($admin_role) === 'admin') ? 'Administrator' : uc
                             <input type="number" name="duration" id="service-duration" class="form-control" required min="5" step="5">
                         </div>
                         <div class="form-group">
-                            <label>Price (₱)</label>
+                            <label>Price (â‚±)</label>
                             <input type="number" name="price" id="service-price" class="form-control" required min="0" step="0.01">
                         </div>
                     </div>

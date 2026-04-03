@@ -64,6 +64,30 @@ function env($key, $default = null) {
     return $value;
 }
 
+
+/**
+ * Detect project root URL prefix (e.g., /Cosmo_Smiles_Dental_Clinic/)
+ */
+function getProjectRoot() {
+    $scriptName = $_SERVER['SCRIPT_NAME'] ?? '';
+    // If we're at /Cosmo_Smiles_Dental_Clinic/public/index.php,
+    // we want /Cosmo_Smiles_Dental_Clinic/
+    $publicPos = strpos($scriptName, '/public/');
+    if ($publicPos !== false) {
+        return substr($scriptName, 0, $publicPos + 1);
+    }
+    
+    // Fallback for root files (like setup.php or others)
+    $setupPos = strpos($scriptName, '/setup.php');
+    if ($setupPos !== false) {
+        return substr($scriptName, 0, $setupPos + 1);
+    }
+
+    return '/'; // Final fallback
+}
+
+define('URL_ROOT', getProjectRoot());
+
 // Auto-load .env from project root
 $envPath = __DIR__ . '/../.env';
 loadEnv($envPath);

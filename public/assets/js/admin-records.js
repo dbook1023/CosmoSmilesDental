@@ -1227,6 +1227,38 @@ createRecordBtn.addEventListener('click', () => {
     }
 });
 
+// Auto-fill form when appointment is selected from dropdown
+const aptSelect = document.getElementById('completed-appointment-select');
+if (aptSelect) {
+    aptSelect.addEventListener('change', function() {
+        const selectedId = this.value;
+        if (!selectedId) {
+            // Reset to current time if no appointment selected
+            const now = new Date();
+            document.getElementById('record-date').value = now.toISOString().split('T')[0];
+            document.getElementById('record-time').value = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+            document.getElementById('record-duration').value = '';
+            document.getElementById('record-procedure').value = '';
+            document.getElementById('record-appointment-id').value = '';
+            return;
+        }
+
+        const option = this.options[this.selectedIndex];
+        const date = option.getAttribute('data-date');
+        const time = option.getAttribute('data-time');
+        const duration = option.getAttribute('data-duration');
+        const service = option.getAttribute('data-service');
+
+        document.getElementById('record-date').value = date || '';
+        document.getElementById('record-time').value = time || '';
+        document.getElementById('record-duration').value = duration ? `${duration} minutes` : '';
+        document.getElementById('record-procedure').value = service || '';
+        document.getElementById('record-appointment-id').value = selectedId;
+
+        showNotification('info', 'Form Auto-filled', 'Record details have been populated from the selected appointment.');
+    });
+}
+
 // Open create record modal from empty state button
 emptyCreateBtn.addEventListener('click', () => {
     createRecordModal.classList.add('active');

@@ -602,7 +602,24 @@ function updateConfirmedTable() {
             <tr>
                 <td class="appointment-id">${appointment.appointment_id || 'N/A'}</td>
                 <td class="patient-id">${appointment.client_id || 'N/A'}</td>
-                <td class="patient-name">${appointment.patient || 'Unknown Patient'}</td>
+                <td class="patient-name">
+                    <div class="patient-info" style="display: flex; align-items: center; gap: 10px;">
+                        <div class="patient-avatar" style="width: 32px; height: 32px; flex-shrink: 0; border-radius: 50%; overflow: hidden; background-color: var(--light-accent); display: flex; align-items: center; justify-content: center;">
+                            ${(() => {
+                                let displayImage = appointment.patient_image || '';
+                                if (displayImage && !displayImage.includes('uploads/')) {
+                                    displayImage = 'uploads/avatar/' + displayImage;
+                                }
+                                return displayImage ? 
+                                '<img src="' + (window.URL_ROOT || '') + displayImage + '" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.onerror=null; this.parentElement.innerHTML=\'<i class=\\\'fas fa-user\\\' style=\\\'color: var(--secondary); font-size: 14px;\\\'></i>\';">' : 
+                                '<i class="fas fa-user" style="color: var(--secondary); font-size: 14px;"></i>';
+                            })()}
+                        </div>
+                        <div class="patient-details">
+                            <span style="font-weight: 500;">${appointment.patient || 'Unknown Patient'}</span>
+                        </div>
+                    </div>
+                </td>
                 <td class="appointment-date">${appointment.date_display || formatDateForDisplay(appointment.date)}</td>
                 <td class="appointment-time time-display-fix">${formatTimeForTable(appointment.time)}</td>
                 <td class="service-name">${appointment.service || 'Dental Service'}</td>
@@ -708,7 +725,24 @@ function updateCompletedTable() {
             <tr>
                 <td class="appointment-id">${appointment.appointment_id || 'N/A'}</td>
                 <td class="patient-id">${appointment.client_id || 'N/A'}</td>
-                <td class="patient-name">${appointment.patient || 'Unknown Patient'}</td>
+                <td class="patient-name">
+                    <div class="patient-info" style="display: flex; align-items: center; gap: 10px;">
+                        <div class="patient-avatar" style="width: 32px; height: 32px; flex-shrink: 0; border-radius: 50%; overflow: hidden; background-color: var(--light-accent); display: flex; align-items: center; justify-content: center;">
+                            ${(() => {
+                                let displayImage = appointment.patient_image || '';
+                                if (displayImage && !displayImage.includes('uploads/')) {
+                                    displayImage = 'uploads/avatar/' + displayImage;
+                                }
+                                return displayImage ? 
+                                '<img src="' + (window.URL_ROOT || '') + displayImage + '" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.onerror=null; this.parentElement.innerHTML=\'<i class=\\\'fas fa-user\\\' style=\\\'color: var(--secondary); font-size: 14px;\\\'></i>\';">' : 
+                                '<i class="fas fa-user" style="color: var(--secondary); font-size: 14px;"></i>';
+                            })()}
+                        </div>
+                        <div class="patient-details">
+                            <span style="font-weight: 500;">${appointment.patient || 'Unknown Patient'}</span>
+                        </div>
+                    </div>
+                </td>
                 <td class="appointment-date">${appointment.date_display || formatDateForDisplay(appointment.completed_date || appointment.date)}</td>
                 <td class="service-name">${appointment.service || 'Dental Service'}</td>
                 <td class="duration">${appointment.duration || 30} min</td>
@@ -863,7 +897,24 @@ function updateAllAppointmentsTable() {
             <tr>
                 <td class="appointment-id">${appointment.appointment_id || 'N/A'}</td>
                 <td class="patient-id">${appointment.client_id || 'N/A'}</td>
-                <td class="patient-name">${appointment.patient || 'Unknown Patient'}</td>
+                <td class="patient-name">
+                    <div class="patient-info" style="display: flex; align-items: center; gap: 10px;">
+                        <div class="patient-avatar" style="width: 32px; height: 32px; flex-shrink: 0; border-radius: 50%; overflow: hidden; background-color: var(--light-accent); display: flex; align-items: center; justify-content: center;">
+                            ${(() => {
+                                let displayImage = appointment.patient_image || '';
+                                if (displayImage && !displayImage.includes('uploads/')) {
+                                    displayImage = 'uploads/avatar/' + displayImage;
+                                }
+                                return displayImage ? 
+                                '<img src="' + (window.URL_ROOT || '') + displayImage + '" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.onerror=null; this.parentElement.innerHTML=\'<i class=\\\'fas fa-user\\\' style=\\\'color: var(--secondary); font-size: 14px;\\\'></i>\';">' : 
+                                '<i class="fas fa-user" style="color: var(--secondary); font-size: 14px;"></i>';
+                            })()}
+                        </div>
+                        <div class="patient-details">
+                            <span style="font-weight: 500;">${appointment.patient || 'Unknown Patient'}</span>
+                        </div>
+                    </div>
+                </td>
                 <td class="appointment-date">${appointment.date_display || formatDateForDisplay(appointment.date)}</td>
                 <td class="appointment-time time-display-fix">${formatTimeForTable(appointment.time)}</td>
                 <td class="service-name">${appointment.service || 'Dental Service'}</td>
@@ -1408,7 +1459,9 @@ function updateModalDetails(appointment) {
         }
     }
     document.getElementById('modalDentist').textContent = appointment.dentist || DENTIST_FULL_NAME;
-    document.getElementById('modalStatus').className = 'status-badge ' + (appointment.status || 'pending');
+    const modalStatus = document.getElementById('modalStatus');
+    modalStatus.className = 'status-badge ' + (appointment.status || 'pending');
+    modalStatus.textContent = (appointment.status || 'pending').charAt(0).toUpperCase() + (appointment.status || 'pending').slice(1).replace('_', ' ');
     document.getElementById('modalClientNotes').textContent = appointment.client_notes || 'No client notes';
     
     // Client Feedback Display

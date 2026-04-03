@@ -46,17 +46,19 @@ if ($userName && $userName !== 'My Account') {
                 <div class="user-menu">
                     <button class="user-btn">
                         <?php 
-                        $displayImage = $profileImage;
-                        if ($displayImage && strpos($displayImage, 'uploads/avatar/') === false) {
-                            $displayImage = 'uploads/avatar/' . $displayImage;
-                        }
-                        // Prepend ../../ to reach the root uploads folder from public/assets/
-                        if ($displayImage) {
-                            $displayImage = '../' . $displayImage;
-                        }
-                        ?>
+require_once __DIR__ . '/../../../config/env.php';
+
+$displayImage = $profileImage;
+if ($displayImage && strpos($displayImage, 'uploads/avatar/') === false) {
+    if (strpos($displayImage, 'avatar/') === 0) {
+        $displayImage = 'uploads/' . $displayImage;
+    } else {
+        $displayImage = 'uploads/avatar/' . $displayImage;
+    }
+}
+?>
                         <?php if ($isLoggedIn && $displayImage): ?>
-                            <img src="<?php echo $baseDir . $displayImage; ?>" 
+                            <img src="<?php echo URL_ROOT . $displayImage; ?>" 
                                  alt="Profile" 
                                  class="user-profile-img"
                                  id="headerAvatarImg"

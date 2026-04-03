@@ -119,10 +119,10 @@ try {
             __DIR__ . '/scripts/migrate_login_attempts.php',
             __DIR__ . '/scripts/migrate_request_logs.php',
             __DIR__ . '/scripts/migrate_notes.php',
-            __DIR__ . '/tmp/migrate_medical_history.php',
-            __DIR__ . '/tmp/migrate_records.php',
-            __DIR__ . '/tmp/migrate_medical_edit.php',
-            __DIR__ . '/tmp/migrate_medical_edit_requests.php'
+            __DIR__ . '/scripts/migrate_medical_history.php',
+            __DIR__ . '/scripts/migrate_records.php',
+            __DIR__ . '/scripts/migrate_medical_edit.php',
+            __DIR__ . '/scripts/migrate_medical_edit_requests.php'
         ];
 
         foreach ($migrationFiles as $file) {

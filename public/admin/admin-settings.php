@@ -1,4 +1,4 @@
-<?php
+<?php 
 session_start();
 require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../../src/Controllers/SiteContentController.php';
@@ -251,7 +251,7 @@ function iconOptions($selected = '') {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
-    <?php include 'includes/admin-sidebar-css.php'; ?>
+    <?php  include 'includes/admin-sidebar-css.php'; ?>
     <style>
         /* Essential Fonts and Variables */
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
@@ -429,11 +429,11 @@ function iconOptions($selected = '') {
     </style>
 </head>
 <body>
-    <?php include 'includes/admin-header.php'; ?>
+    <?php  include 'includes/admin-header.php'; ?>
     <div class="overlay"></div>
 
     <div class="admin-container">
-        <?php include 'includes/admin-sidebar.php'; ?>
+        <?php  include 'includes/admin-sidebar.php'; ?>
 
         <main class="admin-main">
             <div class="dashboard-header">
@@ -482,9 +482,9 @@ function iconOptions($selected = '') {
                         <div class="profile-gradient-card">
                             <div class="profile-icon-large"><i class="fas fa-user-shield"></i></div>
                             <div class="profile-info-large">
-                                <h2><?php echo str_replace('Dr. ', '', $adminName); ?></h2>
-                                <p><?php echo $adminRole; ?></p>
-                                <span>Administrator ID: #<?php echo htmlspecialchars($adminStaffId ?: str_pad($adminId, 4, '0', STR_PAD_LEFT)); ?></span>
+                                <h2><?php  echo str_replace('Dr. ', '', $adminName); ?></h2>
+                                <p><?php  echo $adminRole; ?></p>
+                                <span>Administrator ID: #<?php  echo htmlspecialchars($adminStaffId ?: str_pad($adminId, 4, '0', STR_PAD_LEFT)); ?></span>
                             </div>
                         </div>
 
@@ -495,32 +495,32 @@ function iconOptions($selected = '') {
                                 <div class="detail-table-row">
                                     <div class="detail-table-label"><i class="fas fa-user-tag"></i> Login Username</div>
                                     <div class="detail-table-value">
-                                        <input type="text" name="username" class="form-control" value="<?php echo htmlspecialchars($adminData['username'] ?? ''); ?>" required>
+                                        <input type="text" name="username" class="form-control" value="<?php  echo htmlspecialchars($adminData['username'] ?? ''); ?>" required>
                                     </div>
                                 </div>
                                 <div class="detail-table-row">
                                     <div class="detail-table-label"><i class="fas fa-id-card"></i> First Name</div>
                                     <div class="detail-table-value">
-                                        <input type="text" name="first_name" class="form-control" value="<?php echo htmlspecialchars($adminData['first_name'] ?? ''); ?>" required>
+                                        <input type="text" name="first_name" class="form-control" value="<?php  echo htmlspecialchars($adminData['first_name'] ?? ''); ?>" required>
                                     </div>
                                 </div>
                                 <div class="detail-table-row">
                                     <div class="detail-table-label"><i class="fas fa-id-card"></i> Last Name</div>
                                     <div class="detail-table-value">
-                                        <input type="text" name="last_name" class="form-control" value="<?php echo htmlspecialchars($adminData['last_name'] ?? ''); ?>" required>
+                                        <input type="text" name="last_name" class="form-control" value="<?php  echo htmlspecialchars($adminData['last_name'] ?? ''); ?>" required>
                                     </div>
                                 </div>
                                 <div class="detail-table-row">
                                     <div class="detail-table-label"><i class="fas fa-envelope"></i> Email Address</div>
                                     <div class="detail-table-value">
-                                        <input type="email" name="email" class="form-control" value="<?php echo htmlspecialchars($adminData['email'] ?? ''); ?>" required>
+                                        <input type="email" name="email" class="form-control" value="<?php  echo htmlspecialchars($adminData['email'] ?? ''); ?>" required>
                                         <small style="color: var(--secondary); margin-top: 5px; display: block;">Verification required for changes</small>
                                     </div>
                                 </div>
                                 <div class="detail-table-row">
                                     <div class="detail-table-label"><i class="fas fa-phone"></i> Phone Number</div>
                                     <div class="detail-table-value">
-                                        <input type="tel" name="phone" class="form-control" value="<?php echo htmlspecialchars($adminData['phone'] ?? ''); ?>" required>
+                                        <input type="tel" name="phone" class="form-control" value="<?php  echo htmlspecialchars($adminData['phone'] ?? ''); ?>" required>
                                         <small style="color: var(--secondary); margin-top: 5px; display: block;">Verification required for changes</small>
                                     </div>
                                 </div>
@@ -544,25 +544,25 @@ function iconOptions($selected = '') {
                                 <div class="detail-table-row">
                                     <div class="detail-table-label"><i class="fas fa-hospital"></i> Clinic Name</div>
                                     <div class="detail-table-value">
-                                        <input type="text" name="name" class="form-control" value="<?php echo htmlspecialchars($clinicInfo['name']); ?>" required>
+                                        <input type="text" name="name" class="form-control" value="<?php  echo htmlspecialchars($clinicInfo['name']); ?>" required>
                                     </div>
                                 </div>
                                 <div class="detail-table-row">
                                     <div class="detail-table-label"><i class="fas fa-map-marker-alt"></i> Address</div>
                                     <div class="detail-table-value">
-                                        <input type="text" name="address" class="form-control" value="<?php echo htmlspecialchars($clinicInfo['address']); ?>" required>
+                                        <input type="text" name="address" class="form-control" value="<?php  echo htmlspecialchars($clinicInfo['address']); ?>" required>
                                     </div>
                                 </div>
                                 <div class="detail-table-row">
                                     <div class="detail-table-label"><i class="fas fa-envelope"></i> Public Email</div>
                                     <div class="detail-table-value">
-                                        <input type="email" name="email" class="form-control" value="<?php echo htmlspecialchars($clinicInfo['email']); ?>" required>
+                                        <input type="email" name="email" class="form-control" value="<?php  echo htmlspecialchars($clinicInfo['email']); ?>" required>
                                     </div>
                                 </div>
                                 <div class="detail-table-row">
                                     <div class="detail-table-label"><i class="fas fa-phone"></i> Public Phone</div>
                                     <div class="detail-table-value">
-                                        <input type="tel" name="phone" class="form-control" value="<?php echo htmlspecialchars($clinicInfo['phone']); ?>" required pattern="^(\+?\d{1,3}[- ]?)?\d{10,11}$">
+                                        <input type="tel" name="phone" class="form-control" value="<?php  echo htmlspecialchars($clinicInfo['phone']); ?>" required pattern="^(\+?\d{1,3}[- ]?)?\d{10,11}$">
                                     </div>
                                 </div>
                                 <div style="padding: 20px; text-align: right;">
@@ -595,47 +595,47 @@ function iconOptions($selected = '') {
                                 <div class="detail-table-row">
                                     <div class="detail-table-label">Hero Title</div>
                                     <div class="detail-table-value">
-                                        <input type="text" name="content[hero_title]" class="form-control" value="<?php echo htmlspecialchars($homeContent['hero_title'] ?? 'Get a Beautiful Smile'); ?>">
+                                        <input type="text" name="content[hero_title]" class="form-control" value="<?php  echo htmlspecialchars($homeContent['hero_title'] ?? 'Get a Beautiful Smile'); ?>">
                                     </div>
                                 </div>
                                 <div class="detail-table-row">
                                     <div class="detail-table-label">Hero Subtitle</div>
                                     <div class="detail-table-value">
-                                        <textarea name="content[hero_subtitle]" class="form-control"><?php echo htmlspecialchars($homeContent['hero_subtitle'] ?? 'Professional dental care you can trust.'); ?></textarea>
+                                        <textarea name="content[hero_subtitle]" class="form-control"><?php  echo htmlspecialchars($homeContent['hero_subtitle'] ?? 'Professional dental care you can trust.'); ?></textarea>
                                     </div>
                                 </div>
                                 <div class="detail-table-row">
                                     <div class="detail-table-label">Hero Background Image</div>
                                     <div class="detail-table-value">
                                         <input type="file" name="images[hero_bg_image]" accept="image/*" class="form-control">
-                                        <?php if(!empty($homeContent['hero_bg_image'])): ?>
-                                            <img src="/Cosmo_Smiles_Dental_Clinic/public<?php echo $homeContent['hero_bg_image']; ?>" class="image-preview" style="object-fit: cover;">
-                                        <?php endif; ?>
+                                        <?php  if(!empty($homeContent['hero_bg_image'])): ?>
+                                            <img src="/Cosmo_Smiles_Dental_Clinic/public<?php  echo $homeContent['hero_bg_image']; ?>" class="image-preview" style="object-fit: cover;">
+                                        <?php  endif; ?>
                                     </div>
                                 </div>
                             </div>
                             <div class="detail-table" style="margin-top: 30px;">
                                 <div class="detail-table-header" style="display:flex;justify-content:space-between;align-items:center;"><h4>Premium Services Highlights (Home)</h4><small style="color:#718096;">Max 6 cards</small></div>
                                 <div id="promo-cards-container">
-                                <?php for($i=1; $i<=6; $i++): ?>
-                                    <?php $hasData = !empty($homeContent['promo_'.$i.'_title']); ?>
-                                    <div class="dynamic-card-group" data-card-index="<?php echo $i; ?>" style="<?php echo (!$hasData && $i > 1) ? 'display:none;' : ''; ?>">
+                                <?php  for($i=1; $i<=6; $i++): ?>
+                                    <?php  $hasData = !empty($homeContent['promo_'.$i.'_title']); ?>
+                                    <div class="dynamic-card-group" data-card-index="<?php  echo $i; ?>" style="<?php  echo (!$hasData && $i > 1) ? 'display:none;' : ''; ?>">
                                         <button type="button" class="btn-remove-card" onclick="removeCard(this)"><i class="fas fa-times"></i> Remove</button>
                                         <div class="detail-table-row">
-                                            <div class="detail-table-label">Highlight Card <?php echo $i; ?></div>
+                                            <div class="detail-table-label">Highlight Card <?php  echo $i; ?></div>
                                             <div class="detail-table-value" style="display: grid; gap: 10px;">
-                                                <input type="text" name="content[promo_<?php echo $i; ?>_title]" class="form-control" placeholder="Title" value="<?php echo htmlspecialchars($homeContent['promo_'.$i.'_title'] ?? ''); ?>">
-                                                <textarea name="content[promo_<?php echo $i; ?>_desc]" class="form-control" placeholder="Description"><?php echo htmlspecialchars($homeContent['promo_'.$i.'_desc'] ?? ''); ?></textarea>
+                                                <input type="text" name="content[promo_<?php  echo $i; ?>_title]" class="form-control" placeholder="Title" value="<?php  echo htmlspecialchars($homeContent['promo_'.$i.'_title'] ?? ''); ?>">
+                                                <textarea name="content[promo_<?php  echo $i; ?>_desc]" class="form-control" placeholder="Description"><?php  echo htmlspecialchars($homeContent['promo_'.$i.'_desc'] ?? ''); ?></textarea>
                                                 <div class="icon-select-wrap">
-                                                    <span class="icon-select-preview"><i class="<?php echo htmlspecialchars($homeContent['promo_'.$i.'_icon'] ?? 'fas fa-star'); ?>"></i></span>
-                                                    <select name="content[promo_<?php echo $i; ?>_icon]" class="form-control icon-dropdown" onchange="updateIconPreview(this)">
-                                                        <?php echo iconOptions($homeContent['promo_'.$i.'_icon'] ?? ''); ?>
+                                                    <span class="icon-select-preview"><i class="<?php  echo htmlspecialchars($homeContent['promo_'.$i.'_icon'] ?? 'fas fa-star'); ?>"></i></span>
+                                                    <select name="content[promo_<?php  echo $i; ?>_icon]" class="form-control icon-dropdown" onchange="updateIconPreview(this)">
+                                                        <?php  echo iconOptions($homeContent['promo_'.$i.'_icon'] ?? ''); ?>
                                                     </select>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-                                <?php endfor; ?>
+                                <?php  endfor; ?>
                                 </div>
                                 <button type="button" class="btn-add-card" onclick="addCard('promo-cards-container', 6)"><i class="fas fa-plus"></i> Add Promo Card</button>
                             </div>
@@ -643,25 +643,25 @@ function iconOptions($selected = '') {
                             <div class="detail-table" style="margin-top: 30px;">
                                 <div class="detail-table-header" style="display:flex;justify-content:space-between;align-items:center;"><h4>The Cosmo Advantage (Home)</h4><small style="color:#718096;">Max 6 items</small></div>
                                 <div id="why-cards-container">
-                                <?php for($i=1; $i<=6; $i++): ?>
-                                    <?php $hasData = !empty($homeContent['why_'.$i.'_title']); ?>
-                                    <div class="dynamic-card-group" data-card-index="<?php echo $i; ?>" style="<?php echo (!$hasData && $i > 1) ? 'display:none;' : ''; ?>">
+                                <?php  for($i=1; $i<=6; $i++): ?>
+                                    <?php  $hasData = !empty($homeContent['why_'.$i.'_title']); ?>
+                                    <div class="dynamic-card-group" data-card-index="<?php  echo $i; ?>" style="<?php  echo (!$hasData && $i > 1) ? 'display:none;' : ''; ?>">
                                         <button type="button" class="btn-remove-card" onclick="removeCard(this)"><i class="fas fa-times"></i> Remove</button>
                                         <div class="detail-table-row">
-                                            <div class="detail-table-label">Advantage Item <?php echo $i; ?></div>
+                                            <div class="detail-table-label">Advantage Item <?php  echo $i; ?></div>
                                             <div class="detail-table-value" style="display: grid; gap: 10px;">
-                                                <input type="text" name="content[why_<?php echo $i; ?>_title]" class="form-control" placeholder="Title" value="<?php echo htmlspecialchars($homeContent['why_'.$i.'_title'] ?? ''); ?>">
-                                                <textarea name="content[why_<?php echo $i; ?>_desc]" class="form-control" placeholder="Description"><?php echo htmlspecialchars($homeContent['why_'.$i.'_desc'] ?? ''); ?></textarea>
+                                                <input type="text" name="content[why_<?php  echo $i; ?>_title]" class="form-control" placeholder="Title" value="<?php  echo htmlspecialchars($homeContent['why_'.$i.'_title'] ?? ''); ?>">
+                                                <textarea name="content[why_<?php  echo $i; ?>_desc]" class="form-control" placeholder="Description"><?php  echo htmlspecialchars($homeContent['why_'.$i.'_desc'] ?? ''); ?></textarea>
                                                 <div class="icon-select-wrap">
-                                                    <span class="icon-select-preview"><i class="<?php echo htmlspecialchars($homeContent['why_'.$i.'_icon'] ?? 'fas fa-star'); ?>"></i></span>
-                                                    <select name="content[why_<?php echo $i; ?>_icon]" class="form-control icon-dropdown" onchange="updateIconPreview(this)">
-                                                        <?php echo iconOptions($homeContent['why_'.$i.'_icon'] ?? ''); ?>
+                                                    <span class="icon-select-preview"><i class="<?php  echo htmlspecialchars($homeContent['why_'.$i.'_icon'] ?? 'fas fa-star'); ?>"></i></span>
+                                                    <select name="content[why_<?php  echo $i; ?>_icon]" class="form-control icon-dropdown" onchange="updateIconPreview(this)">
+                                                        <?php  echo iconOptions($homeContent['why_'.$i.'_icon'] ?? ''); ?>
                                                     </select>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-                                <?php endfor; ?>
+                                <?php  endfor; ?>
                                 </div>
                                 <button type="button" class="btn-add-card" onclick="addCard('why-cards-container', 6)"><i class="fas fa-plus"></i> Add Reason Card</button>
                             </div>
@@ -669,27 +669,27 @@ function iconOptions($selected = '') {
                             <div class="detail-table" style="margin-top: 30px;">
                                 <div class="detail-table-header" style="display:flex;justify-content:space-between;align-items:center;"><h4>Our Care Team (Home)</h4><small style="color:#718096;">Max 6 members</small></div>
                                 <div id="team-cards-container">
-                                <?php for($i=1; $i<=6; $i++): ?>
-                                    <?php $hasData = !empty($homeContent['team_'.$i.'_name']); ?>
-                                    <div class="dynamic-card-group" data-card-index="<?php echo $i; ?>" style="<?php echo (!$hasData && $i > 1) ? 'display:none;' : ''; ?>">
+                                <?php  for($i=1; $i<=6; $i++): ?>
+                                    <?php  $hasData = !empty($homeContent['team_'.$i.'_name']); ?>
+                                    <div class="dynamic-card-group" data-card-index="<?php  echo $i; ?>" style="<?php  echo (!$hasData && $i > 1) ? 'display:none;' : ''; ?>">
                                         <button type="button" class="btn-remove-card" onclick="removeCard(this)"><i class="fas fa-times"></i> Remove</button>
                                         <div class="detail-table-row">
-                                            <div class="detail-table-label">Team Specialist <?php echo $i; ?></div>
+                                            <div class="detail-table-label">Team Specialist <?php  echo $i; ?></div>
                                             <div class="detail-table-value" style="display: grid; gap: 10px;">
-                                                <input type="text" name="content[team_<?php echo $i; ?>_name]" class="form-control" placeholder="Full Name" value="<?php echo htmlspecialchars($homeContent['team_'.$i.'_name'] ?? ''); ?>">
-                                                <input type="text" name="content[team_<?php echo $i; ?>_role]" class="form-control" placeholder="Role / Specialization" value="<?php echo htmlspecialchars($homeContent['team_'.$i.'_role'] ?? ''); ?>">
-                                                <textarea name="content[team_<?php echo $i; ?>_desc]" class="form-control" placeholder="Short Bio"><?php echo htmlspecialchars($homeContent['team_'.$i.'_desc'] ?? ''); ?></textarea>
+                                                <input type="text" name="content[team_<?php  echo $i; ?>_name]" class="form-control" placeholder="Full Name" value="<?php  echo htmlspecialchars($homeContent['team_'.$i.'_name'] ?? ''); ?>">
+                                                <input type="text" name="content[team_<?php  echo $i; ?>_role]" class="form-control" placeholder="Role / Specialization" value="<?php  echo htmlspecialchars($homeContent['team_'.$i.'_role'] ?? ''); ?>">
+                                                <textarea name="content[team_<?php  echo $i; ?>_desc]" class="form-control" placeholder="Short Bio"><?php  echo htmlspecialchars($homeContent['team_'.$i.'_desc'] ?? ''); ?></textarea>
                                                 <div style="margin-top: 5px; background: #f8fafc; padding: 10px; border-radius: 8px;">
                                                     <label style="display:block; margin-bottom:5px; font-weight:600; font-size:0.85em;">Profile Image</label>
-                                                    <input type="file" name="images[team_<?php echo $i; ?>_img]" accept="image/*" class="form-control">
-                                                    <?php if (!empty($homeContent['team_'.$i.'_img'])): ?>
-                                                        <img src="/Cosmo_Smiles_Dental_Clinic/public<?php echo htmlspecialchars($homeContent['team_'.$i.'_img']); ?>" class="image-preview" style="object-fit: cover;">
-                                                    <?php endif; ?>
+                                                    <input type="file" name="images[team_<?php  echo $i; ?>_img]" accept="image/*" class="form-control">
+                                                    <?php  if (!empty($homeContent['team_'.$i.'_img'])): ?>
+                                                        <img src="/Cosmo_Smiles_Dental_Clinic/public<?php  echo htmlspecialchars($homeContent['team_'.$i.'_img']); ?>" class="image-preview" style="object-fit: cover;">
+                                                    <?php  endif; ?>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-                                <?php endfor; ?>
+                                <?php  endfor; ?>
                                 </div>
                                 <button type="button" class="btn-add-card" onclick="addCard('team-cards-container', 6)"><i class="fas fa-plus"></i> Add Specialist Card</button>
                             </div>
@@ -699,19 +699,19 @@ function iconOptions($selected = '') {
                                 <div class="detail-table-row">
                                     <div class="detail-table-label">Weekday Hours</div>
                                     <div class="detail-table-value">
-                                        <input type="text" name="content[hours_week]" class="form-control" placeholder="e.g. Mon - Fri: 8:00 AM - 6:00 PM" value="<?php echo htmlspecialchars($homeContent['hours_week'] ?? '8:00 AM - 6:00 PM'); ?>">
+                                        <input type="text" name="content[hours_week]" class="form-control" placeholder="e.g. Mon - Fri: 8:00 AM - 6:00 PM" value="<?php  echo htmlspecialchars($homeContent['hours_week'] ?? '8:00 AM - 6:00 PM'); ?>">
                                     </div>
                                 </div>
                                 <div class="detail-table-row">
                                     <div class="detail-table-label">Saturday Hours</div>
                                     <div class="detail-table-value">
-                                        <input type="text" name="content[hours_sat]" class="form-control" placeholder="e.g. 9:00 AM - 3:00 PM" value="<?php echo htmlspecialchars($homeContent['hours_sat'] ?? '9:00 AM - 3:00 PM'); ?>">
+                                        <input type="text" name="content[hours_sat]" class="form-control" placeholder="e.g. 9:00 AM - 3:00 PM" value="<?php  echo htmlspecialchars($homeContent['hours_sat'] ?? '9:00 AM - 3:00 PM'); ?>">
                                     </div>
                                 </div>
                                 <div class="detail-table-row">
                                     <div class="detail-table-label">Sunday Hours</div>
                                     <div class="detail-table-value">
-                                        <input type="text" name="content[hours_sun]" class="form-control" placeholder="e.g. Closed" value="<?php echo htmlspecialchars($homeContent['hours_sun'] ?? 'No Clinic Operations'); ?>">
+                                        <input type="text" name="content[hours_sun]" class="form-control" placeholder="e.g. Closed" value="<?php  echo htmlspecialchars($homeContent['hours_sun'] ?? 'No Clinic Operations'); ?>">
                                     </div>
                                 </div>
                             </div>
@@ -729,48 +729,48 @@ function iconOptions($selected = '') {
                                 <div class="detail-table-row">
                                     <div class="detail-table-label">Established Tag</div>
                                     <div class="detail-table-value">
-                                        <input type="text" name="content[about_tag]" class="form-control" placeholder="e.g. Established 2018" value="<?php echo htmlspecialchars($aboutContent['about_tag'] ?? 'Established 2018'); ?>">
+                                        <input type="text" name="content[about_tag]" class="form-control" placeholder="e.g. Established 2018" value="<?php  echo htmlspecialchars($aboutContent['about_tag'] ?? 'Established 2018'); ?>">
                                     </div>
                                 </div>
                                 <div class="detail-table-row">
                                     <div class="detail-table-label">Headline</div>
                                     <div class="detail-table-value">
-                                        <input type="text" name="content[about_title]" class="form-control" value="<?php echo htmlspecialchars($aboutContent['about_title'] ?? 'Pioneering Modern Family Dentistry'); ?>">
+                                        <input type="text" name="content[about_title]" class="form-control" value="<?php  echo htmlspecialchars($aboutContent['about_title'] ?? 'Pioneering Modern Family Dentistry'); ?>">
                                     </div>
                                 </div>
                                 <div class="detail-table-row">
                                     <div class="detail-table-label">Description</div>
                                     <div class="detail-table-value">
-                                        <textarea name="content[about_description]" class="form-control" style="min-height:200px;"><?php echo htmlspecialchars($aboutContent['about_description'] ?? ''); ?></textarea>
+                                        <textarea name="content[about_description]" class="form-control" style="min-height:200px;"><?php  echo htmlspecialchars($aboutContent['about_description'] ?? ''); ?></textarea>
                                     </div>
                                 </div>
                                 <div class="detail-table-row">
                                     <div class="detail-table-label">Who We Are Photo</div>
                                     <div class="detail-table-value">
                                         <input type="file" name="images[about_img]" accept="image/*" class="form-control">
-                                        <?php if(!empty($aboutContent['about_img'])): ?>
-                                            <img src="/Cosmo_Smiles_Dental_Clinic/public<?php echo $aboutContent['about_img']; ?>" class="image-preview" style="object-fit: cover;">
-                                        <?php endif; ?>
+                                        <?php  if(!empty($aboutContent['about_img'])): ?>
+                                            <img src="/Cosmo_Smiles_Dental_Clinic/public<?php  echo $aboutContent['about_img']; ?>" class="image-preview" style="object-fit: cover;">
+                                        <?php  endif; ?>
                                     </div>
                                 </div>
                             </div>
                             <div class="detail-table" style="margin-top: 30px;">
                                 <div class="detail-table-header"><h4>Clinic Performance Stats (About)</h4></div>
-                                <?php for($i=1; $i<=2; $i++): ?>
+                                <?php  for($i=1; $i<=2; $i++): ?>
                                 <div class="detail-table-row">
-                                    <div class="detail-table-label">Stat <?php echo $i; ?></div>
+                                    <div class="detail-table-label">Stat <?php  echo $i; ?></div>
                                     <div class="detail-table-value" style="display: grid; gap: 10px;">
-                                        <input type="text" name="content[stat_<?php echo $i; ?>_num]" class="form-control" placeholder="Number (e.g. 12k+)" value="<?php echo htmlspecialchars($aboutContent['stat_'.$i.'_num'] ?? ''); ?>">
-                                        <input type="text" name="content[stat_<?php echo $i; ?>_label]" class="form-control" placeholder="Label (e.g. Transformations)" value="<?php echo htmlspecialchars($aboutContent['stat_'.$i.'_label'] ?? ''); ?>">
+                                        <input type="text" name="content[stat_<?php  echo $i; ?>_num]" class="form-control" placeholder="Number (e.g. 12k+)" value="<?php  echo htmlspecialchars($aboutContent['stat_'.$i.'_num'] ?? ''); ?>">
+                                        <input type="text" name="content[stat_<?php  echo $i; ?>_label]" class="form-control" placeholder="Label (e.g. Transformations)" value="<?php  echo htmlspecialchars($aboutContent['stat_'.$i.'_label'] ?? ''); ?>">
                                         <div class="icon-select-wrap">
-                                            <span class="icon-select-preview"><i class="<?php echo htmlspecialchars($aboutContent['stat_'.$i.'_icon'] ?? 'fas fa-star'); ?>"></i></span>
-                                            <select name="content[stat_<?php echo $i; ?>_icon]" class="form-control icon-dropdown" onchange="updateIconPreview(this)">
-                                                <?php echo iconOptions($aboutContent['stat_'.$i.'_icon'] ?? ''); ?>
+                                            <span class="icon-select-preview"><i class="<?php  echo htmlspecialchars($aboutContent['stat_'.$i.'_icon'] ?? 'fas fa-star'); ?>"></i></span>
+                                            <select name="content[stat_<?php  echo $i; ?>_icon]" class="form-control icon-dropdown" onchange="updateIconPreview(this)">
+                                                <?php  echo iconOptions($aboutContent['stat_'.$i.'_icon'] ?? ''); ?>
                                             </select>
                                         </div>
                                     </div>
                                 </div>
-                                <?php endfor; ?>
+                                <?php  endfor; ?>
                             </div>
 
                             <div class="detail-table" style="margin-top: 30px;">
@@ -778,12 +778,12 @@ function iconOptions($selected = '') {
                                 <div class="detail-table-row">
                                     <div class="detail-table-label">The Vision</div>
                                     <div class="detail-table-value" style="display: grid; gap: 10px;">
-                                        <input type="text" name="content[vision_title]" class="form-control" placeholder="Title" value="<?php echo htmlspecialchars($aboutContent['vision_title'] ?? 'The Vision'); ?>">
-                                        <textarea name="content[vision_desc]" class="form-control" placeholder="Vision Statement"><?php echo htmlspecialchars($aboutContent['vision_desc'] ?? ''); ?></textarea>
+                                        <input type="text" name="content[vision_title]" class="form-control" placeholder="Title" value="<?php  echo htmlspecialchars($aboutContent['vision_title'] ?? 'The Vision'); ?>">
+                                        <textarea name="content[vision_desc]" class="form-control" placeholder="Vision Statement"><?php  echo htmlspecialchars($aboutContent['vision_desc'] ?? ''); ?></textarea>
                                         <div class="icon-select-wrap">
-                                            <span class="icon-select-preview"><i class="<?php echo htmlspecialchars($aboutContent['vision_icon'] ?? 'fas fa-eye'); ?>"></i></span>
+                                            <span class="icon-select-preview"><i class="<?php  echo htmlspecialchars($aboutContent['vision_icon'] ?? 'fas fa-eye'); ?>"></i></span>
                                             <select name="content[vision_icon]" class="form-control icon-dropdown" onchange="updateIconPreview(this)">
-                                                <?php echo iconOptions($aboutContent['vision_icon'] ?? 'fas fa-eye'); ?>
+                                                <?php  echo iconOptions($aboutContent['vision_icon'] ?? 'fas fa-eye'); ?>
                                             </select>
                                         </div>
                                     </div>
@@ -791,12 +791,12 @@ function iconOptions($selected = '') {
                                 <div class="detail-table-row">
                                     <div class="detail-table-label">The Mission</div>
                                     <div class="detail-table-value" style="display: grid; gap: 10px;">
-                                        <input type="text" name="content[mission_title]" class="form-control" placeholder="Title" value="<?php echo htmlspecialchars($aboutContent['mission_title'] ?? 'The Mission'); ?>">
-                                        <textarea name="content[mission_desc]" class="form-control" placeholder="Mission Statement"><?php echo htmlspecialchars($aboutContent['mission_desc'] ?? ''); ?></textarea>
+                                        <input type="text" name="content[mission_title]" class="form-control" placeholder="Title" value="<?php  echo htmlspecialchars($aboutContent['mission_title'] ?? 'The Mission'); ?>">
+                                        <textarea name="content[mission_desc]" class="form-control" placeholder="Mission Statement"><?php  echo htmlspecialchars($aboutContent['mission_desc'] ?? ''); ?></textarea>
                                         <div class="icon-select-wrap">
-                                            <span class="icon-select-preview"><i class="<?php echo htmlspecialchars($aboutContent['mission_icon'] ?? 'fas fa-bullseye'); ?>"></i></span>
+                                            <span class="icon-select-preview"><i class="<?php  echo htmlspecialchars($aboutContent['mission_icon'] ?? 'fas fa-bullseye'); ?>"></i></span>
                                             <select name="content[mission_icon]" class="form-control icon-dropdown" onchange="updateIconPreview(this)">
-                                                <?php echo iconOptions($aboutContent['mission_icon'] ?? 'fas fa-bullseye'); ?>
+                                                <?php  echo iconOptions($aboutContent['mission_icon'] ?? 'fas fa-bullseye'); ?>
                                             </select>
                                         </div>
                                     </div>
@@ -806,25 +806,25 @@ function iconOptions($selected = '') {
                             <div class="detail-table" style="margin-top: 30px;">
                                 <div class="detail-table-header" style="display:flex;justify-content:space-between;align-items:center;"><h4>The Principles We Uphold (About)</h4><small style="color:#718096;">Max 6 pillars</small></div>
                                 <div id="value-cards-container">
-                                <?php for($i=1; $i<=6; $i++): ?>
-                                    <?php $hasData = !empty($aboutContent['value_'.$i.'_title']); ?>
-                                    <div class="dynamic-card-group" data-card-index="<?php echo $i; ?>" style="<?php echo (!$hasData && $i > 4) ? 'display:none;' : ''; ?>">
+                                <?php  for($i=1; $i<=6; $i++): ?>
+                                    <?php  $hasData = !empty($aboutContent['value_'.$i.'_title']); ?>
+                                    <div class="dynamic-card-group" data-card-index="<?php  echo $i; ?>" style="<?php  echo (!$hasData && $i > 4) ? 'display:none;' : ''; ?>">
                                         <button type="button" class="btn-remove-card" onclick="removeCard(this)"><i class="fas fa-times"></i> Remove</button>
                                         <div class="detail-table-row">
-                                            <div class="detail-table-label">Philosophy Pillar <?php echo $i; ?></div>
+                                            <div class="detail-table-label">Philosophy Pillar <?php  echo $i; ?></div>
                                             <div class="detail-table-value" style="display: grid; gap: 10px;">
-                                                <input type="text" name="content[value_<?php echo $i; ?>_title]" class="form-control" placeholder="Title" value="<?php echo htmlspecialchars($aboutContent['value_'.$i.'_title'] ?? ''); ?>">
-                                                <textarea name="content[value_<?php echo $i; ?>_desc]" class="form-control" placeholder="Description"><?php echo htmlspecialchars($aboutContent['value_'.$i.'_desc'] ?? ''); ?></textarea>
+                                                <input type="text" name="content[value_<?php  echo $i; ?>_title]" class="form-control" placeholder="Title" value="<?php  echo htmlspecialchars($aboutContent['value_'.$i.'_title'] ?? ''); ?>">
+                                                <textarea name="content[value_<?php  echo $i; ?>_desc]" class="form-control" placeholder="Description"><?php  echo htmlspecialchars($aboutContent['value_'.$i.'_desc'] ?? ''); ?></textarea>
                                                 <div class="icon-select-wrap">
-                                                    <span class="icon-select-preview"><i class="<?php echo htmlspecialchars($aboutContent['value_'.$i.'_icon'] ?? 'fas fa-star'); ?>"></i></span>
-                                                    <select name="content[value_<?php echo $i; ?>_icon]" class="form-control icon-dropdown" onchange="updateIconPreview(this)">
-                                                        <?php echo iconOptions($aboutContent['value_'.$i.'_icon'] ?? ''); ?>
+                                                    <span class="icon-select-preview"><i class="<?php  echo htmlspecialchars($aboutContent['value_'.$i.'_icon'] ?? 'fas fa-star'); ?>"></i></span>
+                                                    <select name="content[value_<?php  echo $i; ?>_icon]" class="form-control icon-dropdown" onchange="updateIconPreview(this)">
+                                                        <?php  echo iconOptions($aboutContent['value_'.$i.'_icon'] ?? ''); ?>
                                                     </select>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-                                <?php endfor; ?>
+                                <?php  endfor; ?>
                                 </div>
                                 <button type="button" class="btn-add-card" onclick="addCard('value-cards-container', 6)"><i class="fas fa-plus"></i> Add Value Pillar</button>
                             </div>
@@ -843,38 +843,38 @@ function iconOptions($selected = '') {
                                 <div class="detail-table-row">
                                     <div class="detail-table-label">Header Title</div>
                                     <div class="detail-table-value">
-                                        <input type="text" name="content[services_title]" class="form-control" value="<?php echo htmlspecialchars($servicesContent['services_title'] ?? 'Our Premium Services'); ?>">
+                                        <input type="text" name="content[services_title]" class="form-control" value="<?php  echo htmlspecialchars($servicesContent['services_title'] ?? 'Our Premium Services'); ?>">
                                     </div>
                                 </div>
                                 <div class="detail-table-row">
                                     <div class="detail-table-label">Header Subtitle</div>
                                     <div class="detail-table-value">
-                                        <textarea name="content[services_subtitle]" class="form-control"><?php echo htmlspecialchars($servicesContent['services_subtitle'] ?? 'Comprehensive care for your family.'); ?></textarea>
+                                        <textarea name="content[services_subtitle]" class="form-control"><?php  echo htmlspecialchars($servicesContent['services_subtitle'] ?? 'Comprehensive care for your family.'); ?></textarea>
                                     </div>
                                 </div>
                             </div>
                             <div class="detail-table" style="margin-top: 30px;">
                                 <div class="detail-table-header" style="display:flex;justify-content:space-between;align-items:center;"><h4>World-Class Dental Solutions (Services)</h4><small style="color:#718096;">Max 6 items</small></div>
                                 <div id="service-cards-container">
-                                <?php for($i=1; $i<=6; $i++): ?>
-                                    <?php $hasData = !empty($servicesContent['service_'.$i.'_title']); ?>
-                                    <div class="dynamic-card-group" data-card-index="<?php echo $i; ?>" style="<?php echo (!$hasData && $i > 3) ? 'display:none;' : ''; ?>">
+                                <?php  for($i=1; $i<=6; $i++): ?>
+                                    <?php  $hasData = !empty($servicesContent['service_'.$i.'_title']); ?>
+                                    <div class="dynamic-card-group" data-card-index="<?php  echo $i; ?>" style="<?php  echo (!$hasData && $i > 3) ? 'display:none;' : ''; ?>">
                                         <button type="button" class="btn-remove-card" onclick="removeCard(this)"><i class="fas fa-times"></i> Remove</button>
                                         <div class="detail-table-row">
-                                            <div class="detail-table-label">Service Link <?php echo $i; ?></div>
+                                            <div class="detail-table-label">Service Link <?php  echo $i; ?></div>
                                             <div class="detail-table-value" style="display: grid; gap: 10px;">
-                                                <input type="text" name="content[service_<?php echo $i; ?>_title]" class="form-control" placeholder="Title" value="<?php echo htmlspecialchars($servicesContent['service_'.$i.'_title'] ?? ''); ?>">
-                                                <textarea name="content[service_<?php echo $i; ?>_desc]" class="form-control" placeholder="Description"><?php echo htmlspecialchars($servicesContent['service_'.$i.'_desc'] ?? ''); ?></textarea>
+                                                <input type="text" name="content[service_<?php  echo $i; ?>_title]" class="form-control" placeholder="Title" value="<?php  echo htmlspecialchars($servicesContent['service_'.$i.'_title'] ?? ''); ?>">
+                                                <textarea name="content[service_<?php  echo $i; ?>_desc]" class="form-control" placeholder="Description"><?php  echo htmlspecialchars($servicesContent['service_'.$i.'_desc'] ?? ''); ?></textarea>
                                                 <div class="icon-select-wrap">
-                                                    <span class="icon-select-preview"><i class="<?php echo htmlspecialchars($servicesContent['service_'.$i.'_icon'] ?? 'fas fa-star'); ?>"></i></span>
-                                                    <select name="content[service_<?php echo $i; ?>_icon]" class="form-control icon-dropdown" onchange="updateIconPreview(this)">
-                                                        <?php echo iconOptions($servicesContent['service_'.$i.'_icon'] ?? ''); ?>
+                                                    <span class="icon-select-preview"><i class="<?php  echo htmlspecialchars($servicesContent['service_'.$i.'_icon'] ?? 'fas fa-star'); ?>"></i></span>
+                                                    <select name="content[service_<?php  echo $i; ?>_icon]" class="form-control icon-dropdown" onchange="updateIconPreview(this)">
+                                                        <?php  echo iconOptions($servicesContent['service_'.$i.'_icon'] ?? ''); ?>
                                                     </select>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-                                <?php endfor; ?>
+                                <?php  endfor; ?>
                                 </div>
                                 <button type="button" class="btn-add-card" onclick="addCard('service-cards-container', 6)"><i class="fas fa-plus"></i> Add Service Card</button>
                             </div>
@@ -884,36 +884,36 @@ function iconOptions($selected = '') {
                                 <div class="detail-table-row">
                                     <div class="detail-table-label">Header Title</div>
                                     <div class="detail-table-value">
-                                        <input type="text" name="content[tech_title]" class="form-control" value="<?php echo htmlspecialchars($servicesContent['tech_title'] ?? 'Modern Clinical Logistics'); ?>">
+                                        <input type="text" name="content[tech_title]" class="form-control" value="<?php  echo htmlspecialchars($servicesContent['tech_title'] ?? 'Modern Clinical Logistics'); ?>">
                                     </div>
                                 </div>
                                 <div class="detail-table-row">
                                     <div class="detail-table-label">Header Description</div>
                                     <div class="detail-table-value">
-                                        <textarea name="content[tech_desc]" class="form-control"><?php echo htmlspecialchars($servicesContent['tech_desc'] ?? 'We invest in the highest tiers of medical technology.'); ?></textarea>
+                                        <textarea name="content[tech_desc]" class="form-control"><?php  echo htmlspecialchars($servicesContent['tech_desc'] ?? 'We invest in the highest tiers of medical technology.'); ?></textarea>
                                     </div>
                                 </div>
                                 <div class="detail-table-row">
                                     <div class="detail-table-label">Technology Featured Image</div>
                                     <div class="detail-table-value">
                                         <input type="file" name="images[tech_img]" class="form-control" accept="image/*">
-                                        <?php if (!empty($servicesContent['tech_img'])): ?>
-                                            <img src="/Cosmo_Smiles_Dental_Clinic/public<?php echo htmlspecialchars($servicesContent['tech_img']); ?>" class="image-preview" style="object-fit: cover;">
-                                        <?php endif; ?>
+                                        <?php  if (!empty($servicesContent['tech_img'])): ?>
+                                            <img src="/Cosmo_Smiles_Dental_Clinic/public<?php  echo htmlspecialchars($servicesContent['tech_img']); ?>" class="image-preview" style="object-fit: cover;">
+                                        <?php  endif; ?>
                                     </div>
                                 </div>
                             </div>
 
                             <div class="detail-table" style="margin-top: 30px;">
                                 <div class="detail-table-header"><h4>Technology List (4 Items)</h4></div>
-                                <?php for($i=1; $i<=4; $i++): ?>
+                                <?php  for($i=1; $i<=4; $i++): ?>
                                 <div class="detail-table-row">
-                                    <div class="detail-table-label">Tech Item <?php echo $i; ?></div>
+                                    <div class="detail-table-label">Tech Item <?php  echo $i; ?></div>
                                     <div class="detail-table-value">
-                                        <input type="text" name="content[tech_list_<?php echo $i; ?>]" class="form-control" placeholder="List item" value="<?php echo htmlspecialchars($servicesContent['tech_list_'.$i] ?? ''); ?>">
+                                        <input type="text" name="content[tech_list_<?php  echo $i; ?>]" class="form-control" placeholder="List item" value="<?php  echo htmlspecialchars($servicesContent['tech_list_'.$i] ?? ''); ?>">
                                     </div>
                                 </div>
-                                <?php endfor; ?>
+                                <?php  endfor; ?>
                             </div>
 
                             <div style="text-align: right; margin-bottom: 20px; margin-top: 20px;">
@@ -930,13 +930,13 @@ function iconOptions($selected = '') {
                                 <div class="detail-table-row">
                                     <div class="detail-table-label">Contact Header</div>
                                     <div class="detail-table-value">
-                                        <input type="text" name="content[contact_title]" class="form-control" value="<?php echo htmlspecialchars($contactContent['contact_title'] ?? 'Contact Us'); ?>">
+                                        <input type="text" name="content[contact_title]" class="form-control" value="<?php  echo htmlspecialchars($contactContent['contact_title'] ?? 'Contact Us'); ?>">
                                     </div>
                                 </div>
                                 <div class="detail-table-row">
                                     <div class="detail-table-label">Contact Message</div>
                                     <div class="detail-table-value">
-                                        <textarea name="content[contact_subtitle]" class="form-control"><?php echo htmlspecialchars($contactContent['contact_subtitle'] ?? 'Reach out to schedule an appointment today.'); ?></textarea>
+                                        <textarea name="content[contact_subtitle]" class="form-control"><?php  echo htmlspecialchars($contactContent['contact_subtitle'] ?? 'Reach out to schedule an appointment today.'); ?></textarea>
                                     </div>
                                 </div>
                             </div>
@@ -945,13 +945,13 @@ function iconOptions($selected = '') {
                                 <div class="detail-table-row">
                                     <div class="detail-table-label">Facility Hours Summary</div>
                                     <div class="detail-table-value">
-                                        <textarea name="content[contact_hours]" class="form-control" placeholder="Mon - Fri: 8 AM - 6 PM&#10;Sat: 9 AM - 3 PM"><?php echo htmlspecialchars($contactContent['contact_hours'] ?? "Mon - Fri: 8 AM - 6 PM\nSat: 9 AM - 3 PM\nSun: No Clinic Operations"); ?></textarea>
+                                        <textarea name="content[contact_hours]" class="form-control" placeholder="Mon - Fri: 8 AM - 6 PM&#10;Sat: 9 AM - 3 PM"><?php  echo htmlspecialchars($contactContent['contact_hours'] ?? "Mon - Fri: 8 AM - 6 PM\nSat: 9 AM - 3 PM\nSun: No Clinic Operations"); ?></textarea>
                                     </div>
                                 </div>
                                 <div class="detail-table-row">
                                     <div class="detail-table-label">Google Maps Embed URL</div>
                                     <div class="detail-table-value">
-                                        <textarea name="content[contact_map_url]" class="form-control" placeholder="https://www.google.com/maps/embed?pb=..."><?php echo htmlspecialchars($contactContent['contact_map_url'] ?? "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3862.3364952044813!2d121.1913162758455!3d14.494056086012678!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3397c78876b59dd9%3A0x296b5b01ce83acbd!2sCosmo%20Smiles%20Dental%20Clinic!5e0!3m2!1sen!2sph!4v1711900000000!5m2!1sen!2sph"); ?></textarea>
+                                        <textarea name="content[contact_map_url]" class="form-control" placeholder="https://www.google.com/maps/embed?pb=..."><?php  echo htmlspecialchars($contactContent['contact_map_url'] ?? "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3862.3364952044813!2d121.1913162758455!3d14.494056086012678!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3397c78876b59dd9%3A0x296b5b01ce83acbd!2sCosmo%20Smiles%20Dental%20Clinic!5e0!3m2!1sen!2sph!4v1711900000000!5m2!1sen!2sph"); ?></textarea>
                                         <small style="color: #718096; margin-top: 5px; display: block;">Paste the <strong>src</strong> attribute from the Google Maps "Embed a map" HTML.</small>
                                     </div>
                                 </div>
@@ -962,13 +962,13 @@ function iconOptions($selected = '') {
                                 <div class="detail-table-row">
                                     <div class="detail-table-label">Facebook Profile URL</div>
                                     <div class="detail-table-value">
-                                        <input type="text" name="content[contact_fb]" class="form-control" value="<?php echo htmlspecialchars($contactContent['contact_fb'] ?? 'https://www.facebook.com/profile.php?id=100063660475340'); ?>">
+                                        <input type="text" name="content[contact_fb]" class="form-control" value="<?php  echo htmlspecialchars($contactContent['contact_fb'] ?? 'https://www.facebook.com/profile.php?id=100063660475340'); ?>">
                                     </div>
                                 </div>
                                 <div class="detail-table-row">
                                     <div class="detail-table-label">Waze Location URL</div>
                                     <div class="detail-table-value">
-                                        <input type="text" name="content[contact_waze]" class="form-control" value="<?php echo htmlspecialchars($contactContent['contact_waze'] ?? 'https://www.waze.com/live-map/directions/ph/calabarzon/binangonan/cosmo-smiles-dental-clinic?to=place.ChIJ3Z21dojHlzMRvazDzgFbayk'); ?>">
+                                        <input type="text" name="content[contact_waze]" class="form-control" value="<?php  echo htmlspecialchars($contactContent['contact_waze'] ?? 'https://www.waze.com/live-map/directions/ph/calabarzon/binangonan/cosmo-smiles-dental-clinic?to=place.ChIJ3Z21dojHlzMRvazDzgFbayk'); ?>">
                                     </div>
                                 </div>
                             </div>
@@ -1005,40 +1005,40 @@ function iconOptions($selected = '') {
                             <i class="fas fa-times-circle"></i> <span id="test-error-msg"></span>
                         </div>
 
-                        <?php if (empty($groupedTestimonials)): ?>
+                        <?php  if (empty($groupedTestimonials)): ?>
                             <div style="padding: 40px; text-align: center; color: #718096; background: #f8f9fa; border-radius: 12px; border: 1px dashed var(--border);">
                                 <i class="fas fa-comment-slash" style="font-size: 3rem; margin-bottom: 15px; opacity: 0.5;"></i>
                                 <p>No client feedback has been submitted yet.</p>
                             </div>
-                        <?php else: ?>
-                            <?php foreach ($groupedTestimonials as $clientGroup): ?>
+                        <?php  else: ?>
+                            <?php  foreach ($groupedTestimonials as $clientGroup): ?>
                                 <div class="testimonial-client-group">
                                     <div class="testimonial-client-header">
-                                        <span><i class="fas fa-user-circle"></i> <?php echo htmlspecialchars($clientGroup['client_name']); ?></span>
-                                        <span style="font-weight: 500; font-size: 0.9em; opacity: 0.8;">Client ID: <?php echo htmlspecialchars($clientGroup['client_id']); ?></span>
+                                        <span><i class="fas fa-user-circle"></i> <?php  echo htmlspecialchars($clientGroup['client_name']); ?></span>
+                                        <span style="font-weight: 500; font-size: 0.9em; opacity: 0.8;">Client ID: <?php  echo htmlspecialchars($clientGroup['client_id']); ?></span>
                                     </div>
                                     
-                                    <?php foreach ($clientGroup['feedbacks'] as $feedback): ?>
-                                        <div class="testimonial-item" data-rating="<?php echo $feedback['rating']; ?>">
+                                    <?php  foreach ($clientGroup['feedbacks'] as $feedback): ?>
+                                        <div class="testimonial-item" data-rating="<?php  echo $feedback['rating']; ?>">
                                             <div class="testimonial-content">
                                                 <div class="testimonial-rating">
-                                                    <?php 
+                                                    <?php  
                                                     for($i = 1; $i <= 5; $i++) {
                                                         echo $i <= $feedback['rating'] ? '<i class="fas fa-star"></i>' : '<i class="far fa-star"></i>';
                                                     }
                                                     ?>
                                                 </div>
-                                                <div class="testimonial-text">"<?php echo htmlspecialchars($feedback['feedback']); ?>"</div>
-                                                <div class="testimonial-date">Submitted on: <?php echo date('M j, Y', strtotime($feedback['created_at'])); ?></div>
+                                                <div class="testimonial-text">"<?php  echo htmlspecialchars($feedback['feedback']); ?>"</div>
+                                                <div class="testimonial-date">Submitted on: <?php  echo date('M j, Y', strtotime($feedback['created_at'])); ?></div>
                                             </div>
                                             <div class="testimonial-action">
-                                                <div class="testimonial-toggle <?php echo $feedback['is_featured'] ? 'active' : ''; ?>" 
-                                                     data-feedback-id="<?php echo $feedback['id']; ?>"
-                                                     data-client-id="<?php echo htmlspecialchars($clientGroup['client_id']); ?>">
+                                                <div class="testimonial-toggle <?php  echo $feedback['is_featured'] ? 'active' : ''; ?>" 
+                                                     data-feedback-id="<?php  echo $feedback['id']; ?>"
+                                                     data-client-id="<?php  echo htmlspecialchars($clientGroup['client_id']); ?>">
                                                 </div>
                                             </div>
                                         </div>
-                                    <?php endforeach; ?>
+                                    <?php  endforeach; ?>
                                     
                                     <!-- Add a "none" option logically if they want to un-feature all from this client -->
                                     <div class="testimonial-item testimonial-none" style="background:#fdfdfd;">
@@ -1046,22 +1046,22 @@ function iconOptions($selected = '') {
                                             Do not feature any testimonial from this client.
                                         </div>
                                         <div class="testimonial-action">
-                                            <?php 
+                                            <?php  
                                             // Check if none are featured
                                             $hasFeature = false;
                                             foreach ($clientGroup['feedbacks'] as $f) {
                                                 if ($f['is_featured']) $hasFeature = true;
                                             }
                                             ?>
-                                            <div class="testimonial-toggle testimonial-none-toggle <?php echo !$hasFeature ? 'active' : ''; ?>" 
+                                            <div class="testimonial-toggle testimonial-none-toggle <?php  echo !$hasFeature ? 'active' : ''; ?>" 
                                                  data-feedback-id="0" 
-                                                 data-client-id="<?php echo htmlspecialchars($clientGroup['client_id']); ?>">
+                                                 data-client-id="<?php  echo htmlspecialchars($clientGroup['client_id']); ?>">
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                            <?php endforeach; ?>
-                        <?php endif; ?>
+                            <?php  endforeach; ?>
+                        <?php  endif; ?>
                     </div>
 
                     <!-- Security Panel -->
@@ -1293,8 +1293,8 @@ function iconOptions($selected = '') {
                             // First, ask where to send OTP if multiple changed, or just send to the new one
                             const email = f.querySelector('[name="email"]')?.value;
                             const phone = f.querySelector('[name="phone"]')?.value;
-                            const currentEmail = "<?php echo $adminData['email']; ?>";
-                            const currentPhone = "<?php echo $adminData['phone'] ?? ''; ?>";
+                            const currentEmail = "<?php  echo $adminData['email']; ?>";
+                            const currentPhone = "<?php  echo $adminData['phone'] ?? ''; ?>";
                             
                             let targetType = 'email';
                             let targetVal = email;

@@ -1,4 +1,4 @@
-<?php
+<?php 
 // public/assets/staff/staff-appointments.php
 
 // Start session at the very beginning
@@ -14,9 +14,16 @@ if (!isset($_SESSION['staff_id']) || $_SESSION['staff_role'] !== 'receptionist')
 
 // Fix the require path - adjust based on your actual file structure
 require_once __DIR__ . '/../../config/database.php';
+require_once __DIR__ . '/../../config/env.php';
+require_once __DIR__ . '/../../src/Services/SessionService.php';
+
+// Check for inactivity
+SessionService::checkInactivity('staff');
 
 // Handle API requests
 if (isset($_GET['action'])) {
+    ini_set('display_errors', 0);
+    if (ob_get_length()) @ob_clean();
     require_once __DIR__ . '/../../src/Controllers/StaffAppointmentController.php';
     $appointmentController = new StaffAppointmentController();
 
@@ -536,26 +543,39 @@ else {
 ?>
                                     
                                     <tr class="<?php echo $isPast ? 'past-appointment-indicator' : ''; ?>">
-                                        <td><?php echo $appointment['appointment_id']; ?></td>
-                                        <td><?php echo htmlspecialchars($appointment['patient_client_id']); ?></td>
+                                        <td><?php echo $appointment['appointment_id'] ?? 'N/A'; ?></td>
+                                        <td><?php echo htmlspecialchars($appointment['patient_client_id'] ?? 'N/A'); ?></td>
                                         <td>
                                             <div class="patient-info">
                                                 <div class="patient-avatar">
-                                                    <i class="fas fa-user"></i>
+                                                    <?php 
+                                                    $displayImage = $appointment['patient_image'];
+                                                    if (!empty($displayImage) && strpos($displayImage, 'uploads/') === false) {
+                                                        $displayImage = 'uploads/avatar/' . $displayImage;
+                                                    }
+                                                    ?>
+                                                    <?php if(!empty($displayImage)): ?>
+                                                        <img src="<?php echo URL_ROOT . htmlspecialchars($displayImage); ?>" 
+                                                             alt="Avatar" 
+                                                             style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;"
+                                                             onerror="this.onerror=null; this.parentElement.innerHTML='<i class=\'fas fa-user\'></i>';">
+                                                    <?php else: ?>
+                                                        <i class="fas fa-user"></i>
+                                                    <?php endif; ?>
                                                 </div>
                                                 <div class="patient-details">
-                                                    <h4><?php echo htmlspecialchars($appointment['patient_full_name']); ?></h4>
-                                                    <p><?php echo htmlspecialchars($appointment['patient_phone']); ?></p>
+                                                    <h4><?php echo htmlspecialchars($appointment['patient_full_name'] ?? 'Unknown Patient'); ?></h4>
+                                                    <p><?php echo htmlspecialchars($appointment['patient_phone'] ?? 'No Phone'); ?></p>
                                                 </div>
                                             </div>
                                         </td>
                                         <td><?php echo date('M j, Y', strtotime($appointment['appointment_date'])); ?></td>
                                         <td><?php echo date('g:i A', strtotime($appointment['appointment_time'])); ?></td>
                                         <td><?php echo htmlspecialchars($appointment['dentist_name'] ?? 'Not Assigned'); ?></td>
-                                        <td><?php echo htmlspecialchars($appointment['service_name']); ?></td>
+                                        <td><?php echo htmlspecialchars($appointment['service_name'] ?? 'Dental Service'); ?></td>
                                         <td>
-                                            <span class="payment-type payment-<?php echo $appointment['payment_type']; ?>">
-                                                <?php echo ucfirst($appointment['payment_type']); ?>
+                                            <span class="payment-type payment-<?php echo $appointment['payment_type'] ?? 'cash'; ?>">
+                                                <?php echo ucfirst($appointment['payment_type'] ?? 'cash'); ?>
                                             </span>
                                         </td>
                                         <td>
@@ -593,13 +613,13 @@ else {
                                                 <?php else: ?>
                                                     <!-- For future appointments, keep the normal behavior -->
                                                     <?php if ($appointment['status'] === 'pending'): ?>
-                                                        <button class="action-btn confirm" onclick="showConfirmation('confirm', <?php echo $appointment['db_id']; ?>, '<?php echo htmlspecialchars(addslashes($appointment['patient_full_name'])); ?>')">
+                                                        <button class="action-btn confirm" onclick="showConfirmation('confirm', <?php echo $appointment['db_id'] ?? 0; ?>, '<?php echo htmlspecialchars(addslashes($appointment['patient_full_name'] ?? 'Unknown Patient')); ?>')">
                                                             <i class="fas fa-check"></i> Confirm
                                                         </button>
                                                     <?php endif; ?>
                                                     
                                                     <?php if ($appointment['status'] !== 'cancelled' && $appointment['status'] !== 'completed'): ?>
-                                                        <button class="action-btn cancel" onclick="showConfirmation('cancel', <?php echo $appointment['db_id']; ?>, '<?php echo htmlspecialchars(addslashes($appointment['patient_full_name'])); ?>')">
+                                                        <button class="action-btn cancel" onclick="showConfirmation('cancel', <?php echo $appointment['db_id'] ?? 0; ?>, '<?php echo htmlspecialchars(addslashes($appointment['patient_full_name'] ?? 'Unknown Patient')); ?>')">
                                                             <i class="fas fa-times"></i> Cancel
                                                         </button>
                                                     <?php endif; ?>
@@ -697,7 +717,7 @@ else {
                     <!-- Availability Warning -->
                     <div id="no_dentist_warning" class="message-error" style="display:none; margin-bottom:15px; padding: 10px; border-radius: 4px; border: 1px solid #e74c3c;">
                         <i class="fas fa-exclamation-triangle"></i> <strong>No dentists are currently checked in.</strong> 
-                        Appointments can only be booked once the dentist’s availability is enabled, please come back again when the dentist is available.
+                        Appointments can only be booked once the dentistâ€™s availability is enabled, please come back again when the dentist is available.
                     </div>
                     
                     <div class="form-group">
@@ -764,7 +784,7 @@ else {
                                 <option value="">Select Service</option>
                                 <?php foreach ($services as $service): ?>
                                     <option value="<?php echo $service['id']; ?>" data-price="<?php echo $service['price']; ?>" data-duration="<?php echo $service['duration_minutes']; ?>">
-                                        <?php echo htmlspecialchars($service['name']); ?> (₱<?php echo $service['price']; ?>)
+                                        <?php echo htmlspecialchars($service['name']); ?> (â‚±<?php echo $service['price']; ?>)
                                     </option>
                                 <?php endforeach; ?>
                             </select>
@@ -980,6 +1000,14 @@ else {
                 .catch(error => console.error('Error refreshing dentists:', error));
         }
         setInterval(refreshDentistList, 10000); // Poll every 10 seconds
+
+        // Auto-submit filter form when no-show toggle is changed
+        const noShowToggle = document.getElementById('staff-hide-noshow');
+        if (noShowToggle) {
+            noShowToggle.addEventListener('change', function() {
+                document.getElementById('appointments-filter-form').submit();
+            });
+        }
     </script>
 </body>
 </html>

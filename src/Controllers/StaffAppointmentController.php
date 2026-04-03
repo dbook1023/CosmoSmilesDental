@@ -194,6 +194,85 @@ class StaffAppointmentController {
             return null;
         }
     }
+    
+    public function resolveServiceNames($serviceIdsCsv) {
+        if (empty($serviceIdsCsv)) return 'Dental Service';
+        
+        // If it's already a single ID (numeric), handle it
+        if (is_numeric($serviceIdsCsv)) {
+            $ids = [$serviceIdsCsv];
+        } else {
+            $ids = explode(',', $serviceIdsCsv);
+            $ids = array_filter(array_map('trim', $ids));
+        }
+        
+        if (empty($ids)) return 'Dental Service';
+        
+        try {
+            $placeholders = str_repeat('?,', count($ids) - 1) . '?';
+            $query = "SELECT name, price, duration_minutes FROM services WHERE id IN ($placeholders)";
+            $stmt = $this->conn->prepare($query);
+            $stmt->execute(array_values($ids));
+            $services = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            $names = [];
+            $totalPrice = 0;
+            $totalDuration = 0;
+            
+            foreach ($services as $s) {
+                $names[] = $s['name'];
+                $totalPrice += $s['price'];
+                $totalDuration += $s['duration_minutes'];
+            }
+            
+            // For backward compatibility return string if only name is needed, 
+            // but we'll use the array version in our own code
+            return !empty($names) ? implode(', ', $names) : 'Dental Service';
+        } catch (PDOException $e) {
+            error_log("Error resolving service names: " . $e->getMessage());
+            return 'Dental Service';
+        }
+    }
+    
+    // Helper to get full service details
+    public function resolveServiceDetails($serviceIdsCsv) {
+        if (empty($serviceIdsCsv)) return ['name' => 'Dental Service', 'price' => 0, 'duration' => 30];
+        
+        if (is_numeric($serviceIdsCsv)) {
+            $ids = [$serviceIdsCsv];
+        } else {
+            $ids = explode(',', $serviceIdsCsv);
+            $ids = array_filter(array_map('trim', $ids));
+        }
+        
+        if (empty($ids)) return ['name' => 'Dental Service', 'price' => 0, 'duration' => 30];
+        
+        try {
+            $placeholders = str_repeat('?,', count($ids) - 1) . '?';
+            $query = "SELECT name, price, duration_minutes FROM services WHERE id IN ($placeholders)";
+            $stmt = $this->conn->prepare($query);
+            $stmt->execute(array_values($ids));
+            $services = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            $names = [];
+            $totalPrice = 0;
+            $totalDuration = 0;
+            
+            foreach ($services as $s) {
+                $names[] = $s['name'];
+                $totalPrice += $s['price'];
+                $totalDuration += ($s['duration_minutes'] ?? 30);
+            }
+            
+            return [
+                'name' => !empty($names) ? implode(', ', $names) : 'Dental Service',
+                'price' => $totalPrice,
+                'duration' => $totalDuration
+            ];
+        } catch (PDOException $e) {
+            return ['name' => 'Dental Service', 'price' => 0, 'duration' => 30];
+        }
+    }
 
     // Get ALL appointments from database with search functionality
     public function getAllAppointments($filters = []) {
@@ -204,15 +283,14 @@ class StaffAppointmentController {
                 a.client_id as patient_client_id,
                 a.*,
                 CONCAT('Dr. ', d.first_name, ' ', d.last_name) as dentist_name,
-                s.name as service_name,
-                s.name as service,
                 CONCAT(a.patient_first_name, ' ', a.patient_last_name) as patient_full_name,
                 a.patient_phone,
                 a.patient_email,
-                a.payment_type
+                a.payment_type,
+                c.profile_image as patient_image
             FROM appointments a
             LEFT JOIN dentists d ON a.dentist_id = d.id
-            LEFT JOIN services s ON a.service_id = s.id
+            LEFT JOIN clients c ON (a.client_id = c.client_id OR (a.client_id REGEXP '^[0-9]+$' AND a.client_id = c.id))
             WHERE 1=1";
 
             $params = [];
@@ -226,8 +304,7 @@ class StaffAppointmentController {
                     CONCAT(a.patient_first_name, ' ', a.patient_last_name) LIKE ? OR
                     a.patient_phone LIKE ? OR
                     a.patient_email LIKE ? OR
-                    CONCAT(d.first_name, ' ', d.last_name) LIKE ? OR
-                    s.name LIKE ?
+                    CONCAT(d.first_name, ' ', d.last_name) LIKE ?
                 )";
                 $params = array_merge($params, 
                     [$searchTerm, $searchTerm, $searchTerm, $searchTerm, $searchTerm, $searchTerm, $searchTerm]
@@ -271,7 +348,7 @@ class StaffAppointmentController {
             }
 
             // Order by date and time (newest first)
-            $query .= " ORDER BY a.appointment_date DESC, a.appointment_time DESC";
+            $query .= " ORDER BY a.created_at DESC, a.id DESC";
 
             // Add pagination
             $limit = 10;
@@ -294,6 +371,16 @@ class StaffAppointmentController {
             $stmt->execute();
             $appointments = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+            // Resolve multiple service names
+            foreach ($appointments as &$appointment) {
+                $serviceDetails = $this->resolveServiceDetails($appointment['service_id']);
+                $appointment['service_name'] = $serviceDetails['name'];
+                $appointment['service'] = $serviceDetails['name'];
+                $appointment['service_price'] = $serviceDetails['price'];
+                $appointment['duration'] = $appointment['duration_minutes'] ?? $serviceDetails['duration'];
+            }
+            unset($appointment);
+
             // Get total count for pagination
             $total = $this->getAppointmentsCount($filters);
 
@@ -315,7 +402,6 @@ class StaffAppointmentController {
         try {
             $query = "SELECT COUNT(*) as total FROM appointments a 
                      LEFT JOIN dentists d ON a.dentist_id = d.id
-                     LEFT JOIN services s ON a.service_id = s.id
                      WHERE 1=1";
             $params = [];
 
@@ -328,8 +414,7 @@ class StaffAppointmentController {
                     CONCAT(a.patient_first_name, ' ', a.patient_last_name) LIKE ? OR
                     a.patient_phone LIKE ? OR
                     a.patient_email LIKE ? OR
-                    CONCAT(d.first_name, ' ', d.last_name) LIKE ? OR
-                    s.name LIKE ?
+                    CONCAT(d.first_name, ' ', d.last_name) LIKE ?
                 )";
                 $params = array_merge($params, 
                     [$searchTerm, $searchTerm, $searchTerm, $searchTerm, $searchTerm, $searchTerm, $searchTerm]
@@ -401,11 +486,7 @@ class StaffAppointmentController {
                 a.*,
                 CONCAT('Dr. ', d.first_name, ' ', d.last_name) as dentist_name,
                 d.specialization as dentist_specialization,
-                s.name as service_name,
-                s.name as service,
-                s.description as service_description,
-                s.price as service_price,
-                s.duration_minutes as service_duration,
+                
                 CONCAT(a.patient_first_name, ' ', a.patient_last_name) as patient_full_name,
                 a.patient_phone,
                 a.patient_email,
@@ -414,7 +495,7 @@ class StaffAppointmentController {
                 f.created_at as feedback_date
             FROM appointments a
             LEFT JOIN dentists d ON a.dentist_id = d.id
-            LEFT JOIN services s ON a.service_id = s.id
+            
             LEFT JOIN appointment_feedbacks f ON a.appointment_id = f.appointment_id
             WHERE a.id = ?";
 
@@ -428,6 +509,13 @@ class StaffAppointmentController {
                 error_log("Appointment not found with ID: " . $id);
                 return null;
             }
+
+            // Resolve multiple service details
+            $serviceDetails = $this->resolveServiceDetails($appointment['service_id']);
+            $appointment['service_name'] = $serviceDetails['name'];
+            $appointment['service'] = $serviceDetails['name'];
+            $appointment['service_price'] = $serviceDetails['price'];
+            $appointment['duration'] = $appointment['duration_minutes'] ?? $serviceDetails['duration'];
             
             return $appointment;
 
@@ -479,7 +567,7 @@ class StaffAppointmentController {
             exit;
         }
 
-        header('Content-Type: application/json');
+        if (ob_get_length()) ob_clean(); header('Content-Type: application/json');
         
         try {
             $date = $_GET['date'] ?? '';
@@ -532,12 +620,12 @@ class StaffAppointmentController {
      */
     public function handleFetchAllRequest() {
         if (!isset($_SESSION['staff_id']) || $_SESSION['staff_role'] !== 'receptionist') {
-            header('Content-Type: application/json');
+            if (ob_get_length()) ob_clean(); header('Content-Type: application/json');
             echo json_encode(['success' => false, 'message' => 'Access denied']);
             exit;
         }
 
-        header('Content-Type: application/json');
+        if (ob_get_length()) ob_clean(); header('Content-Type: application/json');
         
         try {
             $filters = [
@@ -675,7 +763,13 @@ class StaffAppointmentController {
             }
 
             // Handle multiple services
-            $serviceIds = is_array($data['service_id']) ? $data['service_id'] : [$data['service_id']];
+            if (is_array($data['service_id'])) {
+                $serviceIds = $data['service_id'];
+            } else {
+                $serviceIds = array_filter(array_map('trim', explode(',', (string)$data['service_id'])));
+            }
+            $serviceIds = array_unique($serviceIds);
+
             $serviceNames = [];
             $totalPrice = 0;
             $totalDuration = 0;
@@ -857,7 +951,13 @@ class StaffAppointmentController {
             $stmt = $this->conn->prepare($query);
             
             // Handle multiple services
-            $serviceIds = is_array($data['service_id']) ? $data['service_id'] : [$data['service_id']];
+            if (is_array($data['service_id'])) {
+                $serviceIds = $data['service_id'];
+            } else {
+                $serviceIds = array_filter(array_map('trim', explode(',', (string)$data['service_id'])));
+            }
+            $serviceIds = array_unique($serviceIds);
+
             $serviceNames = [];
             $totalPrice = 0;
             $totalDuration = 0;
@@ -1146,15 +1246,14 @@ class StaffAppointmentController {
     public function getTodaysAppointments() {
         try {
             $query = "SELECT 
-                a.appointment_id,
-                a.id as db_id,
                 a.*,
                 CONCAT('Dr. ', d.first_name, ' ', d.last_name) as dentist_name,
-                s.name as service_name,
-                CONCAT(a.patient_first_name, ' ', a.patient_last_name) as patient_full_name
-            FROM appointments a
+                a.patient_first_name,
+                a.patient_last_name,
+                a.patient_phone,
+                a.patient_email
+            FROM appointments a 
             LEFT JOIN dentists d ON a.dentist_id = d.id
-            LEFT JOIN services s ON a.service_id = s.id
             WHERE a.appointment_date = CURDATE()
             ORDER BY a.appointment_time ASC";
 
@@ -1230,7 +1329,7 @@ class StaffAppointmentController {
 
     // Handle get dentists API request
     public function handleGetDentistsRequest() {
-        header('Content-Type: application/json');
+        if (ob_get_length()) ob_clean(); header('Content-Type: application/json');
         try {
             $dentists = $this->getDentists();
             echo json_encode(['success' => true, 'dentists' => $dentists]);
@@ -1243,7 +1342,7 @@ class StaffAppointmentController {
 
     // Handle get services API request
     public function handleGetServicesRequest() {
-        header('Content-Type: application/json');
+        if (ob_get_length()) ob_clean(); header('Content-Type: application/json');
         try {
             $services = $this->getServices();
             echo json_encode(['success' => true, 'services' => $services]);
@@ -1254,4 +1353,3 @@ class StaffAppointmentController {
         exit;
     }
 }
-?>

@@ -1,4 +1,4 @@
-<?php
+<?php 
 session_start();
 
 // Set security headers
@@ -137,14 +137,14 @@ $sidebarAdminRole = $admin_role;
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="../assets/css/admin-records.css">
     <link rel="stylesheet" href="../assets/css/odontogram.css">
-    <?php include 'includes/admin-sidebar-css.php'; ?>
+    <?php  include 'includes/admin-sidebar-css.php'; ?>
 </head>
 <body>
-    <?php include 'includes/admin-header.php'; ?>
+    <?php  include 'includes/admin-header.php'; ?>
 
     <!-- Admin Dashboard Layout -->
     <div class="admin-container">
-        <?php include 'includes/admin-sidebar.php'; ?>
+        <?php  include 'includes/admin-sidebar.php'; ?>
 
         <!-- Main Content -->
         <main class="admin-main">
@@ -194,7 +194,7 @@ $sidebarAdminRole = $admin_role;
                         </div>
                     <div class="patient-info-text">
                         <h4 id="patient-name">Juan Dela Cruz</h4>
-                        <div style="display: flex; align-items: center; gap: 15px;">
+                        <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
                             <p id="patient-id-display" style="margin: 0;">Patient ID: PT-2101</p>
                             <button class="btn btn-primary btn-sm" id="view-medical-history-btn" style="padding: 4px 12px; font-size: 0.85rem; display: none; background-color: #007bff; border-color: #007bff; border-radius: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
                                 <i class="fas fa-file-medical"></i> View Medical Result
@@ -226,8 +226,8 @@ $sidebarAdminRole = $admin_role;
                 <!-- Records Content -->
                 <div class="records-content">
                     <!-- Records Actions Bar -->
-                    <div class="records-actions-bar">
-                        <div style="display: flex; gap: 10px;">
+                    <div class="records-actions-bar" style="flex-wrap: wrap;">
+                        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
                             <button class="btn btn-primary" id="filter-all-btn" data-filter="all">
                                 All Records
                             </button>
@@ -304,7 +304,7 @@ $sidebarAdminRole = $admin_role;
                 <div id="create-record-medical-alerts" class="medical-alerts-container"></div>
                 
                 <form id="create-record-form" enctype="multipart/form-data">
-                    <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
+                    <input type="hidden" name="csrf_token" value="<?php  echo $csrf_token; ?>">
                     <input type="hidden" id="record-appointment-id" name="appointment_id" value="">
                     
                     <div id="appointment-selection-container" style="display: none; background: #f0f7ff; padding: 15px; border-radius: 8px; border-left: 4px solid #007bff; margin-bottom: 20px;">
@@ -357,7 +357,7 @@ $sidebarAdminRole = $admin_role;
                         
                         <div class="form-group">
                             <label for="record-dentist" class="required">Dentist</label>
-                            <input type="text" id="record-dentist" class="form-control" readonly value="<?php echo $admin_full_name; ?>">
+                            <input type="text" id="record-dentist" class="form-control" readonly value="<?php  echo $admin_full_name; ?>">
                             <div class="form-help">Automatically detected from logged-in user</div>
                         </div>
                         
@@ -373,11 +373,11 @@ $sidebarAdminRole = $admin_role;
                                    placeholder="Select or type procedure..." 
                                    list="procedure-options" maxlength="100">
                             <datalist id="procedure-options">
-                                <?php foreach ($services as $service): ?>
-                                    <option value="<?php echo $service['name']; ?>">
-                                        <?php echo $service['name']; ?>
+                                <?php  foreach ($services as $service): ?>
+                                    <option value="<?php  echo $service['name']; ?>">
+                                        <?php  echo $service['name']; ?>
                                     </option>
-                                <?php endforeach; ?>
+                                <?php  endforeach; ?>
                             </datalist>
                             <div class="form-help">Select from available services or type custom procedure</div>
                         </div>
@@ -529,7 +529,7 @@ $sidebarAdminRole = $admin_role;
             </div>
             <div class="modal-body">
                 <form id="archive-record-form">
-                    <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
+                    <input type="hidden" name="csrf_token" value="<?php  echo $csrf_token; ?>">
                     <div class="form-group">
                         <label for="archive-reason" class="required">Archive Reason</label>
                         <select id="archive-reason" class="form-control" required>
@@ -571,7 +571,7 @@ $sidebarAdminRole = $admin_role;
             </div>
         <form id="edit-record-form">
             <div class="modal-body">
-                    <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
+                    <input type="hidden" name="csrf_token" value="<?php  echo $csrf_token; ?>">
                     <input type="hidden" id="edit-record-id" name="record_id" value="">
                     <input type="hidden" id="edit-record-patient-id" name="client_id" value="">
                     
@@ -615,11 +615,11 @@ $sidebarAdminRole = $admin_role;
                             <input type="text" id="edit-record-procedure" class="form-control" name="procedure" required 
                                    list="edit-procedure-options" maxlength="100">
                             <datalist id="edit-procedure-options">
-                                <?php foreach ($services as $service): ?>
-                                    <option value="<?php echo htmlspecialchars($service['name']); ?>">
-                                        <?php echo htmlspecialchars($service['name']); ?>
+                                <?php  foreach ($services as $service): ?>
+                                    <option value="<?php  echo htmlspecialchars($service['name']); ?>">
+                                        <?php  echo htmlspecialchars($service['name']); ?>
                                     </option>
-                                <?php endforeach; ?>
+                                <?php  endforeach; ?>
                             </datalist>
                         </div>
                         

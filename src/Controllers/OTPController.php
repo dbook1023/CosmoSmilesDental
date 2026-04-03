@@ -238,4 +238,3 @@ if ($isDirectAjax && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['acti
     }
     exit;
 }
-?>

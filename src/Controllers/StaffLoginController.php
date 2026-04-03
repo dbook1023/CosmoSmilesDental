@@ -157,4 +157,3 @@ class StaffLoginController {
 // Instantiate and handle the login
 $staffLoginController = new StaffLoginController();
 $staffLoginController->handleLogin();
-?>

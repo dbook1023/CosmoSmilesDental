@@ -961,4 +961,3 @@ class AdminPatientController {
         }
     }
 }
-?>

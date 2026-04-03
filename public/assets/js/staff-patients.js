@@ -385,7 +385,7 @@ function viewPatient(patientId) {
                 
                 // FIXED: Profile image with proper quotes
                 const profileImage = patient.profile_image ? 
-    `<img src="/Cosmo_Smiles_Dental_Clinic/${patient.profile_image}" alt="Profile" class="profile-image" onerror="this.onerror=null; this.parentNode.innerHTML='<i class=\'fas fa-user-circle\'></i>';">` : 
+    `<img src="${window.URL_ROOT || '/Cosmo_Smiles_Dental_Clinic/'}${patient.profile_image}" alt="Profile" class="profile-image" onerror="this.onerror=null; this.parentNode.innerHTML='<i class=\'fas fa-user-circle\'></i>';">` : 
     '<i class="fas fa-user-circle"></i>';
                 
                 const modalBody = document.getElementById('viewModalBody');

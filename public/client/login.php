@@ -8,7 +8,7 @@ ini_set('display_errors', 1);
 
 // Redirect to index.php if user is already logged in
 if (isset($_SESSION['client_logged_in']) && $_SESSION['client_logged_in'] === true) {
-    header("Location: ../index.php");
+    header("Location: appointments.php");
     exit();
 }
 

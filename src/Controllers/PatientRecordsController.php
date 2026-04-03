@@ -492,6 +492,31 @@ class PatientRecordsController {
         }
     }
     
+    /**
+     * Resolve multiple service details from CSV string
+     */
+    private function resolveServiceDetails($service_ids) {
+        if (empty($service_ids)) return ['name' => 'Dental Service', 'duration' => 30];
+        
+        $ids = array_values(array_filter(array_map('trim', explode(',', $service_ids))));
+        if (empty($ids)) return ['name' => 'Dental Service', 'duration' => 30];
+        
+        $placeholders = implode(',', array_fill(0, count($ids), '?'));
+        $stmt = $this->pdo->prepare("SELECT name, duration_minutes FROM services WHERE id IN ($placeholders)");
+        $stmt->execute($ids);
+        $services = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        
+        if (empty($services)) return ['name' => 'Dental Service', 'duration' => 30];
+        
+        $names = array_column($services, 'name');
+        $total_duration = array_sum(array_column($services, 'duration_minutes'));
+        
+        return [
+            'name' => implode(', ', $names),
+            'duration' => $total_duration ?: 30
+        ];
+    }
+    
     public function searchPatient($patient_id) {
         try {
             // Validate patient_id
@@ -526,27 +551,34 @@ class PatientRecordsController {
                     }
                 }
 
-                // NEW: Fetch medical history
+                // Fetch medical history
                 $medicalStmt = $this->pdo->prepare("SELECT * FROM patient_medical_history WHERE client_id = :client_id");
                 $medicalStmt->execute([':client_id' => $patient_id]);
                 $patient['medical_history'] = $medicalStmt->fetch(\PDO::FETCH_ASSOC) ?: null;
 
-                // NEW: Fetch pending edit request
+                // Fetch pending edit request
                 $pendingRequestStmt = $this->pdo->prepare("SELECT * FROM medical_edit_requests WHERE client_id = :client_id AND status = 'pending' ORDER BY requested_at DESC LIMIT 1");
                 $pendingRequestStmt->execute([':client_id' => $patient_id]);
                 $patient['pending_edit_request'] = $pendingRequestStmt->fetch(\PDO::FETCH_ASSOC) ?: null;
 
-                // NEW: Fetch completed appointments for auto-fill
+                // Fetch completed appointments for auto-fill
                 $appointmentsStmt = $this->pdo->prepare("
                     SELECT a.id, a.appointment_id, a.appointment_date, a.appointment_time, 
-                           a.duration_minutes, s.name as service_name
+                           a.duration_minutes, a.service_id
                     FROM appointments a
-                    LEFT JOIN services s ON a.service_id = s.id
                     WHERE a.client_id = :client_id AND a.status = 'completed'
                     ORDER BY a.appointment_date DESC, a.appointment_time DESC
                 ");
                 $appointmentsStmt->execute([':client_id' => $patient_id]);
-                $patient['completed_appointments'] = $appointmentsStmt->fetchAll(\PDO::FETCH_ASSOC) ?: [];
+                $appointments = $appointmentsStmt->fetchAll(\PDO::FETCH_ASSOC) ?: [];
+                
+                // Resolve multiple services for each appointment
+                foreach ($appointments as &$apt) {
+                    $details = $this->resolveServiceDetails($apt['service_id']);
+                    $apt['service_name'] = $details['name'];
+                    $apt['duration_minutes'] = $details['duration'];
+                }
+                $patient['completed_appointments'] = $appointments;
             }
             
             return [
@@ -1112,4 +1144,3 @@ class PatientRecordsController {
         return $this->sendSMSNotification($patient_id, $message, $record_type, $record_title);
     }
 }
-?>

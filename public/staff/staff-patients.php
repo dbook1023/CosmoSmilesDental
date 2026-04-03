@@ -1,4 +1,4 @@
-<?php
+<?php 
 // public/assets/staff/staff-patients.php
 
 // Start session at the very beginning
@@ -14,6 +14,7 @@ if (!isset($_SESSION['staff_id']) || $_SESSION['staff_role'] !== 'receptionist')
 
 // Fix the require path - adjust based on your actual file structure
 require_once __DIR__ . '/../../config/database.php';
+require_once __DIR__ . '/../../config/env.php';
 
 // Handle API requests
 if (isset($_GET['action'])) {
@@ -305,7 +306,7 @@ if (!isset($_SESSION['csrf_token'])) {
                     </div>
                     <div class="profile-info">
                         <span class="profile-name">
-                            <?php
+                            <?php 
 if ($staffUser) {
     echo htmlspecialchars($staffUser['first_name'] . ' ' . $staffUser['last_name']);
 }
@@ -315,7 +316,7 @@ else {
 ?>
                         </span>
                         <span class="profile-role">
-                            <?php
+                            <?php 
 if ($staffUser) {
     echo htmlspecialchars(ucfirst(str_replace('_', ' ', $staffUser['role'])));
 }
@@ -344,7 +345,7 @@ else {
                 <div class="header-actions">
                     <div class="date-display">
                         <i class="fas fa-calendar"></i>
-                        <span id="current-date"><?php echo date('F j, Y'); ?></span>
+                        <span id="current-date"><?php  echo date('F j, Y'); ?></span>
                     </div>
                 </div>
             </div>
@@ -357,7 +358,7 @@ else {
                     </div>
                     <div class="stat-content">
                         <h3>Total Patients</h3>
-                        <div class="stat-number"><?php echo $patientStats['total_patients']; ?></div>
+                        <div class="stat-number"><?php  echo $patientStats['total_patients']; ?></div>
                         <div class="stat-change positive">
                             <i class="fas fa-database"></i> From database
                         </div>
@@ -370,7 +371,7 @@ else {
                     </div>
                     <div class="stat-content">
                         <h3>Active Patients</h3>
-                        <div class="stat-number"><?php echo $patientStats['active_patients']; ?></div>
+                        <div class="stat-number"><?php  echo $patientStats['active_patients']; ?></div>
                         <div class="stat-change positive">
                             <i class="fas fa-calendar-check"></i> Appointment in last 90 days
                         </div>
@@ -383,14 +384,14 @@ else {
                     </div>
                     <div class="stat-content">
                         <h3>New This Month</h3>
-                        <div class="stat-number"><?php echo $patientStats['new_this_month']; ?></div>
-                        <div class="stat-change <?php echo $patientStats['new_change'] >= 0 ? 'positive' : 'negative'; ?>">
-                            <?php if ($patientStats['new_change'] >= 0): ?>
-                                <i class="fas fa-arrow-up"></i> +<?php echo $patientStats['new_change']; ?> from last month
-                            <?php
+                        <div class="stat-number"><?php  echo $patientStats['new_this_month']; ?></div>
+                        <div class="stat-change <?php  echo $patientStats['new_change'] >= 0 ? 'positive' : 'negative'; ?>">
+                            <?php  if ($patientStats['new_change'] >= 0): ?>
+                                <i class="fas fa-arrow-up"></i> +<?php  echo $patientStats['new_change']; ?> from last month
+                            <?php 
 else: ?>
-                                <i class="fas fa-arrow-down"></i> <?php echo $patientStats['new_change']; ?> from last month
-                            <?php
+                                <i class="fas fa-arrow-down"></i> <?php  echo $patientStats['new_change']; ?> from last month
+                            <?php 
 endif; ?>
                         </div>
                     </div>
@@ -402,7 +403,7 @@ endif; ?>
                     </div>
                     <div class="stat-content">
                         <h3>Inactive Patients</h3>
-                        <div class="stat-number"><?php echo $patientStats['inactive_patients']; ?></div>
+                        <div class="stat-number"><?php  echo $patientStats['inactive_patients']; ?></div>
                         <div class="stat-change">
                             <i class="fas fa-clock"></i> No appointment in 90+ days
                         </div>
@@ -417,19 +418,19 @@ endif; ?>
                         <div class="filter-group">
                             <label for="gender-filter">Gender</label>
                             <select id="gender-filter" name="gender" class="filter-control">
-                                <option value="all" <?php echo($filters['gender'] === 'all') ? 'selected' : ''; ?>>All Genders</option>
-                                <option value="male" <?php echo($filters['gender'] === 'male') ? 'selected' : ''; ?>>Male</option>
-                                <option value="female" <?php echo($filters['gender'] === 'female') ? 'selected' : ''; ?>>Female</option>
-                                <option value="other" <?php echo($filters['gender'] === 'other') ? 'selected' : ''; ?>>Other</option>
+                                <option value="all" <?php  echo($filters['gender'] === 'all') ? 'selected' : ''; ?>>All Genders</option>
+                                <option value="male" <?php  echo($filters['gender'] === 'male') ? 'selected' : ''; ?>>Male</option>
+                                <option value="female" <?php  echo($filters['gender'] === 'female') ? 'selected' : ''; ?>>Female</option>
+                                <option value="other" <?php  echo($filters['gender'] === 'other') ? 'selected' : ''; ?>>Other</option>
                             </select>
                         </div>
                         
                         <div class="filter-group">
                             <label for="minor-filter">Age Group</label>
                             <select id="minor-filter" name="is_minor" class="filter-control">
-                                <option value="all" <?php echo($filters['is_minor'] === 'all') ? 'selected' : ''; ?>>All Ages</option>
-                                <option value="1" <?php echo($filters['is_minor'] === '1') ? 'selected' : ''; ?>>Minors (Under 18)</option>
-                                <option value="0" <?php echo($filters['is_minor'] === '0') ? 'selected' : ''; ?>>Adults (18+)</option>
+                                <option value="all" <?php  echo($filters['is_minor'] === 'all') ? 'selected' : ''; ?>>All Ages</option>
+                                <option value="1" <?php  echo($filters['is_minor'] === '1') ? 'selected' : ''; ?>>Minors (Under 18)</option>
+                                <option value="0" <?php  echo($filters['is_minor'] === '0') ? 'selected' : ''; ?>>Adults (18+)</option>
                             </select>
                         </div>
                         
@@ -437,7 +438,7 @@ endif; ?>
                             <label for="search-filter">Search</label>
                             <input type="text" id="search-filter" name="search" class="filter-control" 
                                    placeholder="Search by name, ID, email, phone..."
-                                   value="<?php echo htmlspecialchars($filters['search']); ?>">
+                                   value="<?php  echo htmlspecialchars($filters['search']); ?>">
                         </div>
                         
                         <div class="filter-actions">
@@ -455,7 +456,7 @@ endif; ?>
             <!-- Patient Table -->
             <div class="patient-table-container">
                 <div class="table-header">
-                    <h3>All Patients (<?php echo $totalPatients; ?> total)</h3>
+                    <h3>All Patients (<?php  echo $totalPatients; ?> total)</h3>
                     <div class="table-actions">
                         <!-- Table actions if needed -->
                     </div>
@@ -475,20 +476,20 @@ endif; ?>
                             </tr>
                         </thead>
                         <tbody>
-                            <?php if (empty($patients)): ?>
+                            <?php  if (empty($patients)): ?>
                                 <tr>
                                     <td colspan="7" class="no-patients">
                                         <i class="fas fa-user-times"></i>
-                                        <p><?php echo isset($filters['search']) ? 'No patients found matching your search' : 'No patients found'; ?></p>
+                                        <p><?php  echo isset($filters['search']) ? 'No patients found matching your search' : 'No patients found'; ?></p>
                                         <button class="btn btn-primary" id="add-patient-btn-table">
                                             <i class="fas fa-plus"></i> Add First Patient
                                         </button>
                                     </td>
                                 </tr>
-                            <?php
+                            <?php 
 else: ?>
-                                <?php foreach ($patients as $patient): ?>
-                                    <?php
+                                <?php  foreach ($patients as $patient): ?>
+                                    <?php 
         // Calculate age
         $birthdate = new DateTime($patient['birthdate']);
         $today = new DateTime();
@@ -510,12 +511,12 @@ else: ?>
         $status = $isActive ? 'Active' : 'Inactive';
         $statusClass = $isActive ? 'status-active' : 'status-inactive';
 
-        // FIXED: Simple, direct image path
-        $imagePath = '';
-        if (!empty($patient['profile_image'])) {
-            $imagePath = '/Cosmo_Smiles_Dental_Clinic/' . $patient['profile_image'];
+        // FIXED: Normalized image path with dynamic root
+        $displayImage = $patient['profile_image'];
+        if (!empty($displayImage) && strpos($displayImage, 'uploads/') === false) {
+            $displayImage = 'uploads/avatar/' . $displayImage;
         }
-
+        $fullImagePath = URL_ROOT . $displayImage;
 
         // Get last appointment date
         $lastAppointment = $patientController->getLastAppointmentDate($patient['id']);
@@ -532,94 +533,94 @@ else: ?>
                                         <td>
                                             <div class="patient-info">
                                                 <div class="patient-avatar">
-                                                    <?php if (!empty($patient['profile_image'])): ?>
-                                                        <img src="<?php echo $imagePath; ?>" 
-                                                             alt="<?php echo $patientName; ?>"
+                                                    <?php  if (!empty($patient['profile_image'])): ?>
+                                                        <img src="<?php  echo htmlspecialchars($fullImagePath); ?>" 
+                                                             alt="<?php  echo $patientName; ?>"
                                                              onerror="this.onerror=null; this.parentNode.innerHTML='<i class=\'fas fa-user-circle\'></i>';">
-                                                    <?php
+                                                    <?php 
         else: ?>
                                                         <i class="fas fa-user-circle"></i>
-                                                    <?php
+                                                    <?php 
         endif; ?>
                                                 </div>
                                                 <div class="patient-details">
-                                                    <h4><?php echo $patientName; ?>
-                                                        <?php if ($patient['parental_consent'] && $patient['is_minor']): ?>
+                                                    <h4><?php  echo $patientName; ?>
+                                                        <?php  if ($patient['parental_consent'] && $patient['is_minor']): ?>
                                                             <span class="consent-badge" title="Parental Consent Given"><i class="fas fa-check-circle"></i></span>
-                                                        <?php
+                                                        <?php 
         endif; ?>
                                                     </h4>
-                                                    <p>ID: <?php echo $patientId; ?></p>
+                                                    <p>ID: <?php  echo $patientId; ?></p>
                                                 </div>
                                             </div>
                                         </td>
                                         <td>
-                                            <div><i class="fas fa-envelope"></i> <?php echo $patientEmail; ?></div>
-                                            <div><i class="fas fa-phone"></i> <?php echo $patientPhone; ?></div>
+                                            <div><i class="fas fa-envelope"></i> <?php  echo $patientEmail; ?></div>
+                                            <div><i class="fas fa-phone"></i> <?php  echo $patientPhone; ?></div>
                                         </td>
                                         <td>
-                                            <span class="age-badge <?php echo $ageClass; ?>">
-                                                <?php echo $age; ?> years
+                                            <span class="age-badge <?php  echo $ageClass; ?>">
+                                                <?php  echo $age; ?> years
                                             </span>
                                         </td>
-                                        <td><?php echo $patientGender; ?></td>
+                                        <td><?php  echo $patientGender; ?></td>
                                         <td>
-                                            <span class="last-appointment"><?php echo htmlspecialchars($lastAppointment); ?></span>
+                                            <span class="last-appointment"><?php  echo htmlspecialchars($lastAppointment); ?></span>
                                         </td>
                                         <td>
-                                            <span class="patient-status <?php echo $statusClass; ?>">
-                                                <?php echo $status; ?>
+                                            <span class="patient-status <?php  echo $statusClass; ?>">
+                                                <?php  echo $status; ?>
                                             </span>
                                         </td>
                                         <td>
                                             <div class="patient-actions">
-                                                <button class="action-btn view" onclick="viewPatient(<?php echo $patient['id']; ?>)">
+                                                <button class="action-btn view" onclick="viewPatient(<?php  echo $patient['id']; ?>)">
                                                     <i class="fas fa-eye"></i> View
                                                 </button>
                                             </div>
                                         </td>
                                     </tr>
-                                <?php
+                                <?php 
     endforeach; ?>
-                            <?php
+                            <?php 
 endif; ?>
                         </tbody>
                     </table>
                 </div>
                 
-                <?php if ($totalPages > 1): ?>
+                <?php  if ($totalPages > 1): ?>
                 <div class="pagination">
                     <div class="pagination-info">
-                        Showing <?php echo(($currentPage - 1) * $limit) + 1; ?> to <?php echo min($currentPage * $limit, $totalPatients); ?> of <?php echo $totalPatients; ?> patients
+                        Showing <?php  echo(($currentPage - 1) * $limit) + 1; ?> to <?php  echo min($currentPage * $limit, $totalPatients); ?> of <?php  echo $totalPatients; ?> patients
                     </div>
                     <div class="pagination-controls">
-                        <?php if ($currentPage > 1): ?>
-                            <a href="?<?php echo http_build_query(array_merge($filters, ['page' => $currentPage - 1])); ?>" class="pagination-btn">
+                        <?php  if ($currentPage > 1): ?>
+                            <a href="?<?php  echo http_build_query(array_merge($filters, ['page' => $currentPage - 1])); ?>" class="pagination-btn">
                                 <i class="fas fa-chevron-left"></i>
                             </a>
-                        <?php
+                        <?php 
     endif; ?>
                         
-                        <?php for ($i = 1; $i <= $totalPages; $i++): ?>
-                            <?php if ($i == $currentPage): ?>
-                                <span class="pagination-btn active"><?php echo $i; ?></span>
-                            <?php
+                        <?php  for ($i = 1; $i <= $totalPages; $i++): ?>
+                            <?php  if ($i == $currentPage): ?>
+                                <span class="pagination-btn active"><?php  echo $i; ?></span>
+                            <?php 
         else: ?>
-                                <a href="?<?php echo http_build_query(array_merge($filters, ['page' => $i])); ?>" class="pagination-btn"><?php echo $i; ?></a>
-                            <?php
+                                <a href="?<?php  echo http_build_query(array_merge($filters, ['page' => $i])); ?>" class="pagination-btn"><?php  echo $i; ?></a>
+                            <?php 
         endif; ?>
-                        <?php
+                        <?php 
     endfor; ?>
                         
-                        <?php if ($currentPage < $totalPages): ?>
-                            <a href="?<?php echo http_build_query(array_merge($filters, ['page' => $currentPage + 1])); ?>" class="pagination-btn">
+                        <?php  if ($currentPage < $totalPages): ?>
+                            <a href="?<?php  echo http_build_query(array_merge($filters, ['page' => $currentPage + 1])); ?>" class="pagination-btn">
                                 <i class="fas fa-chevron-right"></i>
                             </a>
-                        <?php
+                        <?php 
     endif; ?>
                     </div>
                 </div>
-                <?php
+                <?php 
 endif; ?>
             </div>
         </main>
@@ -649,7 +650,7 @@ endif; ?>
                         <div class="form-group">
                             <label for="birthdate">Date of Birth *</label>
                             <input type="date" id="birthdate" name="birthdate" class="form-control" required 
-                                   max="<?php echo date('Y-m-d'); ?>">
+                                   max="<?php  echo date('Y-m-d'); ?>">
                         </div>
                         <div class="form-group">
                             <label for="gender">Gender *</label>
@@ -720,7 +721,7 @@ endif; ?>
                     </div>
                     
                     <input type="hidden" name="action" value="create_patient">
-                    <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
+                    <input type="hidden" name="csrf_token" value="<?php  echo $_SESSION['csrf_token']; ?>">
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn" id="cancel-add-patient">Cancel</button>
@@ -749,16 +750,17 @@ endif; ?>
     <!-- External JavaScript -->
     <script src="../assets/js/staff-patients.js"></script>
     <script>
+        window.URL_ROOT = "<?php echo URL_ROOT; ?>";
         // Pass PHP data to JavaScript
         const phpData = {
-            successMessage: <?php echo json_encode($success_message); ?>,
-            errorMessage: <?php echo json_encode($error_message); ?>,
-            csrfToken: <?php echo json_encode($_SESSION['csrf_token'] ?? ''); ?>,
-            currentDate: <?php echo json_encode(date('F j, Y')); ?>,
-            totalPatients: <?php echo $patientStats['total_patients']; ?>,
-            activePatients: <?php echo $patientStats['active_patients']; ?>,
-            newThisMonth: <?php echo $patientStats['new_this_month']; ?>,
-            inactivePatients: <?php echo $patientStats['inactive_patients']; ?>
+            successMessage: <?php  echo json_encode($success_message); ?>,
+            errorMessage: <?php  echo json_encode($error_message); ?>,
+            csrfToken: <?php  echo json_encode($_SESSION['csrf_token'] ?? ''); ?>,
+            currentDate: <?php  echo json_encode(date('F j, Y')); ?>,
+            totalPatients: <?php  echo $patientStats['total_patients']; ?>,
+            activePatients: <?php  echo $patientStats['active_patients']; ?>,
+            newThisMonth: <?php  echo $patientStats['new_this_month']; ?>,
+            inactivePatients: <?php  echo $patientStats['inactive_patients']; ?>
         };
     </script>
 </body>

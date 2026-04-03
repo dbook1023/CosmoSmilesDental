@@ -6,6 +6,7 @@ require_once __DIR__ . '/../src/Services/DdosProtection.php';
 
 // Include necessary files
 require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../config/env.php';
 require_once __DIR__ . '/../src/Controllers/ContactController.php';
 require_once __DIR__ . '/../src/Controllers/SiteContentController.php';
 require_once __DIR__ . '/../src/Controllers/TestimonialController.php';
@@ -400,6 +401,7 @@ if ($isLoggedIn && $client_id) {
             .hero-content h1 { font-size: 3rem; }
             .hero-content p { margin: 0 auto 40px; }
             .hero-image { max-width: 500px; }
+            #hero-buttons { justify-content: center; }
         }
         /* Tablet & Mobile Responsiveness */
         @media (max-width: 992px) {
@@ -427,6 +429,9 @@ if ($isLoggedIn && $client_id) {
                 grid-template-columns: 1fr;
                 gap: 30px;
             }
+            .promo-card { text-align: center; }
+            .promo-card i { margin: 0 auto 25px; }
+            .why-us-item { flex-direction: column; align-items: center; text-align: center; }
         }
 
         @media (max-width: 576px) {
@@ -453,7 +458,7 @@ if ($isLoggedIn && $client_id) {
                 <div class="section-tag"><i class="fas fa-certificate"></i> Trusted Medical Excellence</div>
                 <h1><?php echo isset($homeContent['hero_title']) ? nl2br(htmlspecialchars($homeContent['hero_title'])) : 'Excellence in <br><span style="color: var(--secondary);">Every Smile.</span>'; ?></h1>
                 <p><?php echo isset($homeContent['hero_subtitle']) ? nl2br(htmlspecialchars($homeContent['hero_subtitle'])) : 'Welcome to Cosmo Smiles, where cutting-edge dental technology meets a compassionate, personalized approach to your clinical journey.'; ?></p>
-                <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+                <div id="hero-buttons" style="display: flex; gap: 15px; flex-wrap: wrap;">
                     <a href="client/new-appointments.php" class="btn-premium">Book Appointment</a>
                     <a href="services.php" class="btn-premium btn-outline">Our Services</a>
                 </div>
@@ -643,7 +648,9 @@ if ($isLoggedIn && $client_id) {
                                     <div class="author-info">
                                         <div class="author-avatar">
                                             <?php if(!empty($t['profile_image'])): ?>
-                                                <img src="/Cosmo_Smiles_Dental_Clinic/<?php echo htmlspecialchars($t['profile_image']); ?>" alt="Profile">
+                                                <img src="<?php echo URL_ROOT . htmlspecialchars($t['profile_image']); ?>" 
+                                                     alt="Profile" 
+                                                     onerror="this.onerror=null; this.parentElement.innerHTML='<i class=\'fas fa-user\'></i>';">
                                             <?php else: ?>
                                                 <i class="fas fa-user"></i>
                                             <?php endif; ?>

@@ -280,7 +280,7 @@ function displayPatientDetails(patient) {
             imagePath = imagePath.substring(1);
         }
         // Construct the full URL
-        const fullImageUrl = `/Cosmo_Smiles_Dental_Clinic/${imagePath}`;
+        const fullImageUrl = (window.URL_ROOT || '/Cosmo_Smiles_Dental_Clinic/') + imagePath;
         console.log("Profile image URL:", fullImageUrl); // Debug log
         profileImageHtml = `<img src="${fullImageUrl}" alt="${patient.first_name} ${patient.last_name}" onerror="this.onerror=null; this.parentNode.innerHTML='<div class=\\'patient-avatar-large\\'>${patientInitial}</div>';">`;
     } else {

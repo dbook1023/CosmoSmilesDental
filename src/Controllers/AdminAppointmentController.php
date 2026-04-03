@@ -144,12 +144,14 @@ class AdminAppointmentController {
 
         $query = "
             SELECT 
-                a.id, a.appointment_id, a.client_id, a.dentist_id,
+                a.id, a.appointment_id, a.client_id, a.dentist_id, a.service_id,
                 a.appointment_date as date, 
                 a.appointment_time as time, 
                 a.status,
-                CONCAT(a.patient_first_name, ' ', a.patient_last_name) as patient
+                CONCAT(a.patient_first_name, ' ', a.patient_last_name) as patient,
+                c.profile_image as patient_image
             FROM appointments a
+            LEFT JOIN clients c ON (a.client_id = c.client_id OR (a.client_id REGEXP '^[0-9]+$' AND a.client_id = c.id))
             WHERE 1=1
         ";
         $params = [];
@@ -163,6 +165,14 @@ class AdminAppointmentController {
             $stmt = $this->conn->prepare($query);
             $stmt->execute($params);
             $appointments = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            foreach ($appointments as &$app) {
+                $serviceDetails = $this->resolveServiceDetails($app['service_id']);
+                $app['service_name'] = $serviceDetails['name'];
+                $app['duration'] = $app['duration_minutes'] ?? $serviceDetails['duration'];
+            }
+            unset($app);
+
             $this->sendSuccessResponse([
                 'calendar_appointments' => $appointments,
                 'count' => count($appointments)
@@ -185,9 +195,11 @@ class AdminAppointmentController {
             SELECT 
                 a.*,
                 u.first_name as dentist_fname,
-                u.last_name as dentist_lname
+                u.last_name as dentist_lname,
+                c.profile_image as patient_image
             FROM appointments a
             LEFT JOIN admin_users u ON a.dentist_id = u.id
+            LEFT JOIN clients c ON (a.client_id = c.client_id OR (a.client_id REGEXP '^[0-9]+$' AND a.client_id = c.id))
             WHERE 1=1
         ";
         $params = [];
@@ -227,7 +239,7 @@ class AdminAppointmentController {
             $query .= " AND a.appointment_date >= ?";
             $params[] = $date;
         }
-        $query .= " ORDER BY a.appointment_date DESC, a.appointment_time DESC LIMIT 100";
+        $query .= " ORDER BY a.created_at DESC, a.id DESC LIMIT 100";
         try {
             $stmt = $this->conn->prepare($query);
             $stmt->execute($params);
@@ -242,19 +254,24 @@ class AdminAppointmentController {
                 if (empty($dentistName)) {
                     $dentistName = "No Dentist Assigned";
                 }
+                
+                // Resolve multiple services
+                $serviceDetails = $this->resolveServiceDetails($appointment['service_id']);
+                
                 $formattedAppointments[] = [
                     'id' => $appointment['id'],
                     'appointment_id' => $appointment['appointment_id'],
                     'client_id' => $appointment['client_id'],
                     'dentist_id' => $appointment['dentist_id'],
                     'patient' => trim($appointment['patient_first_name'] . ' ' . $appointment['patient_last_name']),
+                    'patient_image' => $appointment['patient_image'] ?? null,
                     'dentist_name' => 'Dr. ' . $dentistName,
-                    'service' => $this->resolveServiceNames($appointment['service_id']),
+                    'service' => $serviceDetails['name'],
                     'service_id' => $appointment['service_id'],
                     'date' => $appointment['appointment_date'],
                     'date_display' => date('M j, Y', strtotime($appointment['appointment_date'])),
                     'time' => date('h:i A', strtotime($appointment['appointment_time'])),
-                    'duration' => $appointment['duration_minutes'] ?? 30,
+                    'duration' => $appointment['duration_minutes'] ?? $serviceDetails['duration'],
                     'payment_type' => $appointment['payment_type'] ?? 'cash',
                     'status' => $appointment['status'],
                     'client_notes' => $clientNotes,
@@ -291,9 +308,11 @@ class AdminAppointmentController {
             SELECT 
                 a.*,
                 u.first_name as dentist_fname,
-                u.last_name as dentist_lname
+                u.last_name as dentist_lname,
+                c.profile_image as patient_image
             FROM appointments a
             LEFT JOIN admin_users u ON a.dentist_id = u.id
+            LEFT JOIN clients c ON (a.client_id = c.client_id OR (a.client_id REGEXP '^[0-9]+$' AND a.client_id = c.id))
             WHERE a.status IN $statusFilter
         ";
 
@@ -315,7 +334,7 @@ class AdminAppointmentController {
             $params[] = $date;
         }
 
-        $query .= " ORDER BY a.appointment_date ASC, a.appointment_time ASC LIMIT 100";
+        $query .= " ORDER BY a.created_at DESC, a.id DESC LIMIT 100";
         
         try {
             $stmt = $this->conn->prepare($query);
@@ -327,19 +346,24 @@ class AdminAppointmentController {
                 if (empty($dentistName)) {
                     $dentistName = "No Dentist Assigned";
                 }
+                
+                // Resolve multiple services
+                $serviceDetails = $this->resolveServiceDetails($appointment['service_id']);
+                
                 $formattedAppointments[] = [
                     'id' => $appointment['id'],
                     'appointment_id' => $appointment['appointment_id'],
                     'client_id' => $appointment['client_id'],
                     'dentist_id' => $appointment['dentist_id'],
                     'patient' => trim($appointment['patient_first_name'] . ' ' . $appointment['patient_last_name']),
+                    'patient_image' => $appointment['patient_image'] ?? null,
                     'dentist_name' => 'Dr. ' . $dentistName,
-                    'service' => $this->resolveServiceNames($appointment['service_id']),
+                    'service' => $serviceDetails['name'],
                     'service_id' => $appointment['service_id'],
                     'date' => $appointment['appointment_date'],
                     'date_display' => date('M j, Y', strtotime($appointment['appointment_date'])),
                     'time' => date('h:i A', strtotime($appointment['appointment_time'])),
-                    'duration' => $appointment['duration_minutes'] ?? 30,
+                    'duration' => $appointment['duration_minutes'] ?? $serviceDetails['duration'],
                     'payment_type' => $appointment['payment_type'] ?? 'cash',
                     'status' => $appointment['status'],
                     'created_at' => $appointment['created_at']
@@ -364,8 +388,10 @@ class AdminAppointmentController {
         $endDate = $_GET['end_date'] ?? date('Y-m-d');
         $query = "
             SELECT 
-                a.*
+                a.*,
+                c.profile_image as patient_image
             FROM appointments a
+            LEFT JOIN clients c ON (a.client_id = c.client_id OR (a.client_id REGEXP '^[0-9]+$' AND a.client_id = c.id))
             WHERE a.status = 'completed'
         ";
         $params = [];
@@ -382,7 +408,7 @@ class AdminAppointmentController {
         $query .= " AND DATE(a.updated_at) BETWEEN ? AND ?";
         $params[] = $startDate;
         $params[] = $endDate;
-        $query .= " ORDER BY a.updated_at DESC LIMIT 50";
+        $query .= " ORDER BY a.created_at DESC, a.id DESC LIMIT 50";
         try {
             $stmt = $this->conn->prepare($query);
             $stmt->execute($params);
@@ -393,18 +419,23 @@ class AdminAppointmentController {
                 $adminNotes = $appointment['admin_notes'] ?? '';
                 $truncatedAdminNotes = strlen($adminNotes) > 50 ? 
                     substr($adminNotes, 0, 50) . '...' : $adminNotes;
+                
+                // Resolve multiple services
+                $serviceDetails = $this->resolveServiceDetails($appointment['service_id']);
+                
                 $formattedAppointments[] = [
                     'id' => $appointment['id'],
                     'appointment_id' => $appointment['appointment_id'],
                     'client_id' => $appointment['client_id'],
                     'patient' => trim($appointment['patient_first_name'] . ' ' . $appointment['patient_last_name']),
-                    'service' => $this->resolveServiceNames($appointment['service_id']),
+                    'patient_image' => $appointment['patient_image'] ?? null,
+                    'service' => $serviceDetails['name'],
                     'service_id' => $appointment['service_id'],
                     'appointment_date' => $appointment['appointment_date'],
                     'appointment_time' => date('h:i A', strtotime($appointment['appointment_time'])),
                     'date_display' => date('M j, Y', strtotime($appointment['updated_at'])),
                     'time_display' => date('h:i A', strtotime($appointment['updated_at'])),
-                    'duration' => $appointment['duration_minutes'] ?? 30,
+                    'duration' => $appointment['duration_minutes'] ?? $serviceDetails['duration'],
                     'payment_type' => $appointment['payment_type'] ?? 'cash',
                     'client_notes' => $clientNotes,
                     'admin_notes' => $adminNotes,
@@ -429,14 +460,13 @@ class AdminAppointmentController {
             SELECT 
                 a.*,
                 CONCAT(a.patient_first_name, ' ', a.patient_last_name) AS patient_full_name,
-                s.name as service_name,
-                s.price as service_price,
+                c.profile_image AS patient_image,
                 CONCAT(u.first_name, ' ', u.last_name) as dentist_full_name,
                 f.rating as feedback_rating,
                 f.feedback as feedback_text,
                 f.created_at as feedback_date
             FROM appointments a
-            LEFT JOIN services s ON a.service_id = s.id
+            LEFT JOIN clients c ON (a.client_id = c.client_id OR (a.client_id REGEXP '^[0-9]+$' AND a.client_id = c.id))
             LEFT JOIN admin_users u ON a.dentist_id = u.id
             LEFT JOIN appointment_feedbacks f ON a.appointment_id = f.appointment_id
             WHERE a.appointment_id = ?
@@ -455,13 +485,15 @@ class AdminAppointmentController {
                 $this->sendErrorResponse('Unauthorized access to this appointment', 403);
             }
 
+            $serviceDetails = $this->resolveServiceDetails($appointment['service_id']);
             $formatted = [
                 'id' => $appointment['id'],
                 'appointment_id' => $appointment['appointment_id'],
                 'client_id' => $appointment['client_id'],
                 'patient' => $appointment['patient_full_name'],
+                'patient_image' => $appointment['patient_image'] ?? null,
                 'dentist' => !empty($appointment['dentist_full_name']) ? "Dr. " . $appointment['dentist_full_name'] : "No Dentist Assigned",
-                'service' => $this->resolveServiceNames($appointment['service_id']),
+                'service' => $serviceDetails['name'],
                 'service_id' => $appointment['service_id'],
                 'date' => $appointment['appointment_date'],
                 'date_display' => date('F j, Y', strtotime($appointment['appointment_date'])),
@@ -470,9 +502,9 @@ class AdminAppointmentController {
                 'status' => $appointment['status'],
                 'client_notes' => $appointment['client_notes'] ?? '',
                 'admin_notes' => $appointment['admin_notes'] ?? '',
-                'duration' => $appointment['duration_minutes'] ?? ($appointment['status'] === 'completed' ? 30 : null),
+                'duration' => $appointment['duration_minutes'] ?? $serviceDetails['duration'],
                 'payment_type' => $appointment['payment_type'] ?? 'cash',
-                'price' => $appointment['service_price'] ?? 0.00,
+                'price' => $appointment['service_price'] ?? $serviceDetails['price'],
                 'feedback' => $appointment['feedback_rating'] ? [
                     'rating' => $appointment['feedback_rating'],
                     'comment' => $appointment['feedback_text'],
@@ -639,14 +671,37 @@ class AdminAppointmentController {
                 $updateParams[] = $appointmentTime;
             }
             if ($serviceId) {
-                // Validate that the service is active before allowing it to be booked
-                $svcStmt = $this->conn->prepare("SELECT id FROM services WHERE id = ? AND is_active = 1");
-                $svcStmt->execute([$serviceId]);
-                if (!$svcStmt->fetch()) {
-                    $this->sendErrorResponse('The selected service is currently unavailable. Please choose an active service.', 400);
+                // Handle multiple services (can be array or CSV)
+                if (is_array($serviceId)) {
+                    $serviceIds = $serviceId;
+                } else {
+                    $serviceIds = array_filter(array_map('trim', explode(',', (string)$serviceId)));
                 }
+                $serviceIds = array_unique($serviceIds);
+                $serviceId = implode(',', $serviceIds);
+
+                // Validate and get details for all services
+                $serviceDetails = $this->resolveServiceDetails($serviceId);
+                
+                // If the resolved name is the default 'Dental Service', it means validation failed for all IDs
+                // However, resolveServiceDetails is a bit too lenient. Let's do a strict check.
+                $placeholders = str_repeat('?,', count($serviceIds) - 1) . '?';
+                $stmt = $this->conn->prepare("SELECT COUNT(*) FROM services WHERE id IN ($placeholders) AND is_active = 1");
+                $stmt->execute(array_values($serviceIds));
+                $foundCount = $stmt->fetchColumn();
+                
+                if ($foundCount < count($serviceIds)) {
+                    $this->sendErrorResponse('One or more selected services are currently unavailable.', 400);
+                }
+
                 $updateFields[] = "service_id = ?";
                 $updateParams[] = $serviceId;
+                
+                $updateFields[] = "service_price = ?";
+                $updateParams[] = $serviceDetails['price'];
+                
+                $updateFields[] = "duration_minutes = ?";
+                $updateParams[] = $serviceDetails['duration'];
             }
             if ($paymentType) {
                 $updateFields[] = "payment_type = ?";
@@ -759,14 +814,14 @@ class AdminAppointmentController {
             SELECT 
                 a.*,
                 CONCAT(a.patient_first_name, ' ', a.patient_last_name) AS patient_full_name,
-                s.name as service_name,
-                s.price as service_price,
+                
+                
                 CONCAT(u.first_name, ' ', u.last_name) as dentist_full_name,
                 f.rating as feedback_rating,
                 f.feedback as feedback_text,
                 f.created_at as feedback_date
             FROM appointments a
-            LEFT JOIN services s ON a.service_id = s.id
+            
             LEFT JOIN admin_users u ON a.dentist_id = u.id
             LEFT JOIN appointment_feedbacks f ON a.appointment_id = f.appointment_id
             WHERE a.appointment_id = ?
@@ -785,7 +840,7 @@ class AdminAppointmentController {
                 'client_id' => $appointment['client_id'],
                 'patient' => $appointment['patient_full_name'],
                 'dentist' => !empty($appointment['dentist_full_name']) ? "Dr. " . $appointment['dentist_full_name'] : "No Dentist Assigned",
-                'service' => $appointment['service_name'] ?? 'Dental Service',
+                'service' => $this->resolveServiceNames($appointment['service_id']),
                 'date' => $appointment['appointment_date'],
                 'date_display' => date('F j, Y', strtotime($appointment['appointment_date'])),
                 'time' => $appointment['appointment_time'],
@@ -1041,7 +1096,8 @@ class AdminAppointmentController {
         return $prefix . $datePart . $newNumber;
     }
     private function sendSuccessResponse($data = []) {
-        header('Content-Type: application/json');
+        ini_set('display_errors', 0);
+        if (ob_get_length()) @ob_clean(); header('Content-Type: application/json');
         http_response_code(200);
         echo json_encode([
             'success' => true,
@@ -1065,7 +1121,8 @@ class AdminAppointmentController {
         }
     }
     private function sendErrorResponse($message, $code = 400) {
-        header('Content-Type: application/json');
+        ini_set('display_errors', 0);
+        if (ob_get_length()) @ob_clean(); header('Content-Type: application/json');
         http_response_code($code);
         echo json_encode([
             'success' => false,
@@ -1089,6 +1146,39 @@ class AdminAppointmentController {
             return !empty($names) ? implode(', ', $names) : 'Dental Service';
         } catch (PDOException $e) {
             return 'Dental Service';
+        }
+    }
+
+    private function resolveServiceDetails($serviceIdsCsv) {
+        if (empty($serviceIdsCsv)) return ['name' => 'Dental Service', 'price' => 0, 'duration' => 30];
+        $ids = explode(',', $serviceIdsCsv);
+        $ids = array_filter(array_map('trim', $ids));
+        if (empty($ids)) return ['name' => 'Dental Service', 'price' => 0, 'duration' => 30];
+        
+        try {
+            $placeholders = str_repeat('?,', count($ids) - 1) . '?';
+            $query = "SELECT name, price, duration_minutes FROM services WHERE id IN ($placeholders)";
+            $stmt = $this->conn->prepare($query);
+            $stmt->execute(array_values($ids));
+            $services = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            $names = [];
+            $totalPrice = 0;
+            $totalDuration = 0;
+            
+            foreach ($services as $s) {
+                $names[] = $s['name'];
+                $totalPrice += $s['price'];
+                $totalDuration += ($s['duration_minutes'] ?? 30);
+            }
+            
+            return [
+                'name' => !empty($names) ? implode(', ', $names) : 'Dental Service',
+                'price' => $totalPrice,
+                'duration' => $totalDuration
+            ];
+        } catch (PDOException $e) {
+            return ['name' => 'Dental Service', 'price' => 0, 'duration' => 30];
         }
     }
 }

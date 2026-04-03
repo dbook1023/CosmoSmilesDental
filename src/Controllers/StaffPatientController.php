@@ -1029,4 +1029,3 @@ class StaffPatientController {
         return $this->conn;
     }
 }
-?>

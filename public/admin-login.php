@@ -1,4 +1,9 @@
 <?php 
+session_start();
+if (isset($_SESSION['admin_logged_in']) && $_SESSION['admin_logged_in'] === true) {
+    header("Location: admin/admin-dashboard.php");
+    exit();
+}
 require_once __DIR__ . '/../src/Services/DdosProtection.php'; 
 ?>
 <!DOCTYPE html>

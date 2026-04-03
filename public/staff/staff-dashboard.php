@@ -67,17 +67,34 @@ try {
 // Determine interval from GET parameter
 $period = $_GET['period'] ?? 'week';
 $intervalDays = 30;
+$periodText = 'last month';
 switch($period) {
-    case 'today': $intervalDays = 1; break;
-    case 'week': $intervalDays = 7; break;
-    case 'month': $intervalDays = 30; break;
-    case 'quarter': $intervalDays = 90; break;
-    case 'year': $intervalDays = 365; break;
+    case 'today': 
+        $intervalDays = 1; 
+        $periodText = 'yesterday';
+        break;
+    case 'week': 
+        $intervalDays = 7; 
+        $periodText = 'last week';
+        break;
+    case 'month': 
+        $intervalDays = 30; 
+        $periodText = 'last month';
+        break;
+    case 'quarter': 
+        $intervalDays = 90; 
+        $periodText = 'last quarter';
+        break;
+    case 'year': 
+        $intervalDays = 365; 
+        $periodText = 'last year';
+        break;
 }
 $intervalDays2x = $intervalDays * 2;
 $retentionDays = max(90, $intervalDays * 3);
 
 // Fetch dashboard statistics
+// Fetch dashboard statistics defaults
 $stats = [
     'total_appointments' => 0,
     'total_patients' => 0,
@@ -85,11 +102,19 @@ $stats = [
     'monthly_revenue' => 0
 ];
 
-// Fetch appointment trends
 $appointmentTrends = [];
+$revenueTrends = [];
+$patientTrends = [];
+$chartLabels = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']; // Default labels
 $demographicsData = [];
-$treatmentData = [];
+$treatmentData = ['labels' => [], 'data' => []];
 $operationsData = [];
+
+// Geographic/Gender results defaults
+$genderLabels = [];
+$genderData = [];
+$locationLabels = [];
+$locationData = [];
 
 try {
     $db = new Database();
@@ -103,8 +128,8 @@ try {
     $appointmentStmt->execute();
     $stats['total_appointments'] = $appointmentStmt->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
     
-    // Get total patients
-    $patientQuery = "SELECT COUNT(*) as total FROM clients";
+    // Get new patients in interval
+    $patientQuery = "SELECT COUNT(*) as total FROM clients WHERE created_at >= DATE_SUB(CURDATE(), INTERVAL $intervalDays DAY)";
     $patientStmt = $conn->prepare($patientQuery);
     $patientStmt->execute();
     $stats['total_patients'] = $patientStmt->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
@@ -123,36 +148,114 @@ try {
     $retentionStmt->execute();
     $stats['patient_retention'] = round($retentionStmt->fetch(PDO::FETCH_ASSOC)['retention_rate'] ?? 0, 1);
     
-    // Get monthly revenue (based on service prices)
-    $revenueQuery = "SELECT SUM(s.price) as total_revenue 
-                     FROM appointments a
-                     JOIN services s ON a.service_id = s.id
-                     WHERE a.appointment_date >= DATE_SUB(CURDATE(), INTERVAL $intervalDays DAY)
-                     AND a.status IN ('completed', 'confirmed')";
+    // Get monthly revenue (based on service prices) - CSV aware
+    $revenueQuery = "SELECT service_id FROM appointments 
+                     WHERE appointment_date >= DATE_SUB(CURDATE(), INTERVAL $intervalDays DAY)
+                     AND status = 'completed'";
     $revenueStmt = $conn->prepare($revenueQuery);
     $revenueStmt->execute();
-    $revenue = $revenueStmt->fetch(PDO::FETCH_ASSOC)['total_revenue'] ?? 0;
-    $stats['monthly_revenue'] = (float)$revenue;
+    $apps = $revenueStmt->fetchAll(PDO::FETCH_ASSOC);
     
-    // Get appointment trends for the last 7 days
+    $totalRevenue = 0;
+    // Cache service prices
+    $servicePrices = [];
+    $allServices = $conn->query("SELECT id, name, price FROM services")->fetchAll(PDO::FETCH_ASSOC);
+    foreach($allServices as $s) $servicePrices[$s['id']] = $s['price'];
+
+    foreach($apps as $app) {
+        $ids = array_filter(array_map('trim', explode(',', $app['service_id'] ?? '')));
+        foreach($ids as $id) {
+            $totalRevenue += ($servicePrices[$id] ?? 0);
+        }
+    }
+    $stats['monthly_revenue'] = (float)$totalRevenue;
+    
+    // Dynamic aggregation based on period
+    $chartLabels = [];
+    $groupBy = '';
+    $groupByClient = ''; // For queries on the clients table (uses created_at instead of appointment_date)
+    
+    switch($period) {
+        case 'today':
+            $chartLabels = ['8am', '12pm', '4pm', '8pm'];
+            $groupBy = "CASE 
+                            WHEN HOUR(appointment_time) < 12 THEN '8am'
+                            WHEN HOUR(appointment_time) < 16 THEN '12pm'
+                            WHEN HOUR(appointment_time) < 20 THEN '4pm'
+                            ELSE '8pm' 
+                        END";
+            $groupByClient = "CASE 
+                            WHEN HOUR(created_at) < 12 THEN '8am'
+                            WHEN HOUR(created_at) < 16 THEN '12pm'
+                            WHEN HOUR(created_at) < 20 THEN '4pm'
+                            ELSE '8pm' 
+                        END";
+            break;
+        case 'week':
+            $chartLabels = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+            $groupBy = "DAYNAME(appointment_date)";
+            $groupByClient = "DAYNAME(created_at)";
+            break;
+        case 'month':
+            $chartLabels = ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5'];
+            $groupBy = "CONCAT('Week ', FLOOR((DAYOFMONTH(appointment_date)-1)/7) + 1)";
+            $groupByClient = "CONCAT('Week ', FLOOR((DAYOFMONTH(created_at)-1)/7) + 1)";
+            break;
+        case 'quarter':
+        case 'year':
+            $chartLabels = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+            $groupBy = "MONTHNAME(appointment_date)";
+            $groupByClient = "MONTHNAME(created_at)";
+            break;
+        default:
+            $chartLabels = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+            $groupBy = "DAYNAME(appointment_date)";
+            $groupByClient = "DAYNAME(created_at)";
+            break;
+    }
+
     $trendQuery = "SELECT 
-                    DAYNAME(appointment_date) as day_name,
-                    DAYOFWEEK(appointment_date) as day_num,
-                    COUNT(*) as count
+                    service_id,
+                    $groupBy as label
                    FROM appointments
                    WHERE appointment_date >= DATE_SUB(CURDATE(), INTERVAL $intervalDays DAY)
-                   AND status != 'cancelled'
-                   GROUP BY DAYNAME(appointment_date), DAYOFWEEK(appointment_date)
-                   ORDER BY day_num";
+                   AND status = 'completed'";
     $trendStmt = $conn->prepare($trendQuery);
     $trendStmt->execute();
     $trendResults = $trendStmt->fetchAll(PDO::FETCH_ASSOC);
     
-    // Initialize days array
-    $daysOrder = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-    $appointmentTrends = array_fill_keys($daysOrder, 0);
+    // Initialize stats containers
+    $appointmentTrends = array_fill_keys($chartLabels, 0);
+    $revenueTrends = array_fill_keys($chartLabels, 0);
+    
     foreach ($trendResults as $row) {
-        $appointmentTrends[$row['day_name']] = $row['count'];
+        $label = $row['label'];
+        if (isset($appointmentTrends[$label])) {
+            $appointmentTrends[$label]++;
+            
+            $ids = array_filter(array_map('trim', explode(',', $row['service_id'] ?? '')));
+            foreach($ids as $id) {
+                $revenueTrends[$label] += (float)($servicePrices[$id] ?? 0);
+            }
+        }
+    }
+    
+    // Get patient acquisition trends
+    $patientTrendQuery = "SELECT 
+                    $groupByClient as label,
+                    COUNT(id) as count
+                   FROM clients
+                   WHERE created_at >= DATE_SUB(CURDATE(), INTERVAL $intervalDays DAY)
+                   GROUP BY label";
+    $patientTrendStmt = $conn->prepare($patientTrendQuery);
+    $patientTrendStmt->execute();
+    $patientTrendResults = $patientTrendStmt->fetchAll(PDO::FETCH_ASSOC);
+    
+    $patientTrends = array_fill_keys($chartLabels, 0);
+    foreach ($patientTrendResults as $row) {
+        if (isset($patientTrends[$row['label']])) {
+            $patientTrends[$row['label']] = $row['count'];
+        }
     }
     
     // Get demographics by age group
@@ -183,27 +286,76 @@ try {
     
     $demographicsData = array_values($ageGroups);
     
-    // Get treatment distribution
-    $treatmentQuery = "SELECT 
-                        s.name as service_name,
-                        COUNT(a.id) as count
-                       FROM appointments a
-                       JOIN services s ON a.service_id = s.id
-                       WHERE a.appointment_date >= DATE_SUB(CURDATE(), INTERVAL $intervalDays DAY)
-                       GROUP BY s.name
-                       ORDER BY count DESC
-                       LIMIT 6";
-    $treatmentStmt = $conn->prepare($treatmentQuery);
-    $treatmentStmt->execute();
-    $treatmentResults = $treatmentStmt->fetchAll(PDO::FETCH_ASSOC);
+    // Get demographics by gender
+    $genderQuery = "SELECT gender, COUNT(*) as count 
+                    FROM clients 
+                    WHERE gender IN ('male', 'female', 'other') 
+                    GROUP BY gender";
+    $genderStmt = $conn->prepare($genderQuery);
+    $genderStmt->execute();
+    $genders = $genderStmt->fetchAll(PDO::FETCH_ASSOC);
     
-    $treatmentLabels = [];
-    $treatmentCounts = [];
-    foreach ($treatmentResults as $row) {
-        $treatmentLabels[] = $row['service_name'];
-        $treatmentCounts[] = $row['count'];
+    $genderGroups = ['Male' => 0, 'Female' => 0, 'Other' => 0];
+    foreach ($genders as $gRow) {
+        $g = ucfirst($gRow['gender']);
+        if (isset($genderGroups[$g])) {
+            $genderGroups[$g] = $gRow['count'];
+        }
     }
     
+    $genderLabels = array_keys($genderGroups);
+    $genderData = array_values($genderGroups);
+
+    // Get demographics by location (city)
+    $locationQuery = "SELECT city, COUNT(*) as count 
+                      FROM clients 
+                      WHERE city IS NOT NULL AND city != '' 
+                      GROUP BY city ORDER BY count DESC LIMIT 5";
+    $locationStmt = $conn->prepare($locationQuery);
+    $locationStmt->execute();
+    $locations = $locationStmt->fetchAll(PDO::FETCH_ASSOC);
+    
+    $locationLabels = [];
+    $locationData = [];
+    foreach ($locations as $lRow) {
+        $locationLabels[] = $lRow['city'];
+        $locationData[] = $lRow['count'];
+    }
+    
+    // Get treatment distribution (CSV aware)
+    $treatmentQuery = "SELECT service_id FROM appointments 
+                       WHERE appointment_date >= DATE_SUB(CURDATE(), INTERVAL $intervalDays DAY)";
+    $tStmt = $conn->prepare($treatmentQuery);
+    $tStmt->execute();
+    $tApps = $tStmt->fetchAll(PDO::FETCH_ASSOC);
+    
+    // Resolve service names for treatment counts
+    if (!isset($allServiceNames)) {
+        $allServiceNames = [];
+        $servicesRaw = $conn->query("SELECT id, name FROM services")->fetchAll(PDO::FETCH_ASSOC);
+        foreach($servicesRaw as $s) $allServiceNames[$s['id']] = $s['name'];
+    }
+    
+    $counts = [];
+    foreach($tApps as $app) {
+        $ids = array_filter(array_map('trim', explode(',', $app['service_id'] ?? '')));
+        foreach($ids as $id) {
+            if(isset($allServiceNames[$id])) {
+                $name = $allServiceNames[$id];
+                $counts[$name] = ($counts[$name] ?? 0) + 1;
+            }
+        }
+    }
+    arsort($counts);
+    $treatmentResults = array_slice($counts, 0, 6, true);
+    
+    // Fallback if no treatments found in period
+    if (empty($treatmentResults)) {
+        $treatmentResults = ['No Procedures' => 0];
+    }
+    
+    $treatmentLabels = array_keys($treatmentResults);
+    $treatmentCounts = array_values($treatmentResults);
     $treatmentData = ['labels' => $treatmentLabels, 'data' => $treatmentCounts];
     
     // Get operations data (efficiency metrics)
@@ -224,21 +376,54 @@ try {
         'revenue' => $stats['monthly_revenue']
     ];
     
-    // Get top performing services for table
-    $topServicesQuery = "SELECT 
-                            s.name as service_name,
-                            COUNT(a.id) as appointment_count,
-                            SUM(s.price) as revenue,
-                            AVG(CASE WHEN a.status = 'completed' THEN 1 ELSE 0 END) * 100 as completion_rate
-                         FROM appointments a
-                         JOIN services s ON a.service_id = s.id
-                         WHERE a.appointment_date >= DATE_SUB(CURDATE(), INTERVAL $intervalDays DAY)
-                         GROUP BY s.name
-                         ORDER BY appointment_count DESC
-                         LIMIT 5";
-    $topServicesStmt = $conn->prepare($topServicesQuery);
-    $topServicesStmt->execute();
-    $topServices = $topServicesStmt->fetchAll(PDO::FETCH_ASSOC);
+    // Get top performing services for table (CSV aware)
+    $serviceStats = [];
+    $allServiceNames = [];
+    foreach($allServices as $s) {
+        $allServiceNames[$s['id']] = $s['name'];
+        $serviceStats[$s['id']] = [
+            'name' => $s['name'],
+            'price' => (float)$s['price'],
+            'appointment_count' => 0,
+            'completed_count' => 0,
+            'revenue' => 0
+        ];
+    }
+    
+    // Fetch all appointments for the interval
+    $periodAptsQuery = "SELECT service_id, status FROM appointments 
+                       WHERE appointment_date >= DATE_SUB(CURDATE(), INTERVAL $intervalDays DAY)";
+    $periodAptsStmt = $conn->prepare($periodAptsQuery);
+    $periodAptsStmt->execute();
+    $periodApts = $periodAptsStmt->fetchAll(PDO::FETCH_ASSOC);
+    
+    foreach ($periodApts as $apt) {
+        $ids = array_filter(array_map('trim', explode(',', $apt['service_id'] ?? '')));
+        foreach ($ids as $id) {
+            if (isset($serviceStats[$id])) {
+                $serviceStats[$id]['appointment_count']++;
+                if ($apt['status'] === 'completed') {
+                    $serviceStats[$id]['completed_count']++;
+                    $serviceStats[$id]['revenue'] += $serviceStats[$id]['price'];
+                }
+            }
+        }
+    }
+    
+    $topServicesRaw = [];
+    foreach ($serviceStats as $s) {
+        if ($s['appointment_count'] > 0) {
+            $s['completion_rate'] = ($s['completed_count'] / $s['appointment_count']) * 100;
+            $s['service_name'] = $s['name'];
+            $topServicesRaw[] = $s;
+        }
+    }
+    
+    usort($topServicesRaw, function($a, $b) {
+        return $b['appointment_count'] <=> $a['appointment_count'];
+    });
+    
+    $topServices = array_slice($topServicesRaw, 0, 5);
     
 } catch (Exception $e) {
     error_log("Error fetching dashboard data: " . $e->getMessage());
@@ -253,20 +438,24 @@ try {
     $prevStmt = $conn->prepare($prevMonthQuery);
     $prevStmt->execute();
     $prevAppointments = $prevStmt->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
-    $prevAppointmentsDiv = $prevAppointments > 0 ? $prevAppointments : 1;
-    
-    $appointmentChange = $stats['total_appointments'] > 0 ? 
-        round(($stats['total_appointments'] - $prevAppointments) / $prevAppointmentsDiv * 100, 1) : 0;
+    if ($prevAppointments == 0) {
+        $appointmentChange = $stats['total_appointments'] > 0 ? 100 : 0;
+    } else {
+        $appointmentChange = round(($stats['total_appointments'] - $prevAppointments) / $prevAppointments * 100, 1);
+    }
     
     $prevPatientsQuery = "SELECT COUNT(*) as total FROM clients 
-                          WHERE created_at < DATE_SUB(CURDATE(), INTERVAL $intervalDays DAY)";
+                          WHERE created_at BETWEEN DATE_SUB(CURDATE(), INTERVAL $intervalDays2x DAY) 
+                          AND DATE_SUB(CURDATE(), INTERVAL $intervalDays DAY)";
     $prevPatientStmt = $conn->prepare($prevPatientsQuery);
     $prevPatientStmt->execute();
     $prevPatients = $prevPatientStmt->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
-    $prevPatientsDiv = $prevPatients > 0 ? $prevPatients : 1;
     
-    $patientChange = $stats['total_patients'] > 0 ? 
-        round(($stats['total_patients'] - $prevPatients) / $prevPatientsDiv * 100, 1) : 0;
+    if ($prevPatients == 0) {
+        $patientChange = $stats['total_patients'] > 0 ? 100 : 0;
+    } else {
+        $patientChange = round(($stats['total_patients'] - $prevPatients) / $prevPatients * 100, 1);
+    }
         
 } catch (Exception $e) {
     $appointmentChange = 0;
@@ -976,6 +1165,10 @@ try {
                 margin-bottom: 20px;
             }
             
+            .data-table-container {
+                overflow-x: auto;
+            }
+            
             .data-table {
                 min-width: 500px;
             }
@@ -1214,9 +1407,9 @@ try {
                     <div class="stat-content">
                         <h3>Total Appointments</h3>
                         <div class="stat-number"><?php echo number_format($stats['total_appointments']); ?></div>
-                        <div class="stat-change <?php echo $appointmentChange >= 0 ? 'positive' : 'negative'; ?>">
-                            <i class="fas fa-arrow-<?php echo $appointmentChange >= 0 ? 'up' : 'down'; ?>"></i> 
-                            <?php echo abs($appointmentChange); ?>% from last week
+                        <div class="stat-change <?php  echo $appointmentChange >= 0 ? 'positive' : 'negative'; ?>">
+                            <i class="fas fa-arrow-<?php  echo $appointmentChange >= 0 ? 'up' : 'down'; ?>"></i> 
+                            <?php  echo abs($appointmentChange); ?>% from <?php echo $periodText; ?>
                         </div>
                     </div>
                 </div>
@@ -1228,9 +1421,9 @@ try {
                     <div class="stat-content">
                         <h3>Total Patients</h3>
                         <div class="stat-number"><?php echo number_format($stats['total_patients']); ?></div>
-                        <div class="stat-change <?php echo $patientChange >= 0 ? 'positive' : 'negative'; ?>">
-                            <i class="fas fa-arrow-<?php echo $patientChange >= 0 ? 'up' : 'down'; ?>"></i> 
-                            <?php echo abs($patientChange); ?>% from last month
+                        <div class="stat-change <?php  echo $patientChange >= 0 ? 'positive' : 'negative'; ?>">
+                            <i class="fas fa-arrow-<?php  echo $patientChange >= 0 ? 'up' : 'down'; ?>"></i> 
+                            <?php  echo abs($patientChange); ?>% from <?php echo $periodText; ?>
                         </div>
                     </div>
                 </div>
@@ -1254,9 +1447,9 @@ try {
                     </div>
                     <div class="stat-content">
                         <h3>Monthly Revenue</h3>
-                        <div class="stat-number">₱<?php echo number_format($stats['monthly_revenue'], 2); ?></div>
+                        <div class="stat-number">&#8369;<?php echo number_format($stats['monthly_revenue'], 2); ?></div>
                         <div class="stat-change positive">
-                            <i class="fas fa-arrow-up"></i> 8.7% from last month
+                            <i class="fas fa-arrow-up"></i> 8.7% from <?php echo $periodText; ?>
                         </div>
                     </div>
                 </div>
@@ -1269,14 +1462,44 @@ try {
                     <div class="card-header">
                         <h3>Appointment Trends</h3>
                         <div class="time-period">
-                            <button class="period-btn active" data-period="week">Week</button>
-                            <button class="period-btn" data-period="month">Month</button>
-                            <button class="period-btn" data-period="quarter">Quarter</button>
+                            <button class="period-btn <?php echo $period === 'week' ? 'active' : ''; ?>" data-period="week">Week</button>
+                            <button class="period-btn <?php echo $period === 'month' ? 'active' : ''; ?>" data-period="month">Month</button>
+                            <button class="period-btn <?php echo $period === 'quarter' ? 'active' : ''; ?>" data-period="quarter">Quarter</button>
                         </div>
                     </div>
                     <div class="card-content">
                         <div class="chart-container">
                             <canvas id="appointmentsChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Revenue Growth Chart -->
+                <div class="analytics-card">
+                    <div class="card-header">
+                        <h3>Revenue Growth</h3>
+                        <div class="time-period">
+                            <span style="font-size: 0.85rem; color: var(--dark); opacity: 0.7;">Daily Trend</span>
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <div class="chart-container">
+                            <canvas id="revenueChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Patient Acquisition Chart -->
+                <div class="analytics-card">
+                    <div class="card-header">
+                        <h3>Patient Acquisition</h3>
+                        <div class="time-period">
+                            <span style="font-size: 0.85rem; color: var(--dark); opacity: 0.7;">Daily Trend</span>
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <div class="chart-container">
+                            <canvas id="patientChart"></canvas>
                         </div>
                     </div>
                 </div>
@@ -1357,7 +1580,7 @@ try {
                                     <tr>
                                         <td><?php echo htmlspecialchars($service['service_name']); ?></td>
                                         <td><?php echo $service['appointment_count']; ?></td>
-                                        <td>₱<?php echo number_format($service['revenue'], 2); ?></td>
+                                        <td>&#8369;<?php echo number_format($service['revenue'], 2); ?></td>
                                         <td><?php echo round($service['completion_rate'], 1); ?>%</td>
                                         <td><span class="trend-indicator trend-up"><i class="fas fa-arrow-up"></i> 12%</span></td>
                                     </tr>
@@ -1374,11 +1597,20 @@ try {
 
     <script>
         // PHP data for JavaScript
+        const chartLabels = <?php echo json_encode($chartLabels); ?>;
         const appointmentTrends = <?php echo json_encode(array_values($appointmentTrends)); ?>;
+        const revenueTrends = <?php echo json_encode(array_values($revenueTrends)); ?>;
+        const patientTrends = <?php echo json_encode(array_values($patientTrends)); ?>;
         const demographicsData = <?php echo json_encode($demographicsData); ?>;
         const treatmentLabels = <?php echo json_encode($treatmentData['labels'] ?? []); ?>;
         const treatmentCounts = <?php echo json_encode($treatmentData['data'] ?? []); ?>;
         const operationsData = <?php echo json_encode($operationsData); ?>;
+        const demographicsAgeLabels = ['0-12 Years', '13-19 Years', '20-39 Years', '40-59 Years', '60+ Years'];
+        const demographicsAgeData = <?php echo json_encode($demographicsData); ?>;
+        const demographicsGenderLabels = <?php echo json_encode($genderLabels ?? []); ?>;
+        const demographicsGenderData = <?php echo json_encode($genderData ?? []); ?>;
+        const demographicsLocationLabels = <?php echo json_encode($locationLabels ?? []); ?>;
+        const demographicsLocationData = <?php echo json_encode($locationData ?? []); ?>;
         
         // Set current date
         const currentDate = new Date();
@@ -1438,7 +1670,7 @@ try {
         });
 
         // Initialize Charts
-        let appointmentsChart, demographicsChart, treatmentChart, operationsChart;
+        let appointmentsChart, demographicsChart, treatmentChart, operationsChart, revenueChart, patientChart;
 
         function initializeCharts() {
             // Color palettes for categorized charts
@@ -1450,7 +1682,7 @@ try {
             appointmentsChart = new Chart(appointmentsCtx, {
                 type: 'line',
                 data: {
-                    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                    labels: chartLabels,
                     datasets: [{
                         label: 'Appointments',
                         data: appointmentTrends,
@@ -1485,14 +1717,66 @@ try {
                 }
             });
 
+            // Revenue Growth Chart
+            const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+            revenueChart = new Chart(revenueCtx, {
+                type: 'line',
+                data: {
+                    labels: chartLabels,
+                    datasets: [{
+                        label: 'Revenue (₱)',
+                        data: revenueTrends,
+                        borderColor: '#28a745', // Success Green
+                        backgroundColor: 'rgba(40, 167, 69, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.05)' } },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+
+            // Patient Acquisition Chart
+            const patientCtx = document.getElementById('patientChart').getContext('2d');
+            patientChart = new Chart(patientCtx, {
+                type: 'bar',
+                data: {
+                    labels: chartLabels,
+                    datasets: [{
+                        label: 'New Patients',
+                        data: patientTrends,
+                        backgroundColor: 'rgba(255, 159, 64, 0.8)', // Orange
+                        borderColor: '#ff9f40',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { stepSize: 1 } },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+
             // Demographics Chart
             const demographicsCtx = document.getElementById('demographicsChart').getContext('2d');
             demographicsChart = new Chart(demographicsCtx, {
                 type: 'doughnut',
                 data: {
-                    labels: ['0-12 Years', '13-19 Years', '20-39 Years', '40-59 Years', '60+ Years'],
+                    labels: demographicsAgeLabels,
                     datasets: [{
-                        data: demographicsData,
+                        data: demographicsAgeData,
                         backgroundColor: paletteAlpha.slice(0, 5),
                         borderColor: paletteSolid.slice(0, 5),
                         borderWidth: 1
@@ -1507,6 +1791,50 @@ try {
                         }
                     }
                 }
+            });
+
+            // Handle period/filter buttons
+            document.querySelectorAll('.period-btn').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    // Prevent multiple reloads
+                    if (this.classList.contains('active') && !this.closest('.analytics-card').querySelector('h3').textContent.includes('Appointment')) return;
+
+                    const group = this.closest('.time-period').querySelectorAll('.period-btn');
+                    group.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    const period = this.getAttribute('data-period');
+                    const cardTitle = this.closest('.analytics-card').querySelector('h3').textContent;
+                    
+                    // Specific chart handling based on the period value given
+                    if (period === 'age' || period === 'gender' || period === 'location') {
+                        showSystemMessage(`Updating chart to view: ${period.charAt(0).toUpperCase() + period.slice(1)}...`, 'success');
+                        if (period === 'age') {
+                            demographicsChart.data.labels = demographicsAgeLabels;
+                            demographicsChart.data.datasets[0].data = demographicsAgeData;
+                        } else if (period === 'gender') {
+                            demographicsChart.data.labels = demographicsGenderLabels;
+                            demographicsChart.data.datasets[0].data = demographicsGenderData;
+                        } else if (period === 'location') {
+                            demographicsChart.data.labels = demographicsLocationLabels;
+                            demographicsChart.data.datasets[0].data = demographicsLocationData;
+                        }
+                        
+                        // Adjust palette size
+                        const dataLength = demographicsChart.data.labels.length;
+                        demographicsChart.data.datasets[0].backgroundColor = paletteAlpha.slice(0, dataLength);
+                        demographicsChart.data.datasets[0].borderColor = paletteSolid.slice(0, dataLength);
+                        demographicsChart.update();
+                    } else if (period === 'week' || period === 'month' || period === 'quarter') {
+                        // For generic appointment trends, force a global redirect
+                        if (cardTitle.includes('Appointment')) {
+                            showSystemMessage(`Redirecting to ${period} view...`, 'info');
+                            setTimeout(() => {
+                                window.location.href = `?period=${period}`;
+                            }, 500); // Small delay for the toast to be seen
+                        }
+                    }
+                });
             });
 
             // Treatment Chart
@@ -1592,7 +1920,7 @@ try {
             alert.className = `alert alert-${type}`;
             alert.innerHTML = `
                 <span>${message}</span>
-                <button class="close-message" style="background:none; border:none; cursor:pointer; font-size:1.2rem; margin-left:10px;">×</button>
+                <button class="close-message" style="background:none; border:none; cursor:pointer; font-size:1.2rem; margin-left:10px;">&times;</button>
             `;
             
             systemMessages.appendChild(alert);
@@ -1611,6 +1939,7 @@ try {
                 }
             }, 5000);
         }
+
 
         // Stat card click functionality
         const statCards = document.querySelectorAll('.stat-card');

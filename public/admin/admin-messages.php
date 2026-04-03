@@ -1,4 +1,4 @@
-<?php
+<?php 
 session_start();
 require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../../src/Services/TextBeeSMSService.php';
@@ -92,11 +92,10 @@ try {
                 a.appointment_id as appointment_id,
                 a.appointment_date as date,
                 a.appointment_time as time,
-                s.name as service_type,
+                a.service_id,
                 a.status,
                 a.notes
               FROM appointments a
-              LEFT JOIN services s ON a.service_id = s.id
               LEFT JOIN clients c ON a.client_id = c.client_id
               WHERE a.status != 'cancelled'
               ORDER BY a.client_id, a.appointment_date DESC";
@@ -104,6 +103,14 @@ try {
     $stmt = $conn->prepare($query);
     $stmt->execute();
     $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    // Fetch all services to map service IDs to names
+    $servicesStmt = $conn->prepare("SELECT id, name FROM services");
+    $servicesStmt->execute();
+    $allServices = [];
+    foreach ($servicesStmt->fetchAll(PDO::FETCH_ASSOC) as $s) {
+        $allServices[$s['id']] = $s['name'];
+    }
 
     // Group appointments by client_id
     $patientsMap = [];
@@ -120,11 +127,26 @@ try {
         }
 
         if ($row['appointment_id']) {
+            // Reconstruct service_type dynamically
+            $serviceType = 'Dental Service';
+            if (!empty($row['service_id'])) {
+                $ids = array_filter(array_map('trim', explode(',', $row['service_id'])));
+                $names = [];
+                foreach ($ids as $s_id) {
+                    if (isset($allServices[$s_id])) {
+                        $names[] = $allServices[$s_id];
+                    }
+                }
+                if (!empty($names)) {
+                    $serviceType = implode(', ', $names);
+                }
+            }
+
             $patientsMap[$clientId]['appointments'][] = [
                 'id' => $row['appointment_id'],
                 'date' => $row['date'],
                 'time' => $row['time'],
-                'type' => $row['service_type'] ?? 'General Checkup',
+                'type' => $serviceType,
                 'status' => $row['status'],
                 'notes' => $row['notes']
             ];
@@ -149,7 +171,7 @@ $currentPage = 'messages';
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin - Send Reminders - Cosmo Smiles Dental</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <?php include 'includes/admin-sidebar-css.php'; ?>
+    <?php  include 'includes/admin-sidebar-css.php'; ?>
     <style>
 
         .btn {
@@ -485,10 +507,10 @@ $currentPage = 'messages';
     <!-- Overlay for mobile sidebar -->
     <div class="overlay"></div>
 
-    <?php include 'includes/admin-header.php'; ?>
+    <?php  include 'includes/admin-header.php'; ?>
 
     <div class="admin-container">
-        <?php include 'includes/admin-sidebar.php'; ?>
+        <?php  include 'includes/admin-sidebar.php'; ?>
 
         <main class="admin-main">
             <div class="dashboard-header">
@@ -563,7 +585,7 @@ $currentPage = 'messages';
                             <textarea id="reminder-message" class="form-control" rows="4" required 
                                       placeholder="Enter your SMS message..."></textarea>
                             <div class="form-help">
-                                Character count: <span id="char-count">0</span>/1600 • 
+                                Character count: <span id="char-count">0</span>/1600 &bull; 
                                 Use [Patient Name], [Appointment Date], [Appointment Time], [Appointment ID] as placeholders
                             </div>
                         </div>
@@ -629,7 +651,7 @@ $currentPage = 'messages';
             }, 5000);
         }
 
-        const patients = <?php echo $patientsJson; ?>;
+        const patients = <?php  echo $patientsJson; ?>;
         let selectedPatient = null;
         let selectedAppointment = null;
 
@@ -710,7 +732,7 @@ $currentPage = 'messages';
                         <div>
                             <div class="patient-name">${escapeHtml(patient.name)}</div>
                             <div class="patient-details">
-                                Client ID: ${escapeHtml(patient.id)} • Phone: ${escapeHtml(patient.phone)}
+                                Client ID: ${escapeHtml(patient.id)} \u2022 Phone: ${escapeHtml(patient.phone)}
                             </div>
                         </div>
                         <div>
@@ -752,7 +774,7 @@ $currentPage = 'messages';
                             <div class="appointment-id">${escapeHtml(a.id)}</div>
                             <div class="appointment-info">
                                 ${formatDate(a.date)} at ${formatTime(a.time)}<br>
-                                <small>${escapeHtml(a.type)} • ${escapeHtml(a.status)}</small>
+                                <small>${escapeHtml(a.type)} \u2022 ${escapeHtml(a.status)}</small>
                             </div>
                         </div>
                         <div><i class="fas fa-chevron-right"></i></div>

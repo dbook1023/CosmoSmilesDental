@@ -18,4 +18,3 @@ if ($isLoggedIn) {
 } else {
     $userName = 'My Account';
 }
-?>

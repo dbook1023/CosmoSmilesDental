@@ -195,4 +195,3 @@ try {
         'errors' => ['general' => 'Failed to initialize login system.']
     ]);
 }
-?>

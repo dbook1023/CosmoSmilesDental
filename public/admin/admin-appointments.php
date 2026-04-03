@@ -1,4 +1,5 @@
-<?php
+<?php 
+require_once __DIR__ . '/../../config/env.php';
 session_start();
 if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== true) {
     header('Location: ../admin-login.php');
@@ -31,7 +32,7 @@ $currentDateTime = date('Y-m-d H:i:s');
     <title>Admin - My Appointments - Cosmo Smiles Dental</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="../assets/css/admin-appointments.css">
-    <?php include 'includes/admin-sidebar-css.php'; ?>
+    <?php  include 'includes/admin-sidebar-css.php'; ?>
     <style>
         .appointments-table-container { margin-bottom: 20px !important; overflow-x: auto; }
         .appointments-table { table-layout: fixed !important; border-collapse: collapse !important; width: 100%; min-width: 1200px; }
@@ -176,18 +177,18 @@ $currentDateTime = date('Y-m-d H:i:s');
         @media (max-width: 992px) { .appointments-table { min-width: 900px; } }
     </style>
     <script>
-        const CURRENT_DENTIST_ID = '<?php echo $currentDentistId; ?>';
-        const CURRENT_ADMIN_ID = '<?php echo $currentAdminId; ?>';
-        const ADMIN_FULL_NAME = '<?php echo htmlspecialchars($adminFullName, ENT_QUOTES); ?>';
-        const DENTIST_FULL_NAME = '<?php echo htmlspecialchars($dentistFullName, ENT_QUOTES); ?>';
-        const IS_SUPER_ADMIN = <?php echo $isSuperAdmin ? 'true' : 'false'; ?>;
-        const SERVER_TIME = '<?php echo $currentDateTime; ?>';
+        const CURRENT_DENTIST_ID = '<?php  echo $currentDentistId; ?>';
+        const CURRENT_ADMIN_ID = '<?php  echo $currentAdminId; ?>';
+        const ADMIN_FULL_NAME = '<?php  echo htmlspecialchars($adminFullName, ENT_QUOTES); ?>';
+        const DENTIST_FULL_NAME = '<?php  echo htmlspecialchars($dentistFullName, ENT_QUOTES); ?>';
+        const IS_SUPER_ADMIN = <?php  echo $isSuperAdmin ? 'true' : 'false'; ?>;
+        const SERVER_TIME = '<?php  echo $currentDateTime; ?>';
         const PHILIPPINES_TIMEZONE = 'Asia/Manila';
         const API_BASE_URL = '../controllers/AdminAppointmentController.php';
-        console.log('✓ API_BASE_URL:', API_BASE_URL);
-        console.log('✓ Admin Name:', ADMIN_FULL_NAME);
-        console.log('✓ Dentist Name:', DENTIST_FULL_NAME);
-        console.log('✓ Server Time:', SERVER_TIME);
+        console.log('âœ“ API_BASE_URL:', API_BASE_URL);
+        console.log('âœ“ Admin Name:', ADMIN_FULL_NAME);
+        console.log('âœ“ Dentist Name:', DENTIST_FULL_NAME);
+        console.log('âœ“ Server Time:', SERVER_TIME);
     </script>
 </head>
 <body>
@@ -272,7 +273,7 @@ $currentDateTime = date('Y-m-d H:i:s');
                     </div>
                     <div class="detail-row">
                         <span class="detail-label">Dentist:</span>
-                        <span class="detail-value" id="modalDentist"><?php echo htmlspecialchars($dentistFullName); ?></span>
+                        <span class="detail-value" id="modalDentist"><?php  echo htmlspecialchars($dentistFullName); ?></span>
                     </div>
                     <div class="time-tracking-grid" id="timeTrackingSection" style="display: none; margin-top: 20px;">
                         <div class="time-tracker-item">
@@ -333,7 +334,7 @@ $currentDateTime = date('Y-m-d H:i:s');
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
             <div>
                 <label for="followupDate">Select Date:</label>
-                <input type="date" id="followupDate" class="filter-control" min="<?php echo date('Y-m-d', strtotime('+1 day')); ?>">
+                <input type="date" id="followupDate" class="filter-control" min="<?php  echo date('Y-m-d', strtotime('+1 day')); ?>">
             </div>
             <div>
                 <label for="followupTime">Select Time:</label>
@@ -435,7 +436,7 @@ $currentDateTime = date('Y-m-d H:i:s');
                         <i class="fas fa-user-shield"></i>
                     </div>
                     <div class="profile-info">
-                        <span class="profile-name"><?php echo htmlspecialchars($adminFullName); ?></span>
+                        <span class="profile-name"><?php  echo htmlspecialchars($adminFullName); ?></span>
                         <span class="profile-role">Administrator</span>
                     </div>
                 </div>
@@ -486,7 +487,7 @@ $currentDateTime = date('Y-m-d H:i:s');
                             <label for="dentist-filter">Filter by Dentist</label>
                             <select id="dentist-filter" class="filter-control">
                                 <option value="all">All Dentists</option>
-                                <option value="<?php echo $currentAdminId; ?>">My Appointments</option>
+                                <option value="<?php  echo $currentAdminId; ?>">My Appointments</option>
                             </select>
                         </div>
                         <div class="filter-group">
@@ -519,7 +520,7 @@ $currentDateTime = date('Y-m-d H:i:s');
                     <button class="nav-btn" id="prev-period">
                         <i class="fas fa-chevron-left"></i> Previous
                     </button>
-                    <div class="current-period" id="selected-period">This Month, <?php echo date('F Y'); ?></div>
+                    <div class="current-period" id="selected-period">This Month, <?php  echo date('F Y'); ?></div>
                     <button class="nav-btn" id="next-period">
                         Next <i class="fas fa-chevron-right"></i>
                     </button>
@@ -545,7 +546,7 @@ $currentDateTime = date('Y-m-d H:i:s');
                         <h3><i class="fas fa-calendar-check"></i> Your Appointments</h3>
                         <div class="date-display">
                             <i class="fas fa-list"></i>
-                            <span id="confirmed-table-period">This Month, <?php echo date('F Y'); ?></span>
+                            <span id="confirmed-table-period">This Month, <?php  echo date('F Y'); ?></span>
                         </div>
                     </div>
                     <table class="appointments-table" id="confirmedAppointmentsTable">
@@ -724,6 +725,7 @@ $currentDateTime = date('Y-m-d H:i:s');
             </div>
         </main>
     </div>
+    <script>window.URL_ROOT = "<?php  echo URL_ROOT; ?>";</script>
     <script src="../assets/js/admin-appointments.js"></script>
 </body>
 </html>

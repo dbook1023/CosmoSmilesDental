@@ -47,4 +47,3 @@ class StaffSessionManager {
         $_SESSION['staff_department'] = $staffData['department'];
     }
 }
-?>

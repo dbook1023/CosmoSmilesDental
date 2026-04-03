@@ -92,8 +92,8 @@ function initializeNavigation() {
     // Handle window resize
     window.addEventListener('resize', function() {
         if (window.innerWidth > 992) {
-            mobileMenu.classList.remove('active');
-            overlay.classList.remove('active');
+            if (mobileMenu) mobileMenu.classList.remove('active');
+            if (overlay) overlay.classList.remove('active');
             document.body.style.overflow = '';
             if (hamburger) hamburger.innerHTML = '<i class="fas fa-bars"></i>';
         }

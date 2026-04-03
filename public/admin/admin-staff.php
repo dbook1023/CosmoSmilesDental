@@ -1,4 +1,4 @@
-<?php
+<?php 
 session_start();
 require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../../src/Controllers/AdminStaffController.php';
@@ -55,7 +55,7 @@ $sidebarAdminRole = (strtolower($admin_role) === 'admin') ? 'Administrator' : uc
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Staff Management - Cosmo Smiles Dental</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <?php include 'includes/admin-sidebar-css.php'; ?>
+    <?php  include 'includes/admin-sidebar-css.php'; ?>
     <style>
 
 
@@ -776,11 +776,11 @@ $sidebarAdminRole = (strtolower($admin_role) === 'admin') ? 'Administrator' : uc
     </style>
 </head>
 <body>
-    <?php include 'includes/admin-header.php'; ?>
+    <?php  include 'includes/admin-header.php'; ?>
 
     <!-- Admin Dashboard Layout -->
     <div class="admin-container">
-        <?php include 'includes/admin-sidebar.php'; ?>
+        <?php  include 'includes/admin-sidebar.php'; ?>
 
         <!-- Main Content -->
         <main class="admin-main">
@@ -810,28 +810,28 @@ $sidebarAdminRole = (strtolower($admin_role) === 'admin') ? 'Administrator' : uc
                     <div class="stat-icon"><i class="fas fa-user-md"></i></div>
                     <div class="stat-content">
                         <h3>Total Staff</h3>
-                        <div class="stat-number"><?php echo isset($stats['total']) ? $stats['total'] : 0; ?></div>
+                        <div class="stat-number"><?php  echo isset($stats['total']) ? $stats['total'] : 0; ?></div>
                     </div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-icon"><i class="fas fa-user-check"></i></div>
                     <div class="stat-content">
                         <h3>Active Staff</h3>
-                        <div class="stat-number"><?php echo isset($stats['active']) ? $stats['active'] : 0; ?></div>
+                        <div class="stat-number"><?php  echo isset($stats['active']) ? $stats['active'] : 0; ?></div>
                     </div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-icon"><i class="fas fa-user-clock"></i></div>
                     <div class="stat-content">
                         <h3>Pending Approval</h3>
-                        <div class="stat-number"><?php echo isset($stats['pending']) ? $stats['pending'] : 0; ?></div>
+                        <div class="stat-number"><?php  echo isset($stats['pending']) ? $stats['pending'] : 0; ?></div>
                     </div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-icon"><i class="fas fa-stethoscope"></i></div>
                     <div class="stat-content">
                         <h3>Medical Staff</h3>
-                        <div class="stat-number"><?php echo isset($stats['medical']) ? $stats['medical'] : 0; ?></div>
+                        <div class="stat-number"><?php  echo isset($stats['medical']) ? $stats['medical'] : 0; ?></div>
                     </div>
                 </div>
             </div>
@@ -842,23 +842,23 @@ $sidebarAdminRole = (strtolower($admin_role) === 'admin') ? 'Administrator' : uc
                     <div class="filter-group">
                         <label for="role-filter">Role</label>
                         <select id="role-filter" class="filter-control">
-                            <option value="all" <?php echo $role == 'all' ? 'selected' : ''; ?>>All Roles</option>
-                            <option value="dentist" <?php echo $role == 'dentist' ? 'selected' : ''; ?>>Dentist</option>
-                            <option value="receptionist" <?php echo $role == 'receptionist' ? 'selected' : ''; ?>>Receptionist</option>
+                            <option value="all" <?php  echo $role == 'all' ? 'selected' : ''; ?>>All Roles</option>
+                            <option value="dentist" <?php  echo $role == 'dentist' ? 'selected' : ''; ?>>Dentist</option>
+                            <option value="receptionist" <?php  echo $role == 'receptionist' ? 'selected' : ''; ?>>Receptionist</option>
                         </select>
                     </div>
                     <div class="filter-group">
                         <label for="status-filter">Status</label>
                         <select id="status-filter" class="filter-control">
-                            <option value="all" <?php echo $status == 'all' ? 'selected' : ''; ?>>All Statuses</option>
-                            <option value="active" <?php echo $status == 'active' ? 'selected' : ''; ?>>Active</option>
-                            <option value="inactive" <?php echo $status == 'inactive' ? 'selected' : ''; ?>>Inactive</option>
-                            <option value="pending" <?php echo $status == 'pending' ? 'selected' : ''; ?>>Pending</option>
+                            <option value="all" <?php  echo $status == 'all' ? 'selected' : ''; ?>>All Statuses</option>
+                            <option value="active" <?php  echo $status == 'active' ? 'selected' : ''; ?>>Active</option>
+                            <option value="inactive" <?php  echo $status == 'inactive' ? 'selected' : ''; ?>>Inactive</option>
+                            <option value="pending" <?php  echo $status == 'pending' ? 'selected' : ''; ?>>Pending</option>
                         </select>
                     </div>
                     <div class="filter-group">
                         <label for="search-filter">Search</label>
-                        <input type="text" id="search-filter" class="filter-control" placeholder="Search by name..." value="<?php echo htmlspecialchars($search); ?>">
+                        <input type="text" id="search-filter" class="filter-control" placeholder="Search by name..." value="<?php  echo htmlspecialchars($search); ?>">
                     </div>
                     <div class="filter-actions">
                         <button class="btn btn-primary" id="apply-filters-btn">
@@ -896,78 +896,78 @@ $sidebarAdminRole = (strtolower($admin_role) === 'admin') ? 'Administrator' : uc
                             </tr>
                         </thead>
                         <tbody id="staff-table-body">
-                            <?php if (empty($staffList)): ?>
+                            <?php  if (empty($staffList)): ?>
                                 <tr>
                                     <td colspan="7" style="text-align: center; padding: 40px;">No staff members found</td>
                                 </tr>
-                            <?php else: ?>
-                                <?php foreach ($staffList as $staff): ?>
+                            <?php  else: ?>
+                                <?php  foreach ($staffList as $staff): ?>
                                 <tr>
                                     <td data-label="Staff Member">
                                         <div class="staff-info">
                                             <div class="staff-avatar">
-                                                <i class="fas fa-user-<?php echo ($staff['user_type'] === 'admin_type') ? 'md' : 'user'; ?>"></i>
+                                                <i class="fas fa-user-<?php  echo ($staff['user_type'] === 'admin_type') ? 'md' : 'user'; ?>"></i>
                                             </div>
                                             <div class="staff-details">
-                                                <h4><?php echo htmlspecialchars($staff['first_name'] . ' ' . $staff['last_name']); ?></h4>
-                                                <p>ID: <?php echo htmlspecialchars($staff['staff_id']); ?></p>
+                                                <h4><?php  echo htmlspecialchars($staff['first_name'] . ' ' . $staff['last_name']); ?></h4>
+                                                <p>ID: <?php  echo htmlspecialchars($staff['staff_id']); ?></p>
                                             </div>
                                         </div>
                                     </td>
                                     <td data-label="Role">
-                                        <span class="staff-role role-<?php echo strtolower(str_replace(' ', '_', $staff['role'])); ?>"><?php 
+                                        <span class="staff-role role-<?php  echo strtolower(str_replace(' ', '_', $staff['role'])); ?>"><?php  
                                             $displayRole = str_replace('_', ' ', $staff['role']);
                                             echo ($displayRole === 'admin') ? 'Dentist' : htmlspecialchars(ucfirst($displayRole)); 
                                         ?></span>
                                     </td>
-                                    <td data-label="Email"><?php echo htmlspecialchars($staff['email']); ?></td>
-                                    <td data-label="Phone"><?php echo !empty($staff['phone']) ? htmlspecialchars($staff['phone']) : 'N/A'; ?></td>
+                                    <td data-label="Email"><?php  echo htmlspecialchars($staff['email']); ?></td>
+                                    <td data-label="Phone"><?php  echo !empty($staff['phone']) ? htmlspecialchars($staff['phone']) : 'N/A'; ?></td>
                                     <td data-label="Status">
-                                        <span class="staff-status status-<?php echo strtolower($staff['status']); ?>"><?php echo htmlspecialchars(ucfirst($staff['status'])); ?></span>
+                                        <span class="staff-status status-<?php  echo strtolower($staff['status']); ?>"><?php  echo htmlspecialchars(ucfirst($staff['status'])); ?></span>
                                     </td>
-                                    <td data-label="Join Date"><?php echo date('M d, Y', strtotime($staff['created_at'])); ?></td>
+                                    <td data-label="Join Date"><?php  echo date('M d, Y', strtotime($staff['created_at'])); ?></td>
                                     <td data-label="Actions">
                                         <div class="staff-actions">
-                                            <button class="action-btn view" data-id="<?php echo $staff['id']; ?>" data-type="<?php echo $staff['user_type']; ?>">
+                                            <button class="action-btn view" data-id="<?php  echo $staff['id']; ?>" data-type="<?php  echo $staff['user_type']; ?>">
                                                 <i class="fas fa-eye"></i> View
                                             </button>
-                                            <button class="action-btn edit" data-id="<?php echo $staff['id']; ?>" data-type="<?php echo $staff['user_type']; ?>">
+                                            <button class="action-btn edit" data-id="<?php  echo $staff['id']; ?>" data-type="<?php  echo $staff['user_type']; ?>">
                                                 <i class="fas fa-edit"></i> Edit
                                             </button>
-                                            <?php if ($staff['user_type'] !== 'admin_type' && strtolower($staff['status']) === 'inactive'): ?>
-                                            <button class="action-btn delete" data-id="<?php echo $staff['id']; ?>" data-type="<?php echo $staff['user_type']; ?>">
+                                            <?php  if ($staff['user_type'] !== 'admin_type' && strtolower($staff['status']) === 'inactive'): ?>
+                                            <button class="action-btn delete" data-id="<?php  echo $staff['id']; ?>" data-type="<?php  echo $staff['user_type']; ?>">
                                                 <i class="fas fa-trash-alt"></i> Delete
                                             </button>
-                                            <?php endif; ?>
+                                            <?php  endif; ?>
                                         </div>
                                     </td>
                                 </tr>
-                                <?php endforeach; ?>
-                            <?php endif; ?>
+                                <?php  endforeach; ?>
+                            <?php  endif; ?>
                         </tbody>
                     </table>
                 </div>
                 
                 <div class="pagination-container">
                     <div class="pagination-info">
-                        Showing <span><?php echo count($staffList); ?></span> of <span><?php echo $totalRecords; ?></span> staff members
+                        Showing <span><?php  echo count($staffList); ?></span> of <span><?php  echo $totalRecords; ?></span> staff members
                     </div>
                     <div class="pagination-controls" id="pagination-controls">
-                        <button class="pagination-btn" id="prev-page" <?php echo $page <= 1 ? 'disabled' : ''; ?> data-page="<?php echo $page - 1; ?>">
+                        <button class="pagination-btn" id="prev-page" <?php  echo $page <= 1 ? 'disabled' : ''; ?> data-page="<?php  echo $page - 1; ?>">
                             <i class="fas fa-chevron-left"></i>
                         </button>
                         <div class="page-numbers">
-                            <?php 
+                            <?php  
                             $startPage = max(1, $page - 2);
                             $endPage = min($totalPages, $startPage + 4);
                             if ($endPage - $startPage < 4) $startPage = max(1, $endPage - 4);
                             
                             for($i = $startPage; $i <= $endPage; $i++): 
                             ?>
-                                <button class="page-btn <?php echo $i === $page ? 'active' : ''; ?>" data-page="<?php echo $i; ?>"><?php echo $i; ?></button>
-                            <?php endfor; ?>
+                                <button class="page-btn <?php  echo $i === $page ? 'active' : ''; ?>" data-page="<?php  echo $i; ?>"><?php  echo $i; ?></button>
+                            <?php  endfor; ?>
                         </div>
-                        <button class="pagination-btn" id="next-page" <?php echo $page >= $totalPages ? 'disabled' : ''; ?> data-page="<?php echo $page + 1; ?>">
+                        <button class="pagination-btn" id="next-page" <?php  echo $page >= $totalPages ? 'disabled' : ''; ?> data-page="<?php  echo $page + 1; ?>">
                             <i class="fas fa-chevron-right"></i>
                         </button>
                     </div>

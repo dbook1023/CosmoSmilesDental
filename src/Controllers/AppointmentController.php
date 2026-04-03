@@ -75,8 +75,15 @@ class AppointmentController {
             }
             
             // Get service-related information (Handle multiple services)
-            $serviceIds = is_array($appointmentData['service_id']) ? $appointmentData['service_id'] : [$appointmentData['service_id']];
-            $serviceIds = array_filter(array_unique($serviceIds)); // Remove duplicates and empty values
+            if (is_array($appointmentData['service_id'])) {
+                $serviceIds = $appointmentData['service_id'];
+            } else {
+                // Handle both single ID and CSV string
+                $serviceIds = explode(',', (string)$appointmentData['service_id']);
+            }
+            
+            $serviceIds = array_filter(array_map('trim', $serviceIds)); // Remove whitespace and empty values
+            $serviceIds = array_unique($serviceIds); // Remove duplicates
             
             if (empty($serviceIds)) {
                 return ['success' => false, 'message' => "Please select at least one service."];
@@ -545,6 +552,41 @@ class AppointmentController {
         }
     }
 
+    public function resolveServiceDetails($serviceIdsCsv) {
+        if (empty($serviceIdsCsv)) return ['name' => 'Dental Service', 'duration' => 30, 'price' => 0];
+        
+        $ids = is_array($serviceIdsCsv) ? $serviceIdsCsv : array_filter(array_map('trim', explode(',', $serviceIdsCsv)));
+        if (empty($ids)) return ['name' => 'Dental Service', 'duration' => 30, 'price' => 0];
+        
+        try {
+            $placeholders = str_repeat('?,', count($ids) - 1) . '?';
+            $query = "SELECT name, duration_minutes, price FROM services WHERE id IN ($placeholders)";
+            $stmt = $this->conn->prepare($query);
+            $stmt->execute(array_values($ids));
+            $services = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            if (empty($services)) return ['name' => 'Dental Service', 'duration' => 30, 'price' => 0];
+            
+            $names = array_column($services, 'name');
+            $totalDuration = array_sum(array_column($services, 'duration_minutes'));
+            $totalPrice = array_sum(array_column($services, 'price'));
+            
+            return [
+                'name' => implode(', ', $names),
+                'duration' => $totalDuration ?: 30,
+                'price' => $totalPrice
+            ];
+        } catch (PDOException $e) {
+            error_log("Error resolving service details: " . $e->getMessage());
+            return ['name' => 'Dental Service', 'duration' => 30, 'price' => 0];
+        }
+    }
+
+    public function resolveServiceNames($serviceIdsCsv) {
+        $details = $this->resolveServiceDetails($serviceIdsCsv);
+        return $details['name'];
+    }
+
     public function getClientAppointments($clientId, $month = null, $year = null) {
         try {
             error_log("=== getClientAppointments() called ===");
@@ -552,17 +594,27 @@ class AppointmentController {
             error_log("Month: " . ($month ?: 'current month'));
             error_log("Year: " . ($year ?: 'current year'));
             
-            $query = "SELECT a.*, s.name as service_name, 
+            $query = "SELECT a.*, 
                              CONCAT('Dr. ', d.first_name, ' ', d.last_name) as dentist_name,
                              d.specialization as dentist_specialization,
                              f.id as feedback_id
                       FROM appointments a
-                      LEFT JOIN services s ON a.service_id = s.id
                       LEFT JOIN dentists d ON a.dentist_id = d.id
                       LEFT JOIN appointment_feedbacks f ON a.appointment_id = f.appointment_id
-                      WHERE a.client_id = :client_id";
+                      WHERE (a.client_id = :client_id OR (a.client_id REGEXP '^[0-9]+$' AND a.client_id = :numeric_id))";
             
-            $params = [':client_id' => $clientId];
+            // Extract numeric ID if possible
+            $numericId = 0;
+            if (preg_match('/PAT0*(\d+)/', $clientId, $matches)) {
+                $numericId = $matches[1];
+            } else if (is_numeric($clientId)) {
+                $numericId = $clientId;
+            }
+
+            $params = [
+                ':client_id' => $clientId,
+                ':numeric_id' => $numericId
+            ];
             
             if ($month && $year) {
                 $query .= " AND MONTH(a.appointment_date) = :month AND YEAR(a.appointment_date) = :year";
@@ -570,7 +622,7 @@ class AppointmentController {
                 $params[':year'] = $year;
             }
             
-            $query .= " ORDER BY a.appointment_date ASC, a.appointment_time ASC";
+            $query .= " ORDER BY a.created_at DESC, a.id DESC";
             
             error_log("SQL Query: " . $query);
             error_log("SQL Parameters: " . print_r($params, true));
@@ -592,24 +644,32 @@ class AppointmentController {
                     $formattedAppointments[$date] = [];
                 }
                 
+                $details = $this->resolveServiceDetails($appointment['service_id']);
+                $serviceName = $details['name'];
+                
                 $formattedAppointments[$date][] = [
                     'id' => $appointment['id'],
                     'appointment_id' => $appointment['appointment_id'],
-                    'client_id' => $appointment['client_id'],
-                    'time' => date('g:i A', strtotime($appointment['appointment_time'])),
-                    'notes' => $appointment['client_notes'] ?: 'No additional notes',
-                    'service' => $appointment['service_name'],
-                    'service_price' => $appointment['service_price'],
-                    'payment_type' => $appointment['payment_type'],
-                    'status' => $appointment['status'],
-                    'has_feedback' => !empty($appointment['feedback_id']),
-                    'dentist_name' => $appointment['dentist_name'],
-                    'patient_first_name' => $appointment['patient_first_name'],
-                    'patient_last_name' => $appointment['patient_last_name'],
-                    'patient_phone' => $appointment['patient_phone'],
-                    'patient_email' => $appointment['patient_email'],
                     'appointment_date' => $appointment['appointment_date'],
-                    'appointment_time' => $appointment['appointment_time']
+                    'appointment_time' => $appointment['appointment_time'],
+                    'time' => date('g:i A', strtotime($appointment['appointment_time'])), // Added for original JS compatibility with AM/PM
+                    'status' => $appointment['status'],
+                    'service' => $serviceName,
+                    'service_name' => $serviceName,
+                    'service_id' => $appointment['service_id'],
+                    'dentist' => $appointment['dentist_name'],
+                    'dentist_name' => $appointment['dentist_name'],
+                    'dentist_id' => $appointment['dentist_id'],
+                    'notes' => $appointment['client_notes'] ?: 'No additional notes',
+                    'payment_type' => $appointment['payment_type'],
+                    'service_price' => $appointment['service_price'], // Keep original for reference, or use $details['price']
+                    'duration' => $details['duration'] . ' mins', // Original JS expects localized string
+                    'duration_minutes' => $details['duration'],
+                    'has_feedback' => !empty($appointment['feedback_id']),
+                    'patient_first_name' => $appointment['patient_first_name'] ?? 'Guest',
+                    'patient_last_name' => $appointment['patient_last_name'] ?? 'Patient',
+                    'patient_phone' => $appointment['patient_phone'],
+                    'patient_email' => $appointment['patient_email']
                 ];
             }
             
@@ -633,10 +693,19 @@ class AppointmentController {
             
             $countQuery = "SELECT COUNT(*) as total 
                           FROM appointments a
-                          WHERE a.client_id = :client_id";
+                          WHERE (a.client_id = :client_id OR (a.client_id REGEXP '^[0-9]+$' AND a.client_id = :numeric_id))";
             
+            // Extract numeric ID if possible
+            $numericId = 0;
+            if (preg_match('/PAT0*(\d+)/', $clientId, $matches)) {
+                $numericId = $matches[1];
+            } else if (is_numeric($clientId)) {
+                $numericId = $clientId;
+            }
+
             $countStmt = $this->conn->prepare($countQuery);
             $countStmt->bindParam(':client_id', $clientId);
+            $countStmt->bindParam(':numeric_id', $numericId, PDO::PARAM_INT);
             $countStmt->execute();
             $totalResult = $countStmt->fetch(PDO::FETCH_ASSOC);
             $totalRecords = $totalResult['total'] ?? 0;
@@ -644,20 +713,20 @@ class AppointmentController {
             
             error_log("Total records found: " . $totalRecords);
             
-            $query = "SELECT a.*, s.name as service_name, 
+            $query = "SELECT a.*, 
                              CONCAT('Dr. ', d.first_name, ' ', d.last_name) as dentist_name,
                              d.specialization as dentist_specialization,
                              f.id as feedback_id
                       FROM appointments a
-                      LEFT JOIN services s ON a.service_id = s.id
                       LEFT JOIN dentists d ON a.dentist_id = d.id
                       LEFT JOIN appointment_feedbacks f ON a.appointment_id = f.appointment_id
-                      WHERE a.client_id = :client_id
-                      ORDER BY a.appointment_date DESC, a.appointment_time DESC
+                      WHERE (a.client_id = :client_id OR (a.client_id REGEXP '^[0-9]+$' AND a.client_id = :numeric_id))
+                      ORDER BY a.created_at DESC, a.id DESC
                       LIMIT :limit OFFSET :offset";
             
             $stmt = $this->conn->prepare($query);
             $stmt->bindParam(':client_id', $clientId);
+            $stmt->bindParam(':numeric_id', $numericId, PDO::PARAM_INT);
             $stmt->bindParam(':limit', $perPage, PDO::PARAM_INT);
             $stmt->bindParam(':offset', $offset, PDO::PARAM_INT);
             $stmt->execute();
@@ -668,23 +737,28 @@ class AppointmentController {
             
             $history = [];
             foreach ($appointments as $appointment) {
+                $details = $this->resolveServiceDetails($appointment['service_id']);
+                $serviceName = $details['name'];
                 $history[] = [
                     'id' => $appointment['id'],
                     'appointment_id' => $appointment['appointment_id'],
                     'date' => $appointment['appointment_date'],
                     'time' => date('g:i A', strtotime($appointment['appointment_time'])),
                     'notes' => $appointment['client_notes'] ?: 'No additional notes',
-                    'service' => $appointment['service_name'],
+                    'service' => $serviceName,
+                    'service_name' => $serviceName,
                     'service_price' => $appointment['service_price'],
                     'payment_type' => $appointment['payment_type'],
                     'status' => $appointment['status'],
                     'has_feedback' => !empty($appointment['feedback_id']),
+                    'dentist' => $appointment['dentist_name'],
                     'dentist_name' => $appointment['dentist_name'],
+                    'specialization' => $appointment['dentist_specialization'],
                     'patient_first_name' => $appointment['patient_first_name'],
                     'patient_last_name' => $appointment['patient_last_name'],
                     'patient_phone' => $appointment['patient_phone'],
                     'patient_email' => $appointment['patient_email'],
-                    'duration_minutes' => $appointment['duration_minutes'] ?? 30,
+                    'duration_minutes' => $details['duration'],
                     'created_at' => $appointment['created_at'],
                     'updated_at' => $appointment['updated_at']
                 ];
@@ -813,18 +887,18 @@ class AppointmentController {
             
             $clientId = $clientData['client_id'];
             
-            $query = "SELECT a.*, s.name as service_name, 
-                             CONCAT('Dr. ', d.first_name, ' ', d.last_name) as dentist_name,
-                             d.specialization as dentist_specialization
+            $query = "SELECT a.* 
                       FROM appointments a
-                      LEFT JOIN services s ON a.service_id = s.id
-                      LEFT JOIN dentists d ON a.dentist_id = d.id
                       WHERE a.appointment_id = :appointment_id 
-                      AND a.client_id = :client_id";
+                      AND (a.client_id = :client_id OR (a.client_id REGEXP '^[0-9]+$' AND a.client_id = :numeric_id))";
             
+            // Extract numeric ID if possible
+            $numericId = $clientDbId;
+
             $stmt = $this->conn->prepare($query);
             $stmt->bindParam(':appointment_id', $appointmentId);
             $stmt->bindParam(':client_id', $clientId);
+            $stmt->bindParam(':numeric_id', $numericId, PDO::PARAM_INT);
             $stmt->execute();
             
             $appointment = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -841,9 +915,9 @@ class AppointmentController {
                         'patient_phone' => $appointment['patient_phone'],
                         'patient_email' => $appointment['patient_email'],
                         'service_id' => $appointment['service_id'],
-                        'service_name' => $appointment['service_name'],
+                        'service_name' => $this->resolveServiceNames($appointment['service_id']),
                         'dentist_id' => $appointment['dentist_id'],
-                        'dentist_name' => $appointment['dentist_name'],
+                        'dentist_name' => 'N/A',
                         'appointment_date' => $appointment['appointment_date'],
                         'appointment_time' => $appointment['appointment_time'],
                         'notes' => $appointment['client_notes'],
@@ -923,18 +997,23 @@ class AppointmentController {
             error_log("Appointment ID: " . $appointmentId);
             error_log("Client ID: " . ($clientId ?: 'NULL'));
             
-            $query = "SELECT a.*, s.name as service_name, s.duration_minutes as service_duration,
-                             CONCAT('Dr. ', d.first_name, ' ', d.last_name) as dentist_name,
-                             d.specialization as dentist_specialization
+            $query = "SELECT a.* 
                       FROM appointments a
-                      LEFT JOIN services s ON a.service_id = s.id
-                      LEFT JOIN dentists d ON a.dentist_id = d.id
                       WHERE a.appointment_id = :appointment_id 
-                      AND a.client_id = :client_id";
+                      AND (a.client_id = :client_id OR (a.client_id REGEXP '^[0-9]+$' AND a.client_id = :numeric_id))";
             
+            // Extract numeric ID if possible
+            $numericId = 0;
+            if (preg_match('/PAT0*(\d+)/', $clientId, $matches)) {
+                $numericId = $matches[1];
+            } else if (is_numeric($clientId)) {
+                $numericId = $clientId;
+            }
+
             $stmt = $this->conn->prepare($query);
             $stmt->bindParam(':appointment_id', $appointmentId);
             $stmt->bindParam(':client_id', $clientId);
+            $stmt->bindParam(':numeric_id', $numericId, PDO::PARAM_INT);
             $stmt->execute();
             
             $appointment = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -949,30 +1028,28 @@ class AppointmentController {
             
             error_log("Found appointment details: " . print_r($appointment, true));
             
-            // Format time for display
-            $appointment_time_display = date('g:i A', strtotime($appointment['appointment_time']));
+            if ($appointment) {
+                $appointment['service_name'] = $this->resolveServiceNames($appointment['service_id']);
+                $appointment['time_display'] = date('g:i A', strtotime($appointment['appointment_time']));
+            }
             
             return [
                 'success' => true,
                 'appointment' => [
                     'id' => $appointment['id'],
                     'appointment_id' => $appointment['appointment_id'],
-                    'patient_first_name' => $appointment['patient_first_name'],
-                    'patient_last_name' => $appointment['patient_last_name'],
-                    'patient_phone' => $appointment['patient_phone'],
-                    'patient_email' => $appointment['patient_email'],
+                    'original_appointment_date' => $appointment['appointment_date'],
+                    'original_appointment_time' => $appointment['appointment_time'],
+                    'original_appointment_time_display' => $appointment['time_display'],
                     'service_id' => $appointment['service_id'],
                     'service_name' => $appointment['service_name'],
                     'dentist_id' => $appointment['dentist_id'],
-                    'dentist_name' => $appointment['dentist_name'],
-                    'original_appointment_date' => $appointment['appointment_date'],
-                    'original_appointment_time' => $appointment['appointment_time'],
-                    'original_appointment_time_display' => $appointment_time_display,
+                    'dentist_name' => 'N/A',
                     'notes' => $appointment['client_notes'],
                     'payment_type' => $appointment['payment_type'],
                     'status' => $appointment['status'],
                     'service_price' => $appointment['service_price'],
-                    'duration_minutes' => $appointment['duration_minutes'] ?? $appointment['service_duration'] ?? 30
+                    'duration_minutes' => $appointment['duration_minutes'] ?? 30
                 ]
             ];
             
@@ -1052,4 +1129,3 @@ class AppointmentController {
         }
     }
 }
-?>

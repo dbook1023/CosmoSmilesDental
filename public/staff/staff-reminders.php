@@ -143,11 +143,10 @@ try {
                 a.appointment_id as appointment_id,
                 a.appointment_date as date,
                 a.appointment_time as time,
-                s.name as service_type,
+                a.service_id,
                 a.status,
                 a.notes
               FROM appointments a
-              LEFT JOIN services s ON a.service_id = s.id
               LEFT JOIN clients c ON a.client_id = c.client_id
               WHERE a.status != 'cancelled'
               ORDER BY a.client_id, a.appointment_date DESC";
@@ -155,6 +154,14 @@ try {
     $stmt = $conn->prepare($query);
     $stmt->execute();
     $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    // Fetch all services to map service IDs to names
+    $servicesStmt = $conn->prepare("SELECT id, name FROM services");
+    $servicesStmt->execute();
+    $allServices = [];
+    foreach ($servicesStmt->fetchAll(PDO::FETCH_ASSOC) as $s) {
+        $allServices[$s['id']] = $s['name'];
+    }
 
     // Group appointments by client_id
     $patientsMap = [];
@@ -171,11 +178,26 @@ try {
         }
 
         if ($row['appointment_id']) {
+            // Reconstruct service_type dynamically
+            $serviceType = 'Dental Service';
+            if (!empty($row['service_id'])) {
+                $ids = array_filter(array_map('trim', explode(',', $row['service_id'])));
+                $names = [];
+                foreach ($ids as $s_id) {
+                    if (isset($allServices[$s_id])) {
+                        $names[] = $allServices[$s_id];
+                    }
+                }
+                if (!empty($names)) {
+                    $serviceType = implode(', ', $names);
+                }
+            }
+
             $patientsMap[$clientId]['appointments'][] = [
                 'id' => $row['appointment_id'],
                 'date' => $row['date'],
                 'time' => $row['time'],
-                'type' => $row['service_type'] ?? 'General Checkup',
+                'type' => $serviceType,
                 'status' => $row['status'],
                 'notes' => $row['notes']
             ];
@@ -1262,7 +1284,7 @@ catch (Exception $e) {
                     <div>
                         <div class="patient-name">${escapeHtml(patient.name)}</div>
                         <div class="patient-details">
-                            Client ID: ${escapeHtml(patient.id)} • Phone: ${escapeHtml(patient.phone)}
+                            Client ID: ${escapeHtml(patient.id)} &bull; Phone: ${escapeHtml(patient.phone)}
                         </div>
                     </div>
                     <div>
@@ -1318,7 +1340,7 @@ catch (Exception $e) {
                             <div class="appointment-id">${escapeHtml(appointment.id)}</div>
                             <div class="appointment-info">
                                 ${formatDate(appointment.date)} at ${formatTime(appointment.time)}<br>
-                                <small>${escapeHtml(appointment.type)} • ${escapeHtml(appointment.status)}</small>
+                                <small>${escapeHtml(appointment.type)} &bull; ${escapeHtml(appointment.status)}</small>
                             </div>
                         </div>
                         <div>
