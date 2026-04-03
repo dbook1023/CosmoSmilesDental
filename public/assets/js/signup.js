@@ -1013,6 +1013,21 @@ document.addEventListener('DOMContentLoaded', function() {
         hideSuccess();
         
         try {
+            // Get reCAPTCHA token if available
+            let recaptchaToken = null;
+            if (typeof grecaptcha !== 'undefined' && typeof RECAPTCHA_SITE_KEY !== 'undefined') {
+                try {
+                    recaptchaToken = await new Promise((resolve) => {
+                        grecaptcha.ready(async () => {
+                            const token = await grecaptcha.execute(RECAPTCHA_SITE_KEY, {action: 'signup'});
+                            resolve(token);
+                        });
+                    });
+                } catch (e) {
+                    console.error('reCAPTCHA error:', e);
+                }
+            }
+
             // Use FormData to support file upload
             const formData = new FormData(signupForm);
             
