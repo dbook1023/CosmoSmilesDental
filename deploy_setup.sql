@@ -1,5 +1,6 @@
--- Cosmo Smiles Dental Clinic Deployment Schema (Clean)
--- Generated: 2026-04-02 10:39:57
+-- Cosmo Smiles Dental Clinic - Production Schema (Structure Only)
+-- No sample data is included. All tables start empty.
+-- Run setup.php after importing to execute migrations.
 
 SET FOREIGN_KEY_CHECKS=0;
 
@@ -25,12 +26,7 @@ CREATE TABLE `admin_users` (
   UNIQUE KEY `username` (`username`),
   UNIQUE KEY `email` (`email`),
   UNIQUE KEY `uniq_dentist_id` (`dentist_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- Dumping data for table `admin_users` --
-INSERT INTO `admin_users` (`id`, `dentist_id`, `username`, `email`, `phone`, `password`, `first_name`, `last_name`, `role`, `specialization`, `status`, `last_login`, `created_at`, `updated_at`) VALUES ('1', 'DENT0001', 'rhea.salcedo', 'dr.salcedo@cosmosmiles.com', NULL, 'e7648d6dcaffb3f51057b0196849b4ed8f9a1888423753720b6dbb828bdabef9bc333b25b5a503249e3dd3b461e707980545e180cc504a067f72154ed4f5464e', 'Rhea Ann', 'Salcedo', 'admin', NULL, 'active', '2026-04-02 16:28:35', '2025-11-10 22:21:25', '2026-04-02 16:28:35');
-INSERT INTO `admin_users` (`id`, `dentist_id`, `username`, `email`, `phone`, `password`, `first_name`, `last_name`, `role`, `specialization`, `status`, `last_login`, `created_at`, `updated_at`) VALUES ('2', 'DENT0002', 'vincent.ompoc', 'dr.ompoc@cosmosmiles.com', NULL, '07bfb274764b5d555dfeb0203697fbb320a96e37a2a27dbc783640f130d37069e6db7038438c0bd10a0b113a6f34c3bd873b2f6bbb96c6f12852edd49056d6e7', 'Vincent Robert', 'Ompoc', 'admin', NULL, 'active', '2026-03-30 18:48:37', '2025-11-10 22:21:25', '2026-03-30 18:48:37');
-INSERT INTO `admin_users` (`id`, `dentist_id`, `username`, `email`, `phone`, `password`, `first_name`, `last_name`, `role`, `specialization`, `status`, `last_login`, `created_at`, `updated_at`) VALUES ('3', 'ADM0003', '', 'test.admin@gmail.com', NULL, '7f3dc26e0b2c81853608caeb65113305493889c2075ab37bfc96c391449a514054ba002aa03d86aeba0c3c8d1b5899ba278fd4c47c3d82c31a22535c11074585', 'Test', 'Admin', 'admin', NULL, 'inactive', '2026-03-26 14:18:54', '2026-03-26 14:15:56', '2026-03-30 17:59:59');
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 
 -- Table structure for table `appointment_feedbacks` --
@@ -45,7 +41,7 @@ CREATE TABLE `appointment_feedbacks` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `appointment_id` (`appointment_id`),
   CONSTRAINT `appointment_feedbacks_ibfk_1` FOREIGN KEY (`appointment_id`) REFERENCES `appointments` (`appointment_id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 
 -- Table structure for table `appointments` --
@@ -79,7 +75,7 @@ CREATE TABLE `appointments` (
   CONSTRAINT `appointments_ibfk_2` FOREIGN KEY (`dentist_id`) REFERENCES `dentists` (`id`) ON DELETE SET NULL,
   CONSTRAINT `appointments_ibfk_3` FOREIGN KEY (`service_id`) REFERENCES `services` (`id`) ON DELETE CASCADE,
   CONSTRAINT `fk_appointments_clients` FOREIGN KEY (`client_id`) REFERENCES `clients` (`client_id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=35 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 
 -- Table structure for table `clients` --
@@ -111,21 +107,6 @@ CREATE TABLE `clients` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `email` (`email`),
   UNIQUE KEY `uk_client_id` (`client_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=101 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
-
--- Table structure for table `login_attempts` --
-DROP TABLE IF EXISTS `login_attempts`;
-CREATE TABLE `login_attempts` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `identifier` varchar(255) NOT NULL,
-  `ip_address` varchar(45) NOT NULL,
-  `attempt_time` timestamp NOT NULL DEFAULT current_timestamp(),
-  `is_successful` tinyint(1) DEFAULT 0,
-  PRIMARY KEY (`id`),
-  KEY `identifier` (`identifier`),
-  KEY `ip_address` (`ip_address`),
-  KEY `attempt_time` (`attempt_time`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 
@@ -147,11 +128,22 @@ CREATE TABLE `dentists` (
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   PRIMARY KEY (`id`),
   UNIQUE KEY `email` (`email`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- Dumping data for table `dentists` --
-INSERT INTO `dentists` (`id`, `first_name`, `last_name`, `email`, `phone`, `specialization`, `license_number`, `bio`, `is_active`, `is_checked_in`, `checked_in_at`, `created_at`, `updated_at`) VALUES ('1', 'Rhea Ann', 'Salcedo', 'dr.salcedo@cosmosmiles.com', '09283853751', 'General Dentistry', 'DENT0001', NULL, '1', '1', '2026-04-02 01:34:55', '2025-11-10 12:52:52', '2026-04-02 01:34:55');
-INSERT INTO `dentists` (`id`, `first_name`, `last_name`, `email`, `phone`, `specialization`, `license_number`, `bio`, `is_active`, `is_checked_in`, `checked_in_at`, `created_at`, `updated_at`) VALUES ('2', 'Vincent Robert', 'Ompoc', 'dr.ompoc@cosmosmiles.com', '09283853751', 'General Dentistry', 'DENT0002', NULL, '1', '1', '2026-03-30 17:48:04', '2025-11-10 12:52:52', '2026-03-30 17:48:04');
+
+-- Table structure for table `login_attempts` --
+DROP TABLE IF EXISTS `login_attempts`;
+CREATE TABLE `login_attempts` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `identifier` varchar(255) NOT NULL,
+  `ip_address` varchar(45) NOT NULL,
+  `attempt_time` timestamp NOT NULL DEFAULT current_timestamp(),
+  `is_successful` tinyint(1) DEFAULT 0,
+  PRIMARY KEY (`id`),
+  KEY `identifier` (`identifier`),
+  KEY `ip_address` (`ip_address`),
+  KEY `attempt_time` (`attempt_time`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 
 -- Table structure for table `medical_edit_requests` --
@@ -167,7 +159,7 @@ CREATE TABLE `medical_edit_requests` (
   PRIMARY KEY (`id`),
   KEY `client_id` (`client_id`),
   CONSTRAINT `medical_edit_requests_ibfk_1` FOREIGN KEY (`client_id`) REFERENCES `clients` (`client_id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 
 -- Table structure for table `messages` --
@@ -184,7 +176,7 @@ CREATE TABLE `messages` (
   PRIMARY KEY (`id`),
   KEY `client_id` (`client_id`),
   CONSTRAINT `messages_ibfk_1` FOREIGN KEY (`client_id`) REFERENCES `clients` (`client_id`) ON DELETE SET NULL
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 
 -- Table structure for table `password_resets` --
@@ -199,7 +191,7 @@ CREATE TABLE `password_resets` (
   PRIMARY KEY (`id`),
   KEY `token` (`token`),
   KEY `email` (`email`)
-) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 
 -- Table structure for table `patient_medical_history` --
@@ -221,7 +213,7 @@ CREATE TABLE `patient_medical_history` (
   PRIMARY KEY (`id`),
   KEY `client_id` (`client_id`),
   CONSTRAINT `patient_medical_history_ibfk_1` FOREIGN KEY (`client_id`) REFERENCES `clients` (`client_id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 
 -- Table structure for table `patient_records` --
@@ -260,7 +252,39 @@ CREATE TABLE `patient_records` (
   KEY `idx_record_type` (`record_type`),
   KEY `idx_is_archived` (`is_archived`),
   CONSTRAINT `patient_records_ibfk_1` FOREIGN KEY (`client_id`) REFERENCES `clients` (`client_id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+
+-- Table structure for table `reminder_logs` --
+DROP TABLE IF EXISTS `reminder_logs`;
+CREATE TABLE `reminder_logs` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `staff_id` varchar(20) DEFAULT NULL,
+  `client_id` varchar(100) DEFAULT NULL,
+  `appointment_id` int(11) DEFAULT NULL,
+  `message` text DEFAULT NULL,
+  `sent_at` datetime DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `staff_id` (`staff_id`),
+  KEY `client_id` (`client_id`),
+  KEY `appointment_id` (`appointment_id`),
+  CONSTRAINT `reminder_logs_ibfk_1` FOREIGN KEY (`staff_id`) REFERENCES `staff_users` (`staff_id`),
+  CONSTRAINT `reminder_logs_ibfk_2` FOREIGN KEY (`client_id`) REFERENCES `clients` (`client_id`),
+  CONSTRAINT `reminder_logs_ibfk_3` FOREIGN KEY (`appointment_id`) REFERENCES `appointments` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+
+-- Table structure for table `request_logs` --
+DROP TABLE IF EXISTS `request_logs`;
+CREATE TABLE `request_logs` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `ip_address` varchar(45) NOT NULL,
+  `request_time` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `ip_address` (`ip_address`),
+  KEY `request_time` (`request_time`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 
 -- Table structure for table `services` --
@@ -273,17 +297,7 @@ CREATE TABLE `services` (
   `price` decimal(10,2) DEFAULT NULL,
   `is_active` tinyint(1) DEFAULT 1,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- Dumping data for table `services` --
-INSERT INTO `services` (`id`, `name`, `description`, `duration_minutes`, `price`, `is_active`) VALUES ('1', 'Regular Check-up', 'Comprehensive dental examination and oral health assessment', '30', '500.00', '1');
-INSERT INTO `services` (`id`, `name`, `description`, `duration_minutes`, `price`, `is_active`) VALUES ('2', 'Teeth Cleaning', 'Professional teeth cleaning and plaque removal', '60', '1200.00', '1');
-INSERT INTO `services` (`id`, `name`, `description`, `duration_minutes`, `price`, `is_active`) VALUES ('3', 'Tooth Filling', 'Dental filling for cavities and tooth decay', '90', '1500.00', '1');
-INSERT INTO `services` (`id`, `name`, `description`, `duration_minutes`, `price`, `is_active`) VALUES ('4', 'Teeth Whitening', 'Professional teeth whitening treatment', '120', '8000.00', '1');
-INSERT INTO `services` (`id`, `name`, `description`, `duration_minutes`, `price`, `is_active`) VALUES ('5', 'Tooth Extraction', 'Tooth removal procedure', '60', '2000.00', '1');
-INSERT INTO `services` (`id`, `name`, `description`, `duration_minutes`, `price`, `is_active`) VALUES ('6', 'Root Canal', 'Root canal treatment (per tooth)', '120', '6000.00', '1');
-INSERT INTO `services` (`id`, `name`, `description`, `duration_minutes`, `price`, `is_active`) VALUES ('7', 'Braces Consultation', 'Orthodontic consultation and assessment', '45', '800.00', '1');
-INSERT INTO `services` (`id`, `name`, `description`, `duration_minutes`, `price`, `is_active`) VALUES ('8', 'Test Service', 'test services description ', '30', '100.00', '1');
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 
 -- Table structure for table `site_content` --
@@ -297,96 +311,7 @@ CREATE TABLE `site_content` (
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   PRIMARY KEY (`id`),
   UNIQUE KEY `unique_page_section` (`page`,`section_key`)
-) ENGINE=InnoDB AUTO_INCREMENT=381 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- Dumping data for table `site_content` --
-INSERT INTO `site_content` (`id`, `page`, `section_key`, `content_type`, `content_value`, `updated_at`) VALUES ('1', 'home', 'hero_title', 'text', 'Home of the Perfect Smiles', '2026-04-01 23:48:28');
-INSERT INTO `site_content` (`id`, `page`, `section_key`, `content_type`, `content_value`, `updated_at`) VALUES ('2', 'home', 'hero_subtitle', 'text', 'At Cosmo Smiles Dental Clinic, we combine advanced technology with compassionate care to deliver confident, healthy smiles. Experience modern dentistry designed around your comfort, convenience, and long-term well-being.', '2026-04-02 00:09:16');
-INSERT INTO `site_content` (`id`, `page`, `section_key`, `content_type`, `content_value`, `updated_at`) VALUES ('7', 'home', 'hours_week', 'text', 'Mon - Fri: 8:00 AM - 6:00 PM', '2026-04-01 21:27:58');
-INSERT INTO `site_content` (`id`, `page`, `section_key`, `content_type`, `content_value`, `updated_at`) VALUES ('8', 'home', 'hours_sat', 'text', 'Sat: 9:00 AM - 3:00 PM', '2026-04-01 21:27:58');
-INSERT INTO `site_content` (`id`, `page`, `section_key`, `content_type`, `content_value`, `updated_at`) VALUES ('9', 'home', 'hours_sun', 'text', 'No Clinic Operations', '2026-04-01 21:27:59');
-INSERT INTO `site_content` (`id`, `page`, `section_key`, `content_type`, `content_value`, `updated_at`) VALUES ('25', 'clinic', 'name', 'text', 'Cosmo Smiles Dental Clinic', '2026-04-01 20:58:07');
-INSERT INTO `site_content` (`id`, `page`, `section_key`, `content_type`, `content_value`, `updated_at`) VALUES ('26', 'clinic', 'address', 'text', '703 F national road, Tayuman, Binangonan, Rizal, Philippines', '2026-04-01 20:58:07');
-INSERT INTO `site_content` (`id`, `page`, `section_key`, `content_type`, `content_value`, `updated_at`) VALUES ('27', 'clinic', 'email', 'text', 'info@cosmosmiles.com', '2026-04-01 20:53:39');
-INSERT INTO `site_content` (`id`, `page`, `section_key`, `content_type`, `content_value`, `updated_at`) VALUES ('28', 'clinic', 'phone', 'text', '0999 888 7777', '2026-04-01 20:53:40');
-INSERT INTO `site_content` (`id`, `page`, `section_key`, `content_type`, `content_value`, `updated_at`) VALUES ('35', 'home', 'promo_1_title', 'text', 'Accessible Care', '2026-04-01 21:28:00');
-INSERT INTO `site_content` (`id`, `page`, `section_key`, `content_type`, `content_value`, `updated_at`) VALUES ('36', 'home', 'promo_1_desc', 'text', 'Premium clinic services made affordable with flexible payment options.', '2026-04-01 21:28:00');
-INSERT INTO `site_content` (`id`, `page`, `section_key`, `content_type`, `content_value`, `updated_at`) VALUES ('37', 'home', 'promo_1_icon', 'icon', 'fas fa-hand-holding-medical', '2026-04-01 21:28:00');
-INSERT INTO `site_content` (`id`, `page`, `section_key`, `content_type`, `content_value`, `updated_at`) VALUES ('51', 'home', 'promo_2_title', 'text', 'Digital Diagnostics', '2026-04-01 21:28:00');
-INSERT INTO `site_content` (`id`, `page`, `section_key`, `content_type`, `content_value`, `updated_at`) VALUES ('52', 'home', 'promo_2_desc', 'text', 'Complimentary high-definition panoramic imaging for every new patient.', '2026-04-01 21:28:00');
-INSERT INTO `site_content` (`id`, `page`, `section_key`, `content_type`, `content_value`, `updated_at`) VALUES ('53', 'home', 'promo_2_icon', 'icon', 'fas fa-microscope', '2026-04-01 21:28:00');
-INSERT INTO `site_content` (`id`, `page`, `section_key`, `content_type`, `content_value`, `updated_at`) VALUES ('54', 'home', 'promo_3_title', 'text', 'Sample 3', '2026-04-02 01:37:28');
-INSERT INTO `site_content` (`id`, `page`, `section_key`, `content_type`, `content_value`, `updated_at`) VALUES ('55', 'home', 'promo_3_desc', 'text', 'Sample Promo Description', '2026-04-01 21:17:02');
-INSERT INTO `site_content` (`id`, `page`, `section_key`, `content_type`, `content_value`, `updated_at`) VALUES ('56', 'home', 'promo_3_icon', 'icon', 'fas fa-microscope', '2026-04-01 21:17:02');
-INSERT INTO `site_content` (`id`, `page`, `section_key`, `content_type`, `content_value`, `updated_at`) VALUES ('57', 'home', 'promo_4_title', 'text', 'Modern Techniques', '2026-04-02 00:09:16');
-INSERT INTO `site_content` (`id`, `page`, `section_key`, `content_type`, `content_value`, `updated_at`) VALUES ('58', 'home', 'promo_4_desc', 'text', 'We utilize the latest dental innovations and minimally invasive procedures for safer, faster, and more comfortable treatments.', '2026-04-02 00:09:16');
-INSERT INTO `site_content` (`id`, `page`, `section_key`, `content_type`, `content_value`, `updated_at`) VALUES ('59', 'home', 'promo_4_icon', 'icon', 'fas fa-notes-medical', '2026-04-02 00:09:16');
-INSERT INTO `site_content` (`id`, `page`, `section_key`, `content_type`, `content_value`, `updated_at`) VALUES ('60', 'home', 'promo_5_title', 'text', 'Personalized Care', '2026-04-02 00:09:16');
-INSERT INTO `site_content` (`id`, `page`, `section_key`, `content_type`, `content_value`, `updated_at`) VALUES ('61', 'home', 'promo_5_desc', 'text', 'Every smile is unique. We create customized treatment plans designed specifically for your goals and oral health needs.', '2026-04-02 00:09:16');
-INSERT INTO `site_content` (`id`, `page`, `section_key`, `content_type`, `content_value`, `updated_at`) VALUES ('62', 'home', 'promo_5_icon', 'icon', 'fas fa-smile', '2026-04-02 00:09:16');
-INSERT INTO `site_content` (`id`, `page`, `section_key`, `content_type`, `content_value`, `updated_at`) VALUES ('63', 'home', 'promo_6_title', 'text', 'Comfort First Experience', '2026-04-02 00:09:16');
-INSERT INTO `site_content` (`id`, `page`, `section_key`, `content_type`, `content_value`, `updated_at`) VALUES ('64', 'home', 'promo_6_desc', 'text', 'Relax in a calm, welcoming environment where your comfort is always our top priority.', '2026-04-02 00:09:16');
-INSERT INTO `site_content` (`id`, `page`, `section_key`, `content_type`, `content_value`, `updated_at`) VALUES ('65', 'home', 'promo_6_icon', 'icon', 'fas fa-heart', '2026-04-02 00:09:17');
-INSERT INTO `site_content` (`id`, `page`, `section_key`, `content_type`, `content_value`, `updated_at`) VALUES ('89', 'home', 'team_1_name', 'text', 'Dr. Rhea Ann Salcedo', '2026-04-01 21:18:45');
-INSERT INTO `site_content` (`id`, `page`, `section_key`, `content_type`, `content_value`, `updated_at`) VALUES ('90', 'home', 'team_1_role', 'text', 'General Dentistry', '2026-04-01 21:18:45');
-INSERT INTO `site_content` (`id`, `page`, `section_key`, `content_type`, `content_value`, `updated_at`) VALUES ('91', 'home', 'team_1_desc', 'text', 'Master of complex alignments and digital smile design solutions.', '2026-04-01 21:27:59');
-INSERT INTO `site_content` (`id`, `page`, `section_key`, `content_type`, `content_value`, `updated_at`) VALUES ('92', 'home', 'team_2_name', 'text', 'Dr. Vincent Robert Ompoc', '2026-04-01 21:18:45');
-INSERT INTO `site_content` (`id`, `page`, `section_key`, `content_type`, `content_value`, `updated_at`) VALUES ('93', 'home', 'team_2_role', 'text', 'General Dentistry', '2026-04-01 21:18:46');
-INSERT INTO `site_content` (`id`, `page`, `section_key`, `content_type`, `content_value`, `updated_at`) VALUES ('94', 'home', 'team_2_desc', 'text', 'Specialist in precision oral reconstruction and dental implantology.', '2026-04-01 21:27:59');
-INSERT INTO `site_content` (`id`, `page`, `section_key`, `content_type`, `content_value`, `updated_at`) VALUES ('98', 'about', 'about_tag', 'text', 'Established 2018', '2026-04-01 21:27:57');
-INSERT INTO `site_content` (`id`, `page`, `section_key`, `content_type`, `content_value`, `updated_at`) VALUES ('99', 'about', 'about_title', 'text', 'Pioneering Modern Family Dentistry', '2026-04-01 21:27:57');
-INSERT INTO `site_content` (`id`, `page`, `section_key`, `content_type`, `content_value`, `updated_at`) VALUES ('100', 'about', 'about_description', 'text', 'With nearly a decade of dedicated service, Cosmo Smiles Dental Clinic has been committed to providing exceptional dental care for every member of the family. Our team of board-certified clinicians delivers advanced, high-quality treatments in a safe, comfortable, and patient-centered environment.\r\n\r\nWe combine modern dental technology with proven techniques in implantology and aesthetic dentistry to ensure every procedure is precise, effective, and tailored to your individual needs. Our goal is to create confident, healthy smiles through personalized care you can trust.', '2026-04-02 00:11:45');
-INSERT INTO `site_content` (`id`, `page`, `section_key`, `content_type`, `content_value`, `updated_at`) VALUES ('101', 'about', 'stat_1_num', 'text', '6', '2026-04-01 21:33:52');
-INSERT INTO `site_content` (`id`, `page`, `section_key`, `content_type`, `content_value`, `updated_at`) VALUES ('102', 'about', 'stat_1_label', 'text', 'Years Clinical Mastery', '2026-04-01 21:27:57');
-INSERT INTO `site_content` (`id`, `page`, `section_key`, `content_type`, `content_value`, `updated_at`) VALUES ('103', 'about', 'stat_1_icon', 'icon', 'fas fa-stethoscope', '2026-04-01 21:27:57');
-INSERT INTO `site_content` (`id`, `page`, `section_key`, `content_type`, `content_value`, `updated_at`) VALUES ('104', 'about', 'stat_2_num', 'text', '2k+', '2026-04-01 21:33:53');
-INSERT INTO `site_content` (`id`, `page`, `section_key`, `content_type`, `content_value`, `updated_at`) VALUES ('105', 'about', 'stat_2_label', 'text', 'Transformations', '2026-04-01 21:27:57');
-INSERT INTO `site_content` (`id`, `page`, `section_key`, `content_type`, `content_value`, `updated_at`) VALUES ('106', 'about', 'stat_2_icon', 'icon', 'fas fa-certificate', '2026-04-01 21:27:57');
-INSERT INTO `site_content` (`id`, `page`, `section_key`, `content_type`, `content_value`, `updated_at`) VALUES ('107', 'about', 'vision_title', 'text', 'The Vision', '2026-04-01 21:27:57');
-INSERT INTO `site_content` (`id`, `page`, `section_key`, `content_type`, `content_value`, `updated_at`) VALUES ('108', 'about', 'vision_desc', 'text', 'To lead as the gold standard in community clinical care, recognized for elevating oral health through innovation and clinical integrity.', '2026-04-01 21:27:58');
-INSERT INTO `site_content` (`id`, `page`, `section_key`, `content_type`, `content_value`, `updated_at`) VALUES ('109', 'about', 'vision_icon', 'icon', 'fas fa-eye', '2026-04-01 21:27:58');
-INSERT INTO `site_content` (`id`, `page`, `section_key`, `content_type`, `content_value`, `updated_at`) VALUES ('110', 'about', 'mission_title', 'text', 'The Mission', '2026-04-01 21:27:58');
-INSERT INTO `site_content` (`id`, `page`, `section_key`, `content_type`, `content_value`, `updated_at`) VALUES ('111', 'about', 'mission_desc', 'text', 'To empower our community with the confidence of a healthy smile, provided through safe, transparent, and empathetic medical procedures.', '2026-04-01 21:27:58');
-INSERT INTO `site_content` (`id`, `page`, `section_key`, `content_type`, `content_value`, `updated_at`) VALUES ('112', 'about', 'mission_icon', 'icon', 'fas fa-bullseye', '2026-04-01 21:27:58');
-INSERT INTO `site_content` (`id`, `page`, `section_key`, `content_type`, `content_value`, `updated_at`) VALUES ('113', 'about', 'value_1_title', 'text', 'Human First', '2026-04-01 21:27:58');
-INSERT INTO `site_content` (`id`, `page`, `section_key`, `content_type`, `content_value`, `updated_at`) VALUES ('114', 'about', 'value_1_desc', 'text', 'Treating every patient with dignity, empathy, and personalized clinical attention.', '2026-04-01 21:27:58');
-INSERT INTO `site_content` (`id`, `page`, `section_key`, `content_type`, `content_value`, `updated_at`) VALUES ('115', 'about', 'value_1_icon', 'icon', 'fas fa-heart', '2026-04-01 21:27:58');
-INSERT INTO `site_content` (`id`, `page`, `section_key`, `content_type`, `content_value`, `updated_at`) VALUES ('116', 'about', 'value_2_title', 'text', 'Tech Precision', '2026-04-01 21:27:58');
-INSERT INTO `site_content` (`id`, `page`, `section_key`, `content_type`, `content_value`, `updated_at`) VALUES ('117', 'about', 'value_2_desc', 'text', 'Leveraging digital diagnostics for unmatched surgical and aesthetic accuracy.', '2026-04-01 21:27:58');
-INSERT INTO `site_content` (`id`, `page`, `section_key`, `content_type`, `content_value`, `updated_at`) VALUES ('118', 'about', 'value_2_icon', 'icon', 'fas fa-microscope', '2026-04-01 21:27:58');
-INSERT INTO `site_content` (`id`, `page`, `section_key`, `content_type`, `content_value`, `updated_at`) VALUES ('119', 'about', 'value_3_title', 'text', 'Clinical Safety', '2026-04-01 21:27:58');
-INSERT INTO `site_content` (`id`, `page`, `section_key`, `content_type`, `content_value`, `updated_at`) VALUES ('120', 'about', 'value_3_desc', 'text', 'Absolute adherence to global sterilization and bio-safety protocols.', '2026-04-01 21:27:58');
-INSERT INTO `site_content` (`id`, `page`, `section_key`, `content_type`, `content_value`, `updated_at`) VALUES ('121', 'about', 'value_3_icon', 'icon', 'fas fa-shield-halved', '2026-04-01 21:27:58');
-INSERT INTO `site_content` (`id`, `page`, `section_key`, `content_type`, `content_value`, `updated_at`) VALUES ('122', 'about', 'value_4_title', 'text', 'Integrity', '2026-04-01 21:27:58');
-INSERT INTO `site_content` (`id`, `page`, `section_key`, `content_type`, `content_value`, `updated_at`) VALUES ('123', 'about', 'value_4_desc', 'text', 'Unwavering transparency in pricing, treatment planning, and medical outcomes.', '2026-04-01 21:27:58');
-INSERT INTO `site_content` (`id`, `page`, `section_key`, `content_type`, `content_value`, `updated_at`) VALUES ('124', 'about', 'value_4_icon', 'icon', 'fas fa-handshake', '2026-04-01 21:27:58');
-INSERT INTO `site_content` (`id`, `page`, `section_key`, `content_type`, `content_value`, `updated_at`) VALUES ('136', 'home', 'team_3_name', 'text', '', '2026-04-01 23:45:19');
-INSERT INTO `site_content` (`id`, `page`, `section_key`, `content_type`, `content_value`, `updated_at`) VALUES ('137', 'home', 'team_3_role', 'text', '', '2026-04-01 23:45:19');
-INSERT INTO `site_content` (`id`, `page`, `section_key`, `content_type`, `content_value`, `updated_at`) VALUES ('138', 'home', 'team_3_desc', 'text', '', '2026-04-01 23:45:19');
-INSERT INTO `site_content` (`id`, `page`, `section_key`, `content_type`, `content_value`, `updated_at`) VALUES ('145', 'home', 'why_1_title', 'text', 'Board Certified', '2026-04-01 21:28:00');
-INSERT INTO `site_content` (`id`, `page`, `section_key`, `content_type`, `content_value`, `updated_at`) VALUES ('146', 'home', 'why_1_desc', 'text', 'Our specialists are well-trained professionals who continually improve their techniques to provide you with the highest quality care.', '2026-04-02 00:09:17');
-INSERT INTO `site_content` (`id`, `page`, `section_key`, `content_type`, `content_value`, `updated_at`) VALUES ('147', 'home', 'why_1_icon', 'icon', 'fas fa-user-md', '2026-04-01 21:28:00');
-INSERT INTO `site_content` (`id`, `page`, `section_key`, `content_type`, `content_value`, `updated_at`) VALUES ('148', 'home', 'why_2_title', 'text', 'Emergency Response', '2026-04-01 21:28:00');
-INSERT INTO `site_content` (`id`, `page`, `section_key`, `content_type`, `content_value`, `updated_at`) VALUES ('149', 'home', 'why_2_desc', 'text', 'Priority scheduling for urgent cases ensures you get relief and care fast.', '2026-04-01 21:28:00');
-INSERT INTO `site_content` (`id`, `page`, `section_key`, `content_type`, `content_value`, `updated_at`) VALUES ('150', 'home', 'why_2_icon', 'icon', 'fas fa-clock', '2026-04-01 21:28:00');
-INSERT INTO `site_content` (`id`, `page`, `section_key`, `content_type`, `content_value`, `updated_at`) VALUES ('321', 'home', 'team_3_img', 'image', '/assets/images/dynamic/img_69cd293b0bae5.jpg', '2026-04-01 22:18:35');
-INSERT INTO `site_content` (`id`, `page`, `section_key`, `content_type`, `content_value`, `updated_at`) VALUES ('323', 'home', 'hero_bg_pos', 'text', 'center', '2026-04-01 22:27:00');
-INSERT INTO `site_content` (`id`, `page`, `section_key`, `content_type`, `content_value`, `updated_at`) VALUES ('324', 'home', 'team_1_pos', 'text', 'center', '2026-04-01 22:27:00');
-INSERT INTO `site_content` (`id`, `page`, `section_key`, `content_type`, `content_value`, `updated_at`) VALUES ('325', 'home', 'team_2_pos', 'text', 'center', '2026-04-01 22:27:00');
-INSERT INTO `site_content` (`id`, `page`, `section_key`, `content_type`, `content_value`, `updated_at`) VALUES ('326', 'home', 'team_3_pos', 'text', 'top', '2026-04-01 22:27:20');
-INSERT INTO `site_content` (`id`, `page`, `section_key`, `content_type`, `content_value`, `updated_at`) VALUES ('327', 'home', 'team_4_pos', 'text', 'center', '2026-04-01 22:27:00');
-INSERT INTO `site_content` (`id`, `page`, `section_key`, `content_type`, `content_value`, `updated_at`) VALUES ('328', 'home', 'team_5_pos', 'text', 'center', '2026-04-01 22:27:00');
-INSERT INTO `site_content` (`id`, `page`, `section_key`, `content_type`, `content_value`, `updated_at`) VALUES ('329', 'home', 'team_6_pos', 'text', 'center', '2026-04-01 22:27:00');
-INSERT INTO `site_content` (`id`, `page`, `section_key`, `content_type`, `content_value`, `updated_at`) VALUES ('335', 'home', 'why_3_title', 'text', 'Trusted Care', '2026-04-02 00:09:17');
-INSERT INTO `site_content` (`id`, `page`, `section_key`, `content_type`, `content_value`, `updated_at`) VALUES ('336', 'home', 'why_3_desc', 'text', 'We build lasting relationships through honest communication, transparent treatment plans, and consistently excellent results.', '2026-04-02 00:09:17');
-INSERT INTO `site_content` (`id`, `page`, `section_key`, `content_type`, `content_value`, `updated_at`) VALUES ('337', 'home', 'why_3_icon', 'icon', 'fas fa-check-circle', '2026-04-02 00:09:17');
-INSERT INTO `site_content` (`id`, `page`, `section_key`, `content_type`, `content_value`, `updated_at`) VALUES ('347', 'home', 'team_1_img', 'image', '/assets/images/dynamic/img_69cd3d7260082.jpg', '2026-04-01 23:44:50');
-INSERT INTO `site_content` (`id`, `page`, `section_key`, `content_type`, `content_value`, `updated_at`) VALUES ('348', 'home', 'team_2_img', 'image', '/assets/images/dynamic/img_69cd3d726a66d.jpg', '2026-04-01 23:44:50');
-INSERT INTO `site_content` (`id`, `page`, `section_key`, `content_type`, `content_value`, `updated_at`) VALUES ('360', 'home', 'hero_bg_image', 'image', '/assets/images/dynamic/img_69cd3f2b0e17a.jpg', '2026-04-01 23:52:11');
-INSERT INTO `site_content` (`id`, `page`, `section_key`, `content_type`, `content_value`, `updated_at`) VALUES ('376', 'services', 'services_title', 'text', 'Our Premium Services', '2026-04-02 00:14:32');
-INSERT INTO `site_content` (`id`, `page`, `section_key`, `content_type`, `content_value`, `updated_at`) VALUES ('377', 'services', 'services_subtitle', 'text', 'Comprehensive care for your family.', '2026-04-02 00:14:32');
-INSERT INTO `site_content` (`id`, `page`, `section_key`, `content_type`, `content_value`, `updated_at`) VALUES ('378', 'services', 'tech_title', 'text', 'Modern Clinical Logistics', '2026-04-02 00:14:33');
-INSERT INTO `site_content` (`id`, `page`, `section_key`, `content_type`, `content_value`, `updated_at`) VALUES ('379', 'services', 'tech_desc', 'text', 'We invest in the highest tiers of medical technology.', '2026-04-02 00:14:33');
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
 -- Table structure for table `staff_users` --
@@ -409,10 +334,7 @@ CREATE TABLE `staff_users` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `staff_id` (`staff_id`),
   UNIQUE KEY `email` (`email`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- Dumping data for table `staff_users` --
-INSERT INTO `staff_users` (`id`, `staff_id`, `email`, `password`, `first_name`, `last_name`, `role`, `specialization`, `department`, `phone`, `status`, `last_login`, `created_at`, `updated_at`) VALUES ('1', 'REC001', 'maria.santos@cosmosmiles.com', '48fdefa7586020d7a646fd8454ce634228abbe3885e22e0de9b8cd1c7ac03a06abb84908f263400f681ad6758e61217f5e10d608d7ba392df566506fbd82554b', 'Maria', 'Santos', 'receptionist', NULL, 'Front Desk', '', 'active', '2026-04-02 14:27:19', '2025-11-10 22:43:38', '2026-04-02 14:27:19');
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 
 -- Table structure for table `verification_otps` --
@@ -427,6 +349,6 @@ CREATE TABLE `verification_otps` (
   `verified` tinyint(1) DEFAULT 0,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=36 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 SET FOREIGN_KEY_CHECKS=1;
