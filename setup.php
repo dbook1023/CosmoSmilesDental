@@ -2,12 +2,25 @@
 /**
  * Cosmo Smiles Dental Clinic - Setup Script
  * 
- * This script helps automate the initial configuration of the project.
+ * This script automates the full configuration of the project.
  * It will:
  * 1. Check for .env file and create it from .env.example if missing.
  * 2. Verify basic directory structure and permissions.
  * 3. Check for composer dependencies.
+ * 4. Initialize the database schema and default data.
+ * 5. Run all pending migration scripts.
  */
+
+// Helper function to output formatted messages
+function logMsg($type, $msg) {
+    $prefix = [
+        'info'  => "[*] ",
+        'success' => "[+] ",
+        'warn'  => "[!] ",
+        'error' => "[ERROR] "
+    ];
+    echo ($prefix[$type] ?? "") . $msg . "\n";
+}
 
 echo "================================================\n";
 echo "Cosmo Smiles Dental Clinic - Auto Configuration\n";
@@ -18,46 +31,48 @@ $envFile = __DIR__ . '/.env';
 $exampleFile = __DIR__ . '/.env.example';
 
 if (!file_exists($envFile)) {
-    echo "[*] .env file not found. Creating from .env.example...\n";
+    logMsg('info', ".env file not found. Creating from .env.example...");
     if (file_exists($exampleFile)) {
         if (copy($exampleFile, $envFile)) {
-            echo "[+] Successfully created .env file.\n";
-            echo "[!] IMPORTANT: Open .env and update your database and SMTP credentials.\n";
+            logMsg('success', "Successfully created .env file.");
+            logMsg('warn', "IMPORTANT: Open .env and update your database and SMTP credentials.");
         } else {
-            echo "[!] ERROR: Failed to copy .env.example to .env. Check file permissions.\n";
+            logMsg('error', "Failed to copy .env.example to .env. Check file permissions.");
         }
     } else {
-        echo "[!] ERROR: .env.example not found. Please ensure it exists in the root directory.\n";
+        logMsg('error', ".env.example not found. Please ensure it exists in the root directory.");
     }
 } else {
-    echo "[+] .env file already exists.\n";
+    logMsg('success', ".env file already exists.");
 }
 
 // 2. Directory Checks
-$dirs = ['uploads', 'tmp', 'logs'];
+$dirs = ['uploads', 'tmp', 'logs', 'uploads/avatar'];
 foreach ($dirs as $dir) {
     $path = __DIR__ . '/' . $dir;
     if (!file_exists($path)) {
-        echo "[*] Creating missing directory: $dir...\n";
+        logMsg('info', "Creating missing directory: $dir...");
         if (mkdir($path, 0777, true)) {
-            echo "[+] Created $dir directory.\n";
+            logMsg('success', "Created $dir directory.");
         } else {
-            echo "[!] ERROR: Failed to create $dir directory.\n";
+            logMsg('error', "Failed to create $dir directory.");
         }
     } else {
-        echo "[+] $dir directory exists.\n";
+        logMsg('success', "$dir directory exists.");
     }
 }
 
 // 3. Composer Check
 if (!file_exists(__DIR__ . '/vendor/autoload.php')) {
-    echo "\n[!] WARNING: vendor/autoload.php not found.\n";
-    echo "[!] Please run 'composer install' to install project dependencies (PHPMailer, etc.).\n";
+    echo "\n";
+    logMsg('warn', "vendor/autoload.php not found.");
+    logMsg('warn', "Please run 'composer install' to install project dependencies.");
 } else {
-    echo "[+] Composer dependencies found.\n";
+    logMsg('success', "Composer dependencies found.");
 }
 
-// 4. Database Check (Optional)
+// 4. Database Setup
+echo "\n--- Database Configuration ---\n";
 require_once __DIR__ . '/config/env.php';
 require_once __DIR__ . '/config/database.php';
 
@@ -65,18 +80,65 @@ try {
     $db = new Database();
     $conn = $db->getConnection();
     if ($conn) {
-        echo "[+] Database connection successful.\n";
+        logMsg('success', "Database connection successful.");
+
+        // Check if tables exist
+        $stmt = $conn->query("SHOW TABLES");
+        $tables = $stmt->fetchAll(PDO::FETCH_COLUMN);
+
+        if (empty($tables)) {
+            logMsg('info', "Database is empty. Initializing schema...");
+            $sqlFile = file_exists(__DIR__ . '/deploy_setup.sql') ? 'deploy_setup.sql' : (file_exists(__DIR__ . '/database_schema.sql') ? 'database_schema.sql' : null);
+            
+            if ($sqlFile) {
+                logMsg('info', "Importing $sqlFile...");
+                $sql = file_get_contents(__DIR__ . '/' . $sqlFile);
+                if ($conn->exec($sql) !== false) {
+                    logMsg('success', "Database schema and default data imported successfully.");
+                } else {
+                    logMsg('error', "Failed to import database schema.");
+                }
+            } else {
+                logMsg('warn', "No SQL schema file (deploy_setup.sql or database_schema.sql) found.");
+            }
+        } else {
+            logMsg('success', "Database already contains " . count($tables) . " tables.");
+        }
+
+        // 5. Run Migrations
+        echo "\n--- Running Migrations ---\n";
+        $migrationFiles = [
+            __DIR__ . '/scripts/migrate_notes.php',
+            __DIR__ . '/tmp/migrate_medical_history.php',
+            __DIR__ . '/tmp/migrate_records.php',
+            __DIR__ . '/tmp/migrate_medical_edit.php',
+            __DIR__ . '/tmp/migrate_medical_edit_requests.php'
+        ];
+
+        foreach ($migrationFiles as $file) {
+            if (file_exists($file)) {
+                $basename = basename($file);
+                logMsg('info', "Executing $basename...");
+                // We capture output to show it here
+                ob_start();
+                include $file;
+                $output = ob_get_clean();
+                echo trim($output) . "\n";
+            }
+        }
+        logMsg('success', "All pending migrations processed.");
+
     } else {
-        echo "[!] WARNING: Could not connect to the database. Please check .env settings.\n";
+        logMsg('error', "Could not connect to the database. Please check .env settings.");
     }
 } catch (Exception $e) {
-    echo "[!] WARNING: Database connection error: " . $e->getMessage() . "\n";
+    logMsg('error', "Database error: " . $e->getMessage());
 }
 
 echo "\n================================================\n";
 echo "Setup process completed.\n";
 echo "Next steps:\n";
-echo "1. Configure .env with your production credentials.\n";
-echo "2. Import your database schema (if applicable).\n";
-echo "3. Run 'composer install' on your hosting server.\n";
+echo "1. Verify .env credentials if you haven't already.\n";
+echo "2. Run 'composer install' if dependencies are missing.\n";
+echo "3. Access the application via your local server.\n";
 echo "================================================\n";
