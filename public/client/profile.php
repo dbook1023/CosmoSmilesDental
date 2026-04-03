@@ -290,12 +290,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['profile_image']) && 
             throw new Exception("Invalid file type. Only JPG, JPEG, PNG, and GIF are allowed.");
         }
         
-        // Get the project root path in htdocs
-        $project_root = $_SERVER['DOCUMENT_ROOT'] . '/Cosmo_Smiles_Dental_Clinic';
+        // Get the project root path dynamically
+        $project_root = dirname(__DIR__, 2);
         $upload_dir = $project_root . '/uploads/avatar/';
         
         if (!file_exists($upload_dir)) {
-            mkdir($upload_dir, 0777, true);
+            mkdir($upload_dir, 0755, true);
         }
         
         $unique_filename = 'avatar_' . $client_id . '_' . time() . '.' . $extension;
