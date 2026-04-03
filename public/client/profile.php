@@ -451,7 +451,7 @@ $profileImage = $profile_image;
           <div class="avatar">
             <?php 
             if(!empty($profile_image) && trim($profile_image) !== '' && $profile_image !== 'NULL'): 
-                $image_path = '/Cosmo_Smiles_Dental_Clinic/' . $profile_image;
+                $image_path = $baseDir . '../' . $profile_image;
                 $timestamp = time();
             ?>
                 <img src="<?php echo htmlspecialchars($image_path); ?>?t=<?php echo $timestamp; ?>" 

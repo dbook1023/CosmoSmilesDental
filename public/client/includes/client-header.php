@@ -56,7 +56,12 @@ if ($userName && $userName !== 'My Account') {
                         }
                         ?>
                         <?php if ($isLoggedIn && $displayImage): ?>
-                            <img src="<?php echo $baseDir . $displayImage; ?>" alt="Profile" class="user-profile-img">
+                            <img src="<?php echo $baseDir . $displayImage; ?>" 
+                                 alt="Profile" 
+                                 class="user-profile-img"
+                                 id="headerAvatarImg"
+                                 onerror="this.style.display='none'; document.getElementById('headerAvatarFallback').style.display='flex';">
+                            <div class="user-initials" id="headerAvatarFallback" style="display: none;"><?php echo htmlspecialchars($initials); ?></div>
                         <?php elseif ($isLoggedIn): ?>
                             <div class="user-initials"><?php echo htmlspecialchars($initials); ?></div>
                         <?php else: ?>

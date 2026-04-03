@@ -459,7 +459,7 @@ $profileImage = null;
                                     <i class="fas fa-child"></i>
                                     <span>Parental / Guardian Consent Required</span>
                                 </div>
-                                <p class="consent-description">Since you are under 18, a parent or guardian must provide their signature. Please upload an image of the signed consent form.</p>
+                                <p class="consent-description">If you are under 18 years old, parental or legal guardian consent is required to create an account. <br>By providing their signature, the parent or guardian confirms that they give permission for their child to register and use this platform.</p>
                                 
                                 <div class="signature-pad-container">
                                     <div class="signature-pad-wrapper">

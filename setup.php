@@ -47,7 +47,15 @@ if (!file_exists($envFile)) {
 }
 
 // 2. Directory Checks
-$dirs = ['uploads', 'tmp', 'logs', 'uploads/avatar'];
+$dirs = [
+    'uploads', 
+    'tmp', 
+    'logs', 
+    'uploads/avatar', 
+    'uploads/signatures', 
+    'uploads/patient_records',
+    'public/assets/images/dynamic'
+];
 foreach ($dirs as $dir) {
     $path = __DIR__ . '/' . $dir;
     if (!file_exists($path)) {
