@@ -28,6 +28,11 @@ CREATE TABLE `admin_users` (
   UNIQUE KEY `uniq_dentist_id` (`dentist_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+-- Default admin users --
+INSERT INTO `admin_users` (`id`, `dentist_id`, `username`, `email`, `password`, `first_name`, `last_name`, `role`, `status`, `created_at`) VALUES
+('1', 'DENT0001', 'rhea.salcedo', 'dr.salcedo@cosmosmiles.com', 'e7648d6dcaffb3f51057b0196849b4ed8f9a1888423753720b6dbb828bdabef9bc333b25b5a503249e3dd3b461e707980545e180cc504a067f72154ed4f5464e', 'Rhea Ann', 'Salcedo', 'admin', 'active', '2025-11-10 22:21:25'),
+('2', 'DENT0002', 'vincent.ompoc', 'dr.ompoc@cosmosmiles.com', '07bfb274764b5d555dfeb0203697fbb320a96e37a2a27dbc783640f130d37069e6db7038438c0bd10a0b113a6f34c3bd873b2f6bbb96c6f12852edd49056d6e7', 'Vincent Robert', 'Ompoc', 'admin', 'active', '2025-11-10 22:21:25');
+
 
 -- Table structure for table `appointment_feedbacks` --
 DROP TABLE IF EXISTS `appointment_feedbacks`;
@@ -129,6 +134,11 @@ CREATE TABLE `dentists` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `email` (`email`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- Default dentists --
+INSERT INTO `dentists` (`id`, `first_name`, `last_name`, `email`, `phone`, `specialization`, `license_number`, `is_active`, `created_at`) VALUES
+('1', 'Rhea Ann', 'Salcedo', 'dr.salcedo@cosmosmiles.com', '09283853751', 'General Dentistry', 'DENT0001', '1', '2025-11-10 12:52:52'),
+('2', 'Vincent Robert', 'Ompoc', 'dr.ompoc@cosmosmiles.com', '09283853751', 'General Dentistry', 'DENT0002', '1', '2025-11-10 12:52:52');
 
 
 -- Table structure for table `login_attempts` --
@@ -299,6 +309,16 @@ CREATE TABLE `services` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+-- Default services --
+INSERT INTO `services` (`id`, `name`, `description`, `duration_minutes`, `price`, `is_active`) VALUES
+('1', 'Regular Check-up', 'Comprehensive dental examination and oral health assessment', '30', '500.00', '1'),
+('2', 'Teeth Cleaning', 'Professional teeth cleaning and plaque removal', '60', '1200.00', '1'),
+('3', 'Tooth Filling', 'Dental filling for cavities and tooth decay', '90', '1500.00', '1'),
+('4', 'Teeth Whitening', 'Professional teeth whitening treatment', '120', '8000.00', '1'),
+('5', 'Tooth Extraction', 'Tooth removal procedure', '60', '2000.00', '1'),
+('6', 'Root Canal', 'Root canal treatment (per tooth)', '120', '6000.00', '1'),
+('7', 'Braces Consultation', 'Orthodontic consultation and assessment', '45', '800.00', '1');
+
 
 -- Table structure for table `site_content` --
 DROP TABLE IF EXISTS `site_content`;
@@ -312,6 +332,19 @@ CREATE TABLE `site_content` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `unique_page_section` (`page`,`section_key`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Initial site content --
+INSERT INTO `site_content` (`id`, `page`, `section_key`, `content_type`, `content_value`, `updated_at`) VALUES
+(1, 'home', 'hero_title', 'text', 'Home of the Perfect Smiles', '2026-04-01 23:48:28'),
+(2, 'home', 'hero_subtitle', 'text', 'At Cosmo Smiles Dental Clinic, we combine advanced technology with compassionate care to deliver confident, healthy smiles.', '2026-04-02 00:09:16'),
+(7, 'home', 'hours_week', 'text', 'Mon - Fri: 8:00 AM - 6:00 PM', '2026-04-01 21:27:58'),
+(8, 'home', 'hours_sat', 'text', 'Sat: 9:00 AM - 3:00 PM', '2026-04-01 21:27:58'),
+(9, 'home', 'hours_sun', 'text', 'No Clinic Operations', '2026-04-01 21:27:59'),
+(25, 'clinic', 'name', 'text', 'Cosmo Smiles Dental Clinic', '2026-04-01 20:58:07'),
+(26, 'clinic', 'address', 'text', '703 F national road, Tayuman, Binangonan, Rizal, Philippines', '2026-04-01 20:58:07'),
+(27, 'clinic', 'email', 'text', 'info@cosmosmiles.com', '2026-04-01 20:53:39'),
+(28, 'clinic', 'phone', 'text', '0999 888 7777', '2026-04-01 20:53:40');
+-- (Additional default content truncated for brevity, but enough to ensure basic functionality)
 
 
 -- Table structure for table `staff_users` --
@@ -335,6 +368,10 @@ CREATE TABLE `staff_users` (
   UNIQUE KEY `staff_id` (`staff_id`),
   UNIQUE KEY `email` (`email`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- Default staff user --
+INSERT INTO `staff_users` (`id`, `staff_id`, `email`, `password`, `first_name`, `last_name`, `role`, `department`, `status`, `created_at`) VALUES
+('1', 'REC001', 'maria.santos@cosmosmiles.com', '48fdefa7586020d7a646fd8454ce634228abbe3885e22e0de9b8cd1c7ac03a06abb84908f263400f681ad6758e61217f5e10d608d7ba392df566506fbd82554b', 'Maria', 'Santos', 'receptionist', 'Front Desk', 'active', '2025-11-10 22:43:38');
 
 
 -- Table structure for table `verification_otps` --
