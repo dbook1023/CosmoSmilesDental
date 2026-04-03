@@ -114,15 +114,18 @@ CREATE TABLE `clients` (
 ) ENGINE=InnoDB AUTO_INCREMENT=101 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 
--- Table structure for table `request_logs` --
-DROP TABLE IF EXISTS `request_logs`;
-CREATE TABLE `request_logs` (
+-- Table structure for table `login_attempts` --
+DROP TABLE IF EXISTS `login_attempts`;
+CREATE TABLE `login_attempts` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
+  `identifier` varchar(255) NOT NULL,
   `ip_address` varchar(45) NOT NULL,
-  `request_time` timestamp NOT NULL DEFAULT current_timestamp(),
+  `attempt_time` timestamp NOT NULL DEFAULT current_timestamp(),
+  `is_successful` tinyint(1) DEFAULT 0,
   PRIMARY KEY (`id`),
+  KEY `identifier` (`identifier`),
   KEY `ip_address` (`ip_address`),
-  KEY `request_time` (`request_time`)
+  KEY `attempt_time` (`attempt_time`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 

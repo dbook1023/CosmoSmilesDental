@@ -69,6 +69,7 @@ if($_SERVER['REQUEST_METHOD'] === 'POST') {
     $firstName = trim($_POST['firstName'] ?? '');
     $lastName = trim($_POST['lastName'] ?? '');
     $birthdate = $_POST['birthdate'] ?? '';
+    $gender = $_POST['gender'] ?? '';
     $phone = trim($_POST['phone'] ?? '');
     $email = trim($_POST['email'] ?? '');
     $password = $_POST['password'] ?? '';
@@ -247,7 +248,7 @@ if($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $query = "INSERT INTO clients 
                              SET client_id=:client_id, 
                                  first_name=:first_name, last_name=:last_name, 
-                                 birthdate=:birthdate, phone=:phone, email=:email, 
+                                 birthdate=:birthdate, gender=:gender, phone=:phone, email=:email, 
                                  password=:password, is_minor=:is_minor, parental_consent=:parental_consent,
                                  parental_signature=:parental_signature";
                     
@@ -272,6 +273,7 @@ if($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $stmt->bindParam(":first_name", $firstName);
                     $stmt->bindParam(":last_name", $lastName);
                     $stmt->bindParam(":birthdate", $birthdate);
+                    $stmt->bindParam(":gender", $gender);
                     $stmt->bindParam(":phone", $phone);
                     $stmt->bindParam(":email", $email);
                     $stmt->bindParam(":password", $hashedPassword);
@@ -432,6 +434,17 @@ $profileImage = null;
                                 <input type="date" id="birthdate" name="birthdate" class="form-input" placeholder=" " required>
                                 <label for="birthdate" class="form-label">Date of Birth</label>
                                 <span class="error-message" id="birthdateError"></span>
+                            </div>
+
+                            <div class="form-group" id="genderGroup">
+                                <select id="gender" name="gender" class="form-input" required>
+                                    <option value="" disabled selected></option>
+                                    <option value="male">Male</option>
+                                    <option value="female">Female</option>
+                                    <option value="other">Other</option>
+                                </select>
+                                <label for="gender" class="form-label">Gender</label>
+                                <span class="error-message" id="genderError"></span>
                             </div>
                             
                             <div class="form-group" id="phoneGroup">

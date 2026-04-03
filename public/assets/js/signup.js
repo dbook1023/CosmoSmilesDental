@@ -23,6 +23,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const firstNameInput = document.getElementById('firstName');
     const lastNameInput = document.getElementById('lastName');
     const birthdateInput = document.getElementById('birthdate');
+    const genderInput = document.getElementById('gender');
     const phoneInput = document.getElementById('phone');
     const emailInput = document.getElementById('email');
     const passwordInput = document.getElementById('password');
@@ -34,6 +35,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const firstNameError = document.getElementById('firstNameError');
     const lastNameError = document.getElementById('lastNameError');
     const birthdateError = document.getElementById('birthdateError');
+    const genderError = document.getElementById('genderError');
     const phoneError = document.getElementById('phoneError');
     const emailError = document.getElementById('emailError');
     const passwordError = document.getElementById('passwordError');
@@ -45,6 +47,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const firstNameGroup = document.getElementById('firstNameGroup');
     const lastNameGroup = document.getElementById('lastNameGroup');
     const birthdateGroup = document.getElementById('birthdateGroup');
+    const genderGroup = document.getElementById('genderGroup');
     const phoneGroup = document.getElementById('phoneGroup');
     const emailGroup = document.getElementById('emailGroup');
     const passwordGroup = document.getElementById('passwordGroup');
@@ -296,6 +299,7 @@ document.addEventListener('DOMContentLoaded', function() {
             { input: firstNameInput, error: firstNameError, group: firstNameGroup, validator: validateFirstName },
             { input: lastNameInput, error: lastNameError, group: lastNameGroup, validator: validateLastName },
             { input: birthdateInput, error: birthdateError, group: birthdateGroup, validator: validateBirthdate },
+            { input: genderInput, error: genderError, group: genderGroup, validator: validateGender },
             { input: phoneInput, error: phoneError, group: phoneGroup, validator: validatePhone },
             { input: emailInput, error: emailError, group: emailGroup, validator: validateEmail },
             { input: passwordInput, error: passwordError, group: passwordGroup, validator: validatePassword },
@@ -782,6 +786,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (!silent) showError(phoneError, phoneGroup, errorMessage);
                     isValid = false;
                 }
+                errorMessage = validateGender();
+                if (errorMessage) {
+                    if (!silent) showError(genderError, genderGroup, errorMessage);
+                    isValid = false;
+                }
                 errorMessage = validateParentalConsent();
                 if (errorMessage) {
                     if (!silent) {
@@ -851,6 +860,12 @@ document.addEventListener('DOMContentLoaded', function() {
     function validateBirthdate() {
         const value = birthdateInput.value;
         if (!value) return 'Date of birth is required';
+        return null;
+    }
+    
+    function validateGender() {
+        const value = genderInput.value;
+        if (!value) return 'Gender is required';
         return null;
     }
     
@@ -1089,6 +1104,7 @@ document.addEventListener('DOMContentLoaded', function() {
             firstName: { error: firstNameError, group: firstNameGroup },
             lastName: { error: lastNameError, group: lastNameGroup },
             birthdate: { error: birthdateError, group: birthdateGroup },
+            gender: { error: genderError, group: genderGroup },
             phone: { error: phoneError, group: phoneGroup },
             email: { error: emailError, group: emailGroup },
             password: { error: passwordError, group: passwordGroup },
