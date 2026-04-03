@@ -108,6 +108,7 @@ try {
         // 5. Run Migrations
         echo "\n--- Running Migrations ---\n";
         $migrationFiles = [
+            __DIR__ . '/scripts/migrate_request_logs.php',
             __DIR__ . '/scripts/migrate_notes.php',
             __DIR__ . '/tmp/migrate_medical_history.php',
             __DIR__ . '/tmp/migrate_records.php',
