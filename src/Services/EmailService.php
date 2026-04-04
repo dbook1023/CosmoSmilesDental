@@ -32,12 +32,54 @@ class EmailService {
         $this->mailer->SMTPAuth   = true;
         $this->mailer->Username   = $this->smtpUsername;
         $this->mailer->Password   = $this->smtpPassword;
-        $this->mailer->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-        $this->mailer->Port       = $this->smtpPort;
+        
+        // Configure security based on port
+        if ($this->smtpPort === 465) {
+            $this->mailer->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
+        } else {
+            $this->mailer->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+        }
+        
+        $this->mailer->Port = $this->smtpPort;
+
+        // SSL Options (Skip verification if it fails on hosting)
+        $this->mailer->SMTPOptions = array(
+            'ssl' => array(
+                'verify_peer' => false,
+                'verify_peer_name' => false,
+                'allow_self_signed' => true
+            )
+        );
+        
+        // Timeout settings
+        $this->mailer->Timeout = 30;
         
         // Sender
         $this->mailer->setFrom($this->smtpUsername, $this->fromName);
         $this->mailer->isHTML(true);
+
+        // Debugging (only if explicitly enabled in env)
+        if (env('SMTP_DEBUG', false)) {
+            $this->mailer->SMTPDebug = SMTP::DEBUG_SERVER;
+            $this->mailer->Debugoutput = function($str, $level) {
+                error_log("SMTP Debug [$level]: $str");
+            };
+        }
+    }
+
+    /**
+     * Send OTP with explicit echoing of debug for diagnostics
+     */
+    public function sendOTPWithDetails($recipientEmail, $otpCode, $firstName = 'User') {
+        try {
+            $this->mailer->SMTPDebug = 3; // Detailed debug
+            $this->mailer->Debugoutput = 'echo';
+            
+            return $this->sendOTP($recipientEmail, $otpCode, $firstName);
+        } catch (Exception $e) {
+            echo "Diagnostic Error: " . $e->getMessage();
+            return false;
+        }
     }
     
     /**

@@ -995,6 +995,26 @@
       .record-details {
         grid-template-columns: 1fr;
       }
+
+      .modal-content {
+        width: 95%;
+        margin: 20px auto;
+        padding: 15px;
+        max-height: 90vh;
+      }
+
+      .medical-exam-content {
+        width: 100%;
+        border-radius: 0;
+        margin: 0;
+        height: 100vh;
+        max-height: 100vh;
+      }
+
+      .submit-exam-footer {
+        margin: 0 -15px -15px -15px;
+        padding: 15px;
+      }
     }
 
     /* Add to existing CSS */

@@ -65,7 +65,9 @@ class TextBeeSMSService {
                 error_log("SMS sent successfully to: " . $formattedPhone);
                 return true;
             } else {
-                error_log("Failed to send SMS. HTTP Code: " . $httpCode . ", Response: " . $response);
+                $errorData = json_decode($response, true);
+                $errorMsg = $errorData['message'] ?? $response;
+                error_log("Failed to send SMS to $formattedPhone. HTTP Code: $httpCode, Error: $errorMsg");
                 return false;
             }
             

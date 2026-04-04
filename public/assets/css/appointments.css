@@ -1647,16 +1647,40 @@ header {
     }
     
     .modal-content {
-        margin: 10% auto;
-        width: 95%;
-    }
-    
-    .modal-actions {
+        margin: 5% auto;
+        width: 92%;
+        max-height: 90vh;
+        display: flex;
         flex-direction: column;
     }
-    
+
+    .modal-header {
+        padding: 15px 20px;
+    }
+
+    .modal-body {
+        padding: 15px 20px;
+        max-height: calc(90vh - 120px);
+    }
+
+    .modal-actions {
+        padding: 15px 20px;
+        flex-direction: column;
+        gap: 10px;
+    }
+
     .modal-actions .form-btn {
         width: 100%;
+        justify-content: center;
+    }
+
+    .confirmation-message i {
+        font-size: 2.2rem;
+        margin-bottom: 10px;
+    }
+
+    .confirmation-message h4 {
+        font-size: 1.1rem;
     }
     
     /* Fix history card for mobile */
