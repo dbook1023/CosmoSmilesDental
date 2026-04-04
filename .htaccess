@@ -1,19 +1,26 @@
-# Apache configuration file
-# Use this to handle redirection to the public folder and secure your backend files.
+# Improved Apache configuration for hosting environments
+# Corrects the "403 Forbidden" error on the root domain
 
 <IfModule mod_rewrite.c>
     RewriteEngine On
-    
-    # Redirect all traffic to the public/ directory
-    # This allows your domain to automatically point to public/index.php
+    # RewriteBase /
+
+    # 1. Skip rewriting if already in public/ or if it's a physical file in root
+    # This ensures your 'uploads/' folder and assets stay accessible.
+    RewriteCond %{REQUEST_URI} ^/public/ [OR]
+    RewriteCond %{REQUEST_FILENAME} -f [OR]
+    RewriteCond %{REQUEST_FILENAME} -d
+    # EXCEPT for the root URL itself (so we can redirect it to public/)
+    RewriteCond %{REQUEST_URI} !^/$
+    RewriteRule ^ - [L]
+
+    # 2. Redirect empty root to public/
+    RewriteRule ^$ public/ [L]
+
+    # 3. Transparently rewrite all other requests into the public/ directory.
     RewriteCond %{REQUEST_URI} !^/public/
     RewriteRule ^(.*)$ public/$1 [L]
 </IfModule>
 
-# Security: Deny access to sensitive folders
-<IfModule mod_rewrite.c>
-    RewriteRule ^(config|src|logs|tests|docs|migrations) - [F,L]
-</IfModule>
-
-# Prevent directory listing
+# Disable directory listing
 Options -Indexes

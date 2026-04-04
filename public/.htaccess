@@ -1,26 +1,15 @@
 # Apache configuration for public directory
-# Handles URL rewriting and additional security layers
+# Handles URL rewriting and basic security
 
 <IfModule mod_rewrite.c>
     RewriteEngine On
     
     # Remove .php extension from URLs
-    # This allows you to use URLs like 'domain.com/about' instead of 'domain.com/about.php'
+    # Example: /about instead of /about.php
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteCond %{REQUEST_FILENAME}\.php -f
     RewriteRule ^([^\.]+)$ $1.php [NC,L]
 </IfModule>
-
-# Security: Deny access to include files and templates directly
-<FilesMatch "-(includes|header|footer|sidebar|common|nav|modals|styles|scripts)\.php$">
-    <IfModule mod_authz_core.c>
-        Require all denied
-    </IfModule>
-    <IfModule !mod_authz_core.c>
-        Order Deny,Allow
-        Deny from all
-    </IfModule>
-</FilesMatch>
 
 # Disable directory listing
 Options -Indexes
