@@ -58,7 +58,7 @@ if ($displayImage && strpos($displayImage, 'uploads/avatar/') === false) {
 }
 ?>
                         <?php if ($isLoggedIn && $displayImage): ?>
-                            <img src="<?php echo URL_ROOT . $displayImage; ?>" 
+                            <img src="<?php echo URL_ROOT . ltrim($displayImage, '/'); ?>" 
                                  alt="Profile" 
                                  class="user-profile-img"
                                  id="headerAvatarImg"

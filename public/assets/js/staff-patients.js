@@ -383,9 +383,9 @@ function viewPatient(patientId) {
                 // Format full address
                 const fullAddress = patient.full_address || 'No address provided';
                 
-                // FIXED: Profile image with proper quotes
-                const profileImage = patient.profile_image ? 
-    `<img src="${window.URL_ROOT || '/'}${patient.profile_image}" alt="Profile" class="profile-image" onerror="this.onerror=null; this.parentNode.innerHTML='<i class=\'fas fa-user-circle\'></i>';">` : 
+                const imagePath = patient.profile_image ? (patient.profile_image.startsWith('/') ? patient.profile_image.substring(1) : patient.profile_image) : null;
+                const profileImage = imagePath ? 
+    `<img src="${window.URL_ROOT || '/'}${imagePath}" alt="Profile" class="profile-image" onerror="this.onerror=null; this.parentNode.innerHTML='<i class=\'fas fa-user-circle\'></i>';">` : 
     '<i class="fas fa-user-circle"></i>';
                 
                 const modalBody = document.getElementById('viewModalBody');

@@ -66,17 +66,14 @@ function env($key, $default = null) {
 
 
 /**
- * Detect project root URL prefix (e.g., /Cosmo_Smiles_Dental_Clinic/)
- */
-/**
- * Dynamically determines the project root URL path.
+ * Dynamically determines the public assets root URL path.
  * 
  * Logic:
- * 1. Look for the position of '/public/' in the current script name.
- * 2. If found, return everything up to and including the project directory.
- * 3. Fallback to '/' if no '/public/' is found (e.g., if served from public root).
+ * 1. Look for '/public/' in the current script name.
+ * 2. If found, return everything up to and including '/public/'.
+ * 3. If not found, assume the script is already running from the public root and return the directory path.
  * 
- * @return string The base URL path with a trailing slash.
+ * @return string The public base URL path with a trailing slash.
  */
 function getProjectRoot() {
     $scriptName = $_SERVER['SCRIPT_NAME'] ?? '';
@@ -85,20 +82,15 @@ function getProjectRoot() {
     $publicPos = strpos($scriptName, '/public/');
     
     if ($publicPos !== false) {
-        // Return everything before 'public/' plus a trailing slash
-        $root = substr($scriptName, 0, $publicPos + 1);
+        // Return everything including 'public/'
+        $root = substr($scriptName, 0, $publicPos + 8);
         return rtrim($root, '/') . '/';
     }
     
-    // Fallback: If we're executing a script in the root (like setup.php), 
-    // find its directory.
-    $pathParts = explode('/', ltrim($scriptName, '/'));
-    if (count($pathParts) > 1) {
-        // Assume the first part is the project folder if it's not a script in root
-        return '/' . $pathParts[0] . '/';
-    }
-
-    return '/';
+    // Fallback: If no '/public/' is found, we assume we are already in the public root.
+    // Use the directory of the current script name.
+    $dir = dirname($scriptName);
+    return rtrim(str_replace('\\', '/', $dir), '/') . '/';
 }
 
 define('URL_ROOT', getProjectRoot());

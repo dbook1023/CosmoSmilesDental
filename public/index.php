@@ -473,7 +473,7 @@ if ($isLoggedIn && $client_id) {
                     }
                 }
                 ?>
-                <img src="<?php echo $heroImgExists ? URL_ROOT . 'public' . htmlspecialchars($homeContent['hero_bg_image']) : 'assets/images/csdc.jpg'; ?>" alt="Cosmo Smiles Dental Clinic">
+                <img src="<?php echo $heroImgExists ? URL_ROOT . ltrim($homeContent['hero_bg_image'], '/') : 'assets/images/csdc.jpg'; ?>" alt="Cosmo Smiles Dental Clinic">
             </div>
         </div>
     </section>
@@ -630,7 +630,7 @@ if ($isLoggedIn && $client_id) {
     </section>
 
     <!-- Testimonials Section -->
-    <section class="section-full" style="background: linear-gradient(135deg, rgba(3, 7, 79, 0.92) 0%, rgba(3, 7, 79, 0.85) 40%, rgba(13, 91, 185, 0.80) 100%), url('<?php echo URL_ROOT; ?>public/assets/images/csdc.jpg') center/cover no-repeat; background-attachment: fixed;">
+    <section class="section-full" style="background: linear-gradient(rgba(10, 25, 47, 0.8), rgba(10, 25, 47, 0.8)), url('<?php echo URL_ROOT . ltrim($homeContent['hero_bg_image'], '/'); ?>') center/cover no-repeat fixed;">
         <div class="container">
             <div class="section-header">
                 <span class="section-tag" style="background: rgba(255,255,255,0.1); color: white;">Success Stories</span>
