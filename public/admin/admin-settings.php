@@ -3,6 +3,7 @@ session_start();
 require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../../src/Controllers/SiteContentController.php';
 require_once __DIR__ . '/../../src/Controllers/TestimonialController.php';
+require_once __DIR__ . '/../../config/env.php';
 
 // Check if user is logged in
 if (!isset($_SESSION['admin_id'])) {
@@ -609,7 +610,7 @@ function iconOptions($selected = '') {
                                     <div class="detail-table-value">
                                         <input type="file" name="images[hero_bg_image]" accept="image/*" class="form-control">
                                         <?php  if(!empty($homeContent['hero_bg_image'])): ?>
-                                            <img src="/Cosmo_Smiles_Dental_Clinic/public<?php  echo $homeContent['hero_bg_image']; ?>" class="image-preview" style="object-fit: cover;">
+                                            <img src="<?php echo URL_ROOT . 'public' . $homeContent['hero_bg_image']; ?>" class="image-preview" style="object-fit: cover;">
                                         <?php  endif; ?>
                                     </div>
                                 </div>
@@ -683,7 +684,7 @@ function iconOptions($selected = '') {
                                                     <label style="display:block; margin-bottom:5px; font-weight:600; font-size:0.85em;">Profile Image</label>
                                                     <input type="file" name="images[team_<?php  echo $i; ?>_img]" accept="image/*" class="form-control">
                                                     <?php  if (!empty($homeContent['team_'.$i.'_img'])): ?>
-                                                        <img src="/Cosmo_Smiles_Dental_Clinic/public<?php  echo htmlspecialchars($homeContent['team_'.$i.'_img']); ?>" class="image-preview" style="object-fit: cover;">
+                                                        <img src="<?php echo URL_ROOT . 'public' . $homeContent['team_'.$i.'_img']; ?>" class="image-preview" style="object-fit: cover;">
                                                     <?php  endif; ?>
                                                 </div>
                                             </div>
@@ -749,7 +750,7 @@ function iconOptions($selected = '') {
                                     <div class="detail-table-value">
                                         <input type="file" name="images[about_img]" accept="image/*" class="form-control">
                                         <?php  if(!empty($aboutContent['about_img'])): ?>
-                                            <img src="/Cosmo_Smiles_Dental_Clinic/public<?php  echo $aboutContent['about_img']; ?>" class="image-preview" style="object-fit: cover;">
+                                            <img src="<?php echo URL_ROOT . 'public' . $aboutContent['about_img']; ?>" class="image-preview" style="object-fit: cover;">
                                         <?php  endif; ?>
                                     </div>
                                 </div>
@@ -898,7 +899,7 @@ function iconOptions($selected = '') {
                                     <div class="detail-table-value">
                                         <input type="file" name="images[tech_img]" class="form-control" accept="image/*">
                                         <?php  if (!empty($servicesContent['tech_img'])): ?>
-                                            <img src="/Cosmo_Smiles_Dental_Clinic/public<?php  echo htmlspecialchars($servicesContent['tech_img']); ?>" class="image-preview" style="object-fit: cover;">
+                                            <img src="<?php echo URL_ROOT . 'public' . $servicesContent['tech_img']; ?>" class="image-preview" style="object-fit: cover;">
                                         <?php  endif; ?>
                                     </div>
                                 </div>

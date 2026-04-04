@@ -1,0 +1,42 @@
+# Apache configuration file
+# Use this to handle redirection to the public folder and secure your backend files.
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    
+    # Redirect all traffic to the public/ directory
+    # This allows your domain to automatically point to public/index.php
+    RewriteCond %{REQUEST_URI} !^/public/
+    RewriteRule ^(.*)$ public/$1 [L]
+</IfModule>
+
+# Security: Deny access to sensitive backend files
+<FilesMatch "\.(php|sql|json|md|log|sh)$">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order Deny,Allow
+        Deny from all
+    </IfModule>
+</FilesMatch>
+
+# Allow access to these core files if they are in the root (legacy support)
+<FilesMatch "^(index|about|services|contact|signup|login|logout)\.php$">
+    <IfModule mod_authz_core.c>
+        Require all granted
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Allow from all
+    </IfModule>
+</FilesMatch>
+
+# Security: Deny access to sensitive folders
+<IfModule mod_authz_core.c>
+    <DirectoryMatch "^/(config|src|logs|tests)">
+        Require all denied
+    </DirectoryMatch>
+</IfModule>
+
+# Prevent directory listing
+Options -Indexes

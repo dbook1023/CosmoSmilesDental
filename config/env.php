@@ -68,22 +68,37 @@ function env($key, $default = null) {
 /**
  * Detect project root URL prefix (e.g., /Cosmo_Smiles_Dental_Clinic/)
  */
+/**
+ * Dynamically determines the project root URL path.
+ * 
+ * Logic:
+ * 1. Look for the position of '/public/' in the current script name.
+ * 2. If found, return everything up to and including the project directory.
+ * 3. Fallback to '/' if no '/public/' is found (e.g., if served from public root).
+ * 
+ * @return string The base URL path with a trailing slash.
+ */
 function getProjectRoot() {
     $scriptName = $_SERVER['SCRIPT_NAME'] ?? '';
-    // If we're at /Cosmo_Smiles_Dental_Clinic/public/index.php,
-    // we want /Cosmo_Smiles_Dental_Clinic/
+    
+    // Find the position of '/public/' in the path
     $publicPos = strpos($scriptName, '/public/');
+    
     if ($publicPos !== false) {
-        return substr($scriptName, 0, $publicPos + 1);
+        // Return everything before 'public/' plus a trailing slash
+        $root = substr($scriptName, 0, $publicPos + 1);
+        return rtrim($root, '/') . '/';
     }
     
-    // Fallback for root files (like setup.php or others)
-    $setupPos = strpos($scriptName, '/setup.php');
-    if ($setupPos !== false) {
-        return substr($scriptName, 0, $setupPos + 1);
+    // Fallback: If we're executing a script in the root (like setup.php), 
+    // find its directory.
+    $pathParts = explode('/', ltrim($scriptName, '/'));
+    if (count($pathParts) > 1) {
+        // Assume the first part is the project folder if it's not a script in root
+        return '/' . $pathParts[0] . '/';
     }
 
-    return '/'; // Final fallback
+    return '/';
 }
 
 define('URL_ROOT', getProjectRoot());

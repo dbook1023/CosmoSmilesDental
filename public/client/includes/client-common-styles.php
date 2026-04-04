@@ -173,29 +173,19 @@
         .section-padding { padding: 60px 0; }
         .section-full { padding: 80px 0; }
         .section-title { font-size: 2.2rem; }
-    }
-
-    @media (max-width: 768px) {
-        .section-title { font-size: 1.8rem; }
-        .section-padding { padding: 40px 0; }
-    }
-    /* Global Responsive Utilities */
-    @media (max-width: 992px) {
-        .section-padding { padding: 60px 0; }
-        .section-full { padding: 80px 0; }
-        .section-title { font-size: 2.2rem; }
-    }
-
-    @media (max-width: 768px) {
-        .section-title { font-size: 1.8rem; }
-        .section-padding { padding: 40px 0; }
-    }
-    /* Subpage Responsive Adjustments */
-    @media (max-width: 992px) {
+        /* Subpage Responsive Adjustments */
         .page-hero .section-title { font-size: 2.5rem; }
     }
+
     @media (max-width: 768px) {
+        .section-title { font-size: 1.8rem; }
+        .section-padding { padding: 40px 0; }
         .page-hero .section-title { font-size: 2rem; }
         .page-hero { padding: 120px 0 60px; }
     }
 </style>
+
+<!-- Global JavaScript Variables -->
+<script>
+    window.URL_ROOT = "<?php echo URL_ROOT; ?>";
+</script>

@@ -4,6 +4,7 @@ session_start();
 
 // Include necessary files
 require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../config/env.php';
 require_once __DIR__ . '/../src/Controllers/ContactController.php';
 require_once __DIR__ . '/../src/Controllers/SiteContentController.php';
 
@@ -274,7 +275,7 @@ if ($isLoggedIn) {
                     <a href="contact.php" class="btn-premium" style="margin-top: 40px;">Explore Our Facility</a>
                 </div>
                 <div class="tech-image">
-                    <img src="<?php echo !empty($servicesContent['tech_img']) ? '/Cosmo_Smiles_Dental_Clinic/public' . htmlspecialchars($servicesContent['tech_img']) : 'https://images.unsplash.com/photo-1598256989800-fe5f95da9787?q=80&w=2070&auto=format&fit=crop'; ?>" alt="Advanced Clinical Tech">
+                    <img src="<?php echo !empty($servicesContent['tech_img']) ? URL_ROOT . 'public' . htmlspecialchars($servicesContent['tech_img']) : 'https://images.unsplash.com/photo-1598256989800-fe5f95da9787?q=80&w=2070&auto=format&fit=crop'; ?>" alt="Advanced Clinical Tech">
                 </div>
             </div>
         </div>
