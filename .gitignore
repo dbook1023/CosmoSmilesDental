@@ -20,3 +20,8 @@ Thumbs.db
 
 # Sensitive Database backups
 database_schema.sql
+
+# Compressed files
+*.zip
+*.rar
+*.7z
