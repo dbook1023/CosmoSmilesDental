@@ -96,7 +96,9 @@ try {
 
         if (empty($tables)) {
             logMsg('info', "Database is empty. Initializing schema...");
-            $sqlFile = file_exists(__DIR__ . '/deploy_setup.sql') ? 'deploy_setup.sql' : (file_exists(__DIR__ . '/database_schema.sql') ? 'database_schema.sql' : null);
+            $sqlFile = file_exists(__DIR__ . '/database/production_setup.sql') ? 'database/production_setup.sql' : 
+                      (file_exists(__DIR__ . '/deploy_setup.sql') ? 'deploy_setup.sql' : 
+                      (file_exists(__DIR__ . '/database_schema.sql') ? 'database_schema.sql' : null));
             
             if ($sqlFile) {
                 logMsg('info', "Importing $sqlFile...");
