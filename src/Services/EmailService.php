@@ -4,103 +4,37 @@
 require_once __DIR__ . '/../../vendor/autoload.php';
 require_once __DIR__ . '/../../config/env.php';
 
-
-use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\SMTP;
-use PHPMailer\PHPMailer\Exception;
-
 class EmailService {
-    private $mailer;
-    
-    private $smtpHost;
-    private $smtpPort;
-    private $smtpUsername;
-    private $smtpPassword;
+    private $resend;
+    private $fromEmail;
     private $fromName;
     
     public function __construct() {
-        $this->smtpHost     = env('SMTP_HOST', 'smtp.gmail.com');
-        $this->smtpPort     = (int) env('SMTP_PORT', 587);
-        $this->smtpUsername = env('SMTP_USERNAME', '');
-        $this->smtpPassword = env('SMTP_PASSWORD', '');
-        $this->fromName     = env('SMTP_FROM_NAME', 'Cosmo Smiles Dental');
-
-        $this->mailer = new PHPMailer(true);
+        $apiKey = env('RESEND_API_KEY');
+        $this->fromEmail = env('RESEND_FROM_EMAIL', 'onboarding@resend.dev');
+        $this->fromName = env('SMTP_FROM_NAME', 'Cosmo Smiles Dental');
         
-        // SMTP Configuration
-        $this->mailer->isSMTP();
-        $this->mailer->Host       = $this->smtpHost;
-        $this->mailer->SMTPAuth   = true;
-        $this->mailer->Username   = $this->smtpUsername;
-        $this->mailer->Password   = $this->smtpPassword;
-        
-        // Configure security based on port
-        if ($this->smtpPort === 465) {
-            $this->mailer->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
-        } else {
-            $this->mailer->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-        }
-        
-        $this->mailer->Port = $this->smtpPort;
-
-        // SSL Options (Skip verification if it fails on hosting)
-        $this->mailer->SMTPOptions = array(
-            'ssl' => array(
-                'verify_peer' => false,
-                'verify_peer_name' => false,
-                'allow_self_signed' => true
-            )
-        );
-        
-        // Timeout settings
-        $this->mailer->Timeout = 30;
-        
-        // Sender
-        $this->mailer->setFrom($this->smtpUsername, $this->fromName);
-        $this->mailer->isHTML(true);
-
-        // Debugging (only if explicitly enabled in env)
-        if (env('SMTP_DEBUG', false)) {
-            $this->mailer->SMTPDebug = SMTP::DEBUG_SERVER;
-            $this->mailer->Debugoutput = function($str, $level) {
-                error_log("SMTP Debug [$level]: $str");
-            };
-        }
+        // Initialize Resend Client
+        $this->resend = Resend::client($apiKey);
     }
 
-    /**
-     * Send OTP with explicit echoing of debug for diagnostics
-     */
-    public function sendOTPWithDetails($recipientEmail, $otpCode, $firstName = 'User') {
-        try {
-            $this->mailer->SMTPDebug = 3; // Detailed debug
-            $this->mailer->Debugoutput = 'echo';
-            
-            return $this->sendOTP($recipientEmail, $otpCode, $firstName);
-        } catch (Exception $e) {
-            echo "Diagnostic Error: " . $e->getMessage();
-            return false;
-        }
-    }
-    
     /**
      * Send OTP verification email
      */
     public function sendOTP($recipientEmail, $otpCode, $firstName = 'User') {
         try {
-            $this->mailer->clearAddresses();
-            $this->mailer->addAddress($recipientEmail);
+            $this->resend->emails->send([
+                'from' => "{$this->fromName} <{$this->fromEmail}>",
+                'to' => [$recipientEmail],
+                'subject' => 'Your Verification Code - Cosmo Smiles Dental',
+                'html' => $this->buildOTPEmailTemplate($otpCode, $firstName),
+            ]);
             
-            $this->mailer->Subject = 'Your Verification Code - Cosmo Smiles Dental';
-            $this->mailer->Body    = $this->buildOTPEmailTemplate($otpCode, $firstName);
-            $this->mailer->AltBody = "Your Cosmo Smiles Dental verification code is: $otpCode. This code expires in 5 minutes.";
-            
-            $this->mailer->send();
-            error_log("OTP email sent successfully to: " . $recipientEmail);
+            error_log("OTP email sent successfully via Resend to: " . $recipientEmail);
             return true;
             
-        } catch (Exception $e) {
-            error_log("Failed to send OTP email to $recipientEmail: " . $e->getMessage());
+        } catch (\Exception $e) {
+            error_log("Failed to send OTP email via Resend to $recipientEmail: " . $e->getMessage());
             return false;
         }
     }
@@ -110,19 +44,18 @@ class EmailService {
      */
     public function sendPasswordResetEmail($recipientEmail, $resetLink, $firstName = 'User') {
         try {
-            $this->mailer->clearAddresses();
-            $this->mailer->addAddress($recipientEmail);
+            $this->resend->emails->send([
+                'from' => "{$this->fromName} <{$this->fromEmail}>",
+                'to' => [$recipientEmail],
+                'subject' => 'Password Reset Request - Cosmo Smiles Dental',
+                'html' => $this->buildResetEmailTemplate($resetLink, $firstName),
+            ]);
             
-            $this->mailer->Subject = 'Password Reset Request - Cosmo Smiles Dental';
-            $this->mailer->Body    = $this->buildResetEmailTemplate($resetLink, $firstName);
-            $this->mailer->AltBody = "Hi $firstName, please use the following link to reset your password: $resetLink. This link expires in 1 hour.";
-            
-            $this->mailer->send();
-            error_log("Password reset email sent successfully to: " . $recipientEmail);
+            error_log("Password reset email sent successfully via Resend to: " . $recipientEmail);
             return true;
             
-        } catch (Exception $e) {
-            error_log("Failed to send reset email to $recipientEmail: " . $e->getMessage());
+        } catch (\Exception $e) {
+            error_log("Failed to send reset email via Resend to $recipientEmail: " . $e->getMessage());
             return false;
         }
     }
