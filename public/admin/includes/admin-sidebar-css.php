@@ -93,7 +93,11 @@
         font-size: 1.5rem;
         cursor: pointer;
         padding: 5px;
-        z-index: 1001;
+        z-index: 1100; /* Higher than header/sidebar */
+        position: absolute;
+        right: 20px;
+        top: 50%;
+        transform: translateY(-50%);
     }
 
     /* Admin Container Layout */
@@ -233,7 +237,7 @@
         height: 100%;
         background: rgba(0, 0, 0, 0.5);
         display: none;
-        z-index: 999;
+        z-index: 1050; /* Higher than sidebar, lower than modal/hamburger */
     }
 
     .overlay.active {
@@ -330,7 +334,9 @@
     @media (max-width: 992px) {
         .admin-sidebar {
             transform: translateX(-100%);
-            z-index: 1001;
+            z-index: 1080; /* Higher than overlay, lower than hamburger */
+            height: 100vh;
+            top: 0;
         }
 
         .admin-sidebar.active {
@@ -339,10 +345,65 @@
 
         .admin-main {
             margin-left: 0;
+            padding: 15px;
         }
 
         .hamburger {
-            display: block;
+            display: block !important;
+        }
+
+        .admin-header {
+            padding: 0 15px;
+        }
+
+        .header-actions {
+            gap: 10px;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .dashboard-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 15px;
+        }
+
+        .header-content h1 {
+            font-size: 1.8rem;
+        }
+
+        .header-actions {
+            width: 100%;
+            justify-content: space-between;
+        }
+
+        .date-display {
+            padding: 5px 12px;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .admin-header {
+            padding: 0 15px;
+        }
+        
+        .navbar {
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .header-right {
+            width: 100%;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .logo img {
+            height: 60px;
+        }
+
+        .admin-container {
+            padding-top: 80px; /* Adjusted for smaller header */
         }
     }
 </style>

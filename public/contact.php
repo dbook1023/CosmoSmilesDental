@@ -10,6 +10,7 @@ require_once __DIR__ . '/../src/Controllers/SiteContentController.php';
 $siteContentController = new SiteContentController();
 $contactContent = $siteContentController->getFlatContent('contact');
 $clinicInfo = $siteContentController->getFlatContent('clinic');
+$homeContent = $siteContentController->getFlatContent('home');
 
 // Enhanced session handling with security
 $isLoggedIn = isset($_SESSION['client_logged_in']) && $_SESSION['client_logged_in'] === true;
@@ -233,8 +234,18 @@ if (isset($_SESSION['contact_message'])) {
         }
 
         @media (max-width: 992px) {
-            .contact-grid { grid-template-columns: 1fr; }
+            .contact-grid { grid-template-columns: 1fr; gap: 40px; }
             .form-card { padding: 40px; }
+            .info-card { padding: 40px; }
+        }
+
+        @media (max-width: 576px) {
+            .form-card { padding: 40px 25px; }
+            .info-card { padding: 40px 25px; }
+            .contact-method { gap: 15px; margin-bottom: 25px; }
+            .method-icon { width: 45px; height: 45px; font-size: 1rem; }
+            .hours-container { width: 100% !important; max-width: 350px; }
+            .social-buttons { flex-direction: column; }
         }
     </style>
 </head>
@@ -292,12 +303,25 @@ if (isset($_SESSION['contact_message'])) {
                     <div class="contact-method">
                         <div class="method-icon"><i class="fas fa-clock"></i></div>
                         <div>
-                            <h4 style="margin-bottom: 5px;">Facility Hours</h4>
-                            <p class="section-subtitle" style="font-size: 0.95rem; text-align: left;"><?php echo isset($contactContent['contact_hours']) ? nl2br(htmlspecialchars($contactContent['contact_hours'])) : 'Mon - Fri: 8 AM - 6 PM<br>Sat: 9 AM - 3 PM<br>Sun: No Clinic Operations'; ?></p>
+                            <h4 style="margin-bottom: 15px;">Facility Hours</h4>
+                            <div class="hours-container" style="width: 250px;">
+                                <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #F1F5F9;">
+                                    <span style="font-weight: 600; font-size: 0.9rem; color: var(--primary);">Mon - Fri</span>
+                                    <span style="font-size: 0.9rem; color: var(--text);"><?php echo htmlspecialchars(str_replace(['Mon - Fri: ', 'Mon-Fri: '], '', $homeContent['hours_week'] ?? '8:00 AM - 6:00 PM')); ?></span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #F1F5F9;">
+                                    <span style="font-weight: 600; font-size: 0.9rem; color: var(--primary);">Saturday</span>
+                                    <span style="font-size: 0.9rem; color: var(--text);"><?php echo htmlspecialchars(str_replace(['Sat: ', 'Saturday: '], '', $homeContent['hours_sat'] ?? '9:00 AM - 3:00 PM')); ?></span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; padding: 8px 0;">
+                                    <span style="font-weight: 600; font-size: 0.9rem; color: var(--primary);">Sunday</span>
+                                    <span style="font-size: 0.9rem; color: var(--text);"><?php echo htmlspecialchars(str_replace(['Sun: ', 'Sunday: '], '', $homeContent['hours_sun'] ?? 'No Clinic Operations')); ?></span>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
-                    <div style="margin-top: 50px; display: flex; gap: 15px;">
+                    <div class="social-buttons" style="margin-top: 50px; display: flex; gap: 15px;">
                         <a href="<?php echo htmlspecialchars($contactContent['contact_fb'] ?? 'https://www.facebook.com/profile.php?id=100063660475340'); ?>" class="btn-premium" style="flex: 1; justify-content: center; background-color: #1877F2;"><i class="fab fa-facebook-f"></i></a>
                         <a href="<?php echo htmlspecialchars($contactContent['contact_waze'] ?? 'https://www.waze.com/live-map/directions/ph/calabarzon/binangonan/cosmo-smiles-dental-clinic?to=place.ChIJ3Z21dojHlzMRvazDzgFbayk'); ?>" class="btn-premium btn-outline" style="flex: 1; justify-content: center;"><i class="fa-brands fa-waze"></i></a>
                     </div>

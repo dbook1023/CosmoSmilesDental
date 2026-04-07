@@ -496,10 +496,17 @@ $currentPage = 'messages';
 
         /* Responsive adaptation */
         @media (max-width: 992px) {
-            .admin-sidebar { transform: translateX(-100%); z-index: 1001; }
+            .admin-sidebar { transform: translateX(-100%); z-index: 1080; }
             .admin-sidebar.active { transform: translateX(0); }
             .admin-main { margin-left: 0; }
-            .hamburger { display: block; }
+            .hamburger { 
+                display: block;
+                z-index: 1100;
+                position: absolute;
+                right: 20px;
+                top: 50%;
+                transform: translateY(-50%);
+            }
         }
     </style>
 </head>

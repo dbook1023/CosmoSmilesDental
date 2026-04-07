@@ -86,15 +86,15 @@ class TextBeeSMSService {
         
         // Check if it's a valid Philippine mobile number
         if (strlen($cleaned) === 11 && substr($cleaned, 0, 2) === '09') {
-            return '+63' . substr($cleaned, 1);
+            return $cleaned;
         }
         
         if (strlen($cleaned) === 12 && substr($cleaned, 0, 2) === '63') {
-            return '+' . $cleaned;
+            return '0' . substr($cleaned, 2);
         }
         
         if (strlen($phone) === 13 && substr($phone, 0, 3) === '+63') {
-            return $phone;
+            return '0' . substr($phone, 3);
         }
         
         return false; // Invalid format
@@ -114,7 +114,7 @@ class TextBeeSMSService {
         $dateFormatted = date('F j, Y', strtotime($appointmentDate));
         $timeFormatted = date('g:i A', strtotime($appointmentTime));
         
-        $message = "Hi $patientName! Your dental appointment (ID: $appointmentId) at Cosmo Smiles Dental with $dentistName has been confirmed for $dateFormatted at $timeFormatted. Please arrive 10 minutes early. Reply STOP to unsubscribe.";
+        $message = "Cosmo Smiles Dental: Hi $patientName! Your appointment ($appointmentId) with $dentistName is confirmed for $dateFormatted at $timeFormatted. Arrive 10m early.";
         
         return $this->sendSMS($patientPhone, $message);
     }
@@ -129,16 +129,16 @@ class TextBeeSMSService {
         $patientPhone = $appointmentData['patient_phone'];
         $appointmentId = $appointmentData['appointment_id'];
         
-        $dateFormatted = date('F j, Y', strtotime($appointmentDate));
+        $dateFormatted = date('M j, Y', strtotime($appointmentDate));
         $timeFormatted = date('g:i A', strtotime($appointmentTime));
         
-        $message = "Hi $patientName! Your dental appointment (ID: $appointmentId) at Cosmo Smiles Dental on $dateFormatted at $timeFormatted has been cancelled.";
+        $message = "Cosmo Smiles Dental: Hi $patientName! Your appointment on $dateFormatted at $timeFormatted is cancelled.";
         
         if (!empty($reason)) {
-            $message .= " Reason: $reason";
+            $message .= " Reason: $reason.";
         }
         
-        $message .= " Please contact us at (02) 123-4567 to reschedule. Reply STOP to unsubscribe.";
+        $message .= " Call (02) 123-4567 to reschedule.";
         
         return $this->sendSMS($patientPhone, $message);
     }

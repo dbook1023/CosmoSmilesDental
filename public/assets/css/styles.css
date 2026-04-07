@@ -1153,4 +1153,129 @@
         to { transform: translate(-50%, -50%) rotate(360deg); }
     }
 
+    /* --- GLOBAL RESPONSIVE UTILITIES --- */
+
+    /* Responsive Table Wrapper */
+    .table-responsive {
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        margin-bottom: 1rem;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+    }
+
+    .table-responsive table {
+        margin-bottom: 0;
+        min-width: 600px; /* Force scroll on very narrow screens */
+    }
+
+    /* Responsive Grid Adjustments */
+    .grid-2 {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+    }
+
+    .grid-3 {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+    }
+
+    /* Mobile First Overrides */
+    @media (max-width: 992px) {
+        section {
+            padding: 2.5rem 0;
+        }
+        .nav-center {
+            display: none; /* Desktop nav links */
+        }
+        .hamburger {
+            display: block !important;
+        }
+        .about-content {
+            flex-direction: column;
+            text-align: center;
+        }
+        .contact-container {
+            flex-direction: column;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .grid-2, .grid-3 {
+            grid-template-columns: 1fr;
+        }
+        .container {
+            padding: 0 20px;
+        }
+        .section-title {
+            margin-bottom: 30px;
+            font-size: 1.3rem;
+        }
+        .btn {
+            padding: 10px 20px;
+            font-size: 14px;
+            width: 100%;
+        }
+        .flex-container {
+            flex-direction: column;
+            align-items: center;
+        }
+        .flex-container > div {
+            max-width: 100%;
+            width: 100%;
+        }
+        .footer-content {
+            grid-template-columns: 1fr;
+            text-align: center;
+        }
+        .footer-links li {
+            margin-bottom: 15px;
+        }
+
+        /* Responsive Modals */
+        .modal-content {
+            width: 95% !important;
+            margin: 10px auto !important;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .hero-promo {
+            padding: 100px 0 60px;
+        }
+        .hero-promo-content h1 {
+            font-size: 1.8rem;
+        }
+        .tagline {
+            font-size: 1rem;
+        }
+        
+        /* Full screen modals on mobile */
+        .modal-content, .admin-modal {
+            width: 100% !important;
+            height: 100% !important;
+            max-width: 100% !important;
+            max-height: 100vh !important;
+            margin: 0 !important;
+            border-radius: 0 !important;
+        }
+        .modal-body {
+            max-height: calc(100vh - 140px) !important; /* Account for header and footer */
+            overflow-y: auto !important;
+        }
+    }
     
+    /* Utility for stacking cards */
+    .stack-tablet {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+    @media (min-width: 769px) {
+        .stack-tablet {
+            flex-direction: row;
+        }
+    }

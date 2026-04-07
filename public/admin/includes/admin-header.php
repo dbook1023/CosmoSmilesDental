@@ -1,4 +1,4 @@
-<!-- Admin Header -->
+<!-- Admin Header (Standardized) -->
 <header class="admin-header">
     <div class="container">
         <nav class="navbar">

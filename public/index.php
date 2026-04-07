@@ -711,13 +711,13 @@ if ($isLoggedIn && $client_id) {
                 <div class="premium-card" style="padding: 50px; background: var(--primary); color: white; border: none;">
                     <h3 style="font-size: 2rem; margin-bottom: 30px;">Facility Hours</h3>
                     <div style="display: flex; justify-content: space-between; padding: 15px 0; border-bottom: 1px solid rgba(255,255,255,0.1);">
-                        <span>Mon - Fri</span><span><?php echo htmlspecialchars($homeContent['hours_week'] ?? '8:00 AM - 6:00 PM'); ?></span>
+                        <span>Mon - Fri</span><span><?php echo htmlspecialchars(str_replace(['Mon - Fri: ', 'Mon-Fri: '], '', $homeContent['hours_week'] ?? '8:00 AM - 6:00 PM')); ?></span>
                     </div>
                     <div style="display: flex; justify-content: space-between; padding: 15px 0; border-bottom: 1px solid rgba(255,255,255,0.1);">
-                        <span>Saturday</span><span><?php echo htmlspecialchars($homeContent['hours_sat'] ?? '9:00 AM - 3:00 PM'); ?></span>
+                        <span>Saturday</span><span><?php echo htmlspecialchars(str_replace(['Sat: ', 'Saturday: '], '', $homeContent['hours_sat'] ?? '9:00 AM - 3:00 PM')); ?></span>
                     </div>
                     <div style="display: flex; justify-content: space-between; padding: 15px 0;">
-                        <span>Sunday</span><span><?php echo htmlspecialchars($homeContent['hours_sun'] ?? 'No Clinic Operations'); ?></span>
+                        <span>Sunday</span><span><?php echo htmlspecialchars(str_replace(['Sun: ', 'Sunday: '], '', $homeContent['hours_sun'] ?? 'No Clinic Operations')); ?></span>
                     </div>
                 </div>
                 <div>

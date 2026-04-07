@@ -1004,11 +1004,16 @@ $sidebarAdminRole = $adminRole;
         @media (max-width: 992px) {
             .hamburger {
                 display: block;
+                z-index: 1100;
+                position: absolute;
+                right: 20px;
+                top: 50%;
+                transform: translateY(-50%);
             }
             
             .admin-sidebar {
                 transform: translateX(-100%);
-                z-index: 999;
+                z-index: 1080;
             }
             
             .admin-sidebar.active {

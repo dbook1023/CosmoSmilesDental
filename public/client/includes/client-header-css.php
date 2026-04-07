@@ -184,6 +184,11 @@
         cursor: pointer;
         padding: 5px;
         transition: transform 0.3s ease;
+        z-index: 1100;
+        position: absolute;
+        right: 20px;
+        top: 50%;
+        transform: translateY(-50%);
     }
 
     .cs-hamburger:active {

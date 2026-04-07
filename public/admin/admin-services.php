@@ -232,7 +232,7 @@ $sidebarAdminRole = (strtolower($admin_role) === 'admin') ? 'Administrator' : uc
             <div class="dashboard-header">
                 <div class="header-content">
                     <h1>Services Management</h1>
-                    <p>Manage dental treatments, pricing (â‚±), and availability</p>
+                    <p>Manage dental treatments, pricing (&#8369;), and availability</p>
                 </div>
                 <div class="header-actions">
                     <div class="date-display">
@@ -272,7 +272,7 @@ $sidebarAdminRole = (strtolower($admin_role) === 'admin') ? 'Administrator' : uc
                     <div class="stat-icon" style="color:var(--warning);"><i class="fas fa-coins"></i></div>
                     <div class="stat-content">
                         <h3>Avg. Rate</h3>
-                        <div class="stat-number">â‚±<?php  echo isset($stats['avg_price']) ? number_format($stats['avg_price'], 0) : 0; ?></div>
+                        <div class="stat-number">&#8369;<?php  echo isset($stats['avg_price']) ? number_format($stats['avg_price'], 0) : 0; ?></div>
                     </div>
                 </div>
             </div>
@@ -309,7 +309,7 @@ $sidebarAdminRole = (strtolower($admin_role) === 'admin') ? 'Administrator' : uc
                                 <th>Treatment Name</th>
                                 <th>Description</th>
                                 <th>Duration</th>
-                                <th>Rate (â‚±)</th>
+                                <th>Rate (&#8369;)</th>
                                 <th>Status</th>
                                 <th>Actions</th>
                             </tr>
@@ -325,7 +325,7 @@ $sidebarAdminRole = (strtolower($admin_role) === 'admin') ? 'Administrator' : uc
                                     <?php  echo htmlspecialchars(substr($s['description'], 0, 100)) . (strlen($s['description']) > 100 ? '...' : ''); ?>
                                 </td>
                                 <td data-label="Duration"><i class="far fa-clock"></i> <?php  echo $s['duration_minutes']; ?> mins</td>
-                                <td data-label="Rate (â‚±)"><strong>â‚±<?php  echo number_format($s['price'], 2); ?></strong></td>
+                                <td data-label="Rate (&#8369;)"><strong>&#8369;<?php  echo number_format($s['price'], 2); ?></strong></td>
                                 <td data-label="Status">
                                     <span class="status-badge <?php  echo $s['is_active'] ? 'status-active' : 'status-inactive'; ?>">
                                         <?php  echo $s['is_active'] ? 'Active' : 'Inactive'; ?>
@@ -379,7 +379,7 @@ $sidebarAdminRole = (strtolower($admin_role) === 'admin') ? 'Administrator' : uc
                             <input type="number" name="duration" id="service-duration" class="form-control" required min="5" step="5">
                         </div>
                         <div class="form-group">
-                            <label>Price (â‚±)</label>
+                            <label>Price (&#8369;)</label>
                             <input type="number" name="price" id="service-price" class="form-control" required min="0" step="0.01">
                         </div>
                     </div>

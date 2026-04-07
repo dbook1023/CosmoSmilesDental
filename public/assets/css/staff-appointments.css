@@ -92,7 +92,27 @@ body {
     font-size: 1.5rem;
     cursor: pointer;
     padding: 5px;
-    z-index: 1001;
+    z-index: 1100;
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+/* Overlay */
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: none;
+    z-index: 1050;
+}
+
+.overlay.active {
+    display: block;
 }
 
 /* Admin Container Layout */
@@ -1697,3 +1717,148 @@ select.form-control option {
     font-size: 0.8rem;
 }
 
+/* --- RESPONSIVE OVERRIDES --- */
+
+@media (max-width: 992px) {
+    .calendar-header {
+        font-size: 0.8rem;
+    }
+    
+    .calendar-day {
+        min-height: 80px;
+        padding: 5px;
+    }
+
+    .day-number {
+        width: 25px;
+        height: 25px;
+        font-size: 0.85rem;
+    }
+
+    .appointment-badge {
+        font-size: 0.65rem;
+        padding: 3px;
+    }
+}
+
+@media (max-width: 768px) {
+    .calendar-grid {
+        grid-template-columns: repeat(7, 1fr);
+    }
+    
+    .calendar-day {
+        min-height: 60px;
+    }
+
+    .day-appointments {
+        max-height: 80px;
+    }
+
+    .appointment-patient {
+        display: none; /* Only show time on small grid */
+    }
+
+    .modal-content {
+        width: 95% !important;
+        margin: 10px !important;
+    }
+
+    .modal-footer {
+        flex-direction: column;
+        gap: 10px;
+        padding: 15px;
+    }
+
+    .modal-footer .btn {
+        width: 100%;
+        justify-content: center;
+        margin-left: 0 !important;
+    }
+
+    .filter-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .filter-group {
+        width: 100%;
+    }
+
+    .appointments-table-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+}
+
+@media (max-width: 576px) {
+    .calendar-grid {
+        display: block; /* Stack days */
+    }
+
+    .calendar-day {
+        border-bottom: 1px solid var(--border);
+        margin-bottom: 10px;
+        border-radius: 8px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        min-height: auto;
+    }
+
+    .day-number {
+        margin-bottom: 5px;
+    }
+
+    .appointment-patient {
+        display: block;
+    }
+
+    .header-actions {
+        flex-direction: column;
+        width: 100%;
+        gap: 10px;
+    }
+
+    .header-actions .btn {
+        width: 100%;
+    }
+
+    .calendar-navigation {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+    }
+
+    .nav-btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* Ensure data tables are scrollable */
+.appointments-table-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Responsive Sidebar */
+@media (max-width: 992px) {
+    .hamburger {
+        display: block;
+    }
+
+    .admin-sidebar {
+        transform: translateX(-100%);
+        z-index: 1080;
+        height: 100vh;
+        top: 0;
+    }
+
+    .admin-sidebar.active {
+        transform: translateX(0);
+    }
+
+    .admin-main {
+        margin-left: 0;
+        width: 100%;
+    }
+}

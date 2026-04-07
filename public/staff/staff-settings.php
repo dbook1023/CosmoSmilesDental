@@ -318,7 +318,11 @@ if (!empty($staff_data['created_at'])) {
             font-size: 1.5rem;
             cursor: pointer;
             padding: 5px;
-            z-index: 1001;
+            z-index: 1100;
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
         }
 
         /* Admin Container Layout */
@@ -942,14 +946,14 @@ if (!empty($staff_data['created_at'])) {
         .overlay { 
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
             background: rgba(3, 7, 79, 0.6); backdrop-filter: blur(4px); 
-            z-index: 1000; display: none; opacity: 0; transition: 0.3s; 
+            z-index: 1050; display: none; opacity: 0; transition: 0.3s; 
         }
         .overlay.active { display: block; opacity: 1; visibility: visible; }
 
         .admin-modal { 
             position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.9); 
             background: white; padding: 40px; border-radius: 16px; 
-            box-shadow: 0 20px 50px rgba(0,0,0,0.2); z-index: 1001; 
+            box-shadow: 0 20px 50px rgba(0,0,0,0.2); z-index: 2000; 
             width: 90%; max-width: 500px; display: none; opacity: 0; 
             transition: 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); text-align: center;
         }
@@ -1001,7 +1005,9 @@ if (!empty($staff_data['created_at'])) {
             
             .admin-sidebar {
                 transform: translateX(-100%);
-                z-index: 999;
+                z-index: 1080;
+                height: 100vh;
+                top: 0;
             }
             
             .admin-sidebar.active {
@@ -1102,7 +1108,7 @@ if (!empty($staff_data['created_at'])) {
     </style>
 </head>
 <body>
-    <!-- Admin Header -->
+    <!-- Admin Header (Standardized) -->
     <header class="admin-header">
         <div class="container">
             <nav class="navbar">
@@ -1275,9 +1281,9 @@ if (!empty($staff_data['created_at'])) {
                                         <div class="detail-label">
                                             <i class="fas fa-envelope"></i> Email Address
                                         </div>
-                                        <div class="detail-value">
-                                            <input type="email" name="email" id="profile-email" class="form-control" value="<?= htmlspecialchars($staff_data['email']) ?>" required>
-                                            <div style="margin-top: 5px; font-size: 0.8rem; color: #64748b;">
+                                        <div class="detail-value" style="flex-direction: column; align-items: flex-start; gap: 5px;">
+                                            <input type="email" name="email" id="profile-email" class="form-control" value="<?= htmlspecialchars($staff_data['email']) ?>" required style="width: 100%;">
+                                            <div style="font-size: 0.8rem; color: #64748b; width: 100%;">
                                                 <i class="fas fa-info-circle"></i> Changing email requires verification.
                                             </div>
                                         </div>
@@ -1286,9 +1292,9 @@ if (!empty($staff_data['created_at'])) {
                                         <div class="detail-label">
                                             <i class="fas fa-phone"></i> Phone Number
                                         </div>
-                                        <div class="detail-value">
-                                            <input type="text" name="phone" id="profile-phone" class="form-control" value="<?= htmlspecialchars($staff_data['phone'] ?? '') ?>" placeholder="09xxxxxxxxx">
-                                            <div style="margin-top: 5px; font-size: 0.8rem; color: #64748b;">
+                                        <div class="detail-value" style="flex-direction: column; align-items: flex-start; gap: 5px;">
+                                            <input type="text" name="phone" id="profile-phone" class="form-control" value="<?= htmlspecialchars($staff_data['phone'] ?? '') ?>" placeholder="09xxxxxxxxx" style="width: 100%;">
+                                            <div style="font-size: 0.8rem; color: #64748b; width: 100%;">
                                                 <i class="fas fa-info-circle"></i> Changing phone requires verification.
                                             </div>
                                         </div>
@@ -1524,54 +1530,38 @@ if (!empty($staff_data['created_at'])) {
             }, 5000);
         }
 
-        // Set current date
-        const currentDate = new Date();
-        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-        document.getElementById('current-date').textContent = currentDate.toLocaleDateString('en-PH', options);
-
-        // Mobile sidebar toggle
-        const hamburger = document.querySelector('.hamburger');
-        const sidebar = document.querySelector('.admin-sidebar');
-        let overlayElement, confirmModal, alertModal;
-        let confirmActionCallback = null;
-
-        document.addEventListener('DOMContentLoaded', () => {
-            overlayElement = document.querySelector('.overlay');
-            confirmModal = document.getElementById('modal-confirm');
-            alertModal = document.getElementById('modal-alert');
-
-            const btnYes = document.getElementById('btn-confirm-yes');
-            const btnNo = document.getElementById('btn-confirm-no');
-            const btnOk = document.getElementById('btn-alert-ok');
-            
-            if (btnYes) btnYes.addEventListener('click', () => { closeModals(); if (confirmActionCallback) confirmActionCallback(); });
-            if (btnNo) btnNo.addEventListener('click', closeModals);
-            if (btnOk) btnOk.addEventListener('click', closeModals);
-            if (overlayElement) overlayElement.addEventListener('click', closeModals);
-        });
-
-        hamburger.addEventListener('click', () => {
-            sidebar.classList.toggle('active');
-            overlayElement.classList.toggle('active');
-        });
-
+        // Set current date helper (moved inside DOMContentLoaded)
+        function updateDateDisplay() {
+            const currentDate = new Date();
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            const dateEl = document.getElementById('current-date');
+            if (dateEl) dateEl.textContent = currentDate.toLocaleDateString('en-PH', options);
+        }
+        
+        // Global Helpers
         function closeModals() {
+            const overlay = document.querySelector('.overlay');
+            const sidebar = document.querySelector('.admin-sidebar');
             document.querySelectorAll('.admin-modal').forEach(m => m.classList.remove('active'));
-            if (overlayElement) overlayElement.classList.remove('active');
+            if (overlay) overlay.classList.remove('active');
             if (sidebar) sidebar.classList.remove('active');
         }
 
         function showConfirm(title, message, callback) {
+            const confirmModal = document.getElementById('modal-confirm');
+            const overlay = document.querySelector('.overlay');
             const t = document.getElementById('confirm-title');
             const m = document.getElementById('confirm-message');
             if (t) t.textContent = title;
             if (m) m.textContent = message;
             confirmActionCallback = callback;
-            if (overlayElement) overlayElement.classList.add('active');
+            if (overlay) overlay.classList.add('active');
             if (confirmModal) confirmModal.classList.add('active');
         }
 
         function showAlert(type, title, message) {
+            const alertModal = document.getElementById('modal-alert');
+            const overlay = document.querySelector('.overlay');
             if (!alertModal) return;
             alertModal.className = `admin-modal admin-modal-${type} active`;
             const icon = alertModal.querySelector('.admin-modal-icon');
@@ -1580,48 +1570,92 @@ if (!empty($staff_data['created_at'])) {
             const m = document.getElementById('alert-message');
             if (t) t.textContent = title;
             if (m) m.textContent = message;
-            if (overlayElement) overlayElement.classList.add('active');
+            if (overlay) overlay.classList.add('active');
         }
 
-        // Close sidebar when clicking on a link (for mobile)
-        const sidebarLinks = document.querySelectorAll('.sidebar-item');
-        sidebarLinks.forEach(link => {
-            link.addEventListener('click', () => {
-                if (window.innerWidth <= 992) {
-                    sidebar.classList.remove('active');
-                    if (overlayElement) overlayElement.classList.remove('active');
-                }
+        // Initialization and Global Variables
+        let confirmActionCallback = null;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Assign dynamic elements
+            const hamburger = document.querySelector('.hamburger');
+            const sidebar = document.querySelector('.admin-sidebar');
+            const overlayElement = document.querySelector('.overlay');
+            
+            const btnYes = document.getElementById('btn-confirm-yes');
+            const btnNo = document.getElementById('btn-confirm-no');
+            const btnOk = document.getElementById('btn-alert-ok');
+            const settingsNavItems = document.querySelectorAll('.settings-nav-item');
+            const settingsSections = document.querySelectorAll('.settings-section');
+            const sidebarLinks = document.querySelectorAll('.sidebar-item');
+
+            // Mobile sidebar toggle
+            if (hamburger && sidebar && overlayElement) {
+                hamburger.addEventListener('click', () => {
+                    sidebar.classList.toggle('active');
+                    overlayElement.classList.toggle('active');
+                });
+            }
+
+            // Close modals when clicking overlay
+            if (overlayElement) {
+                overlayElement.addEventListener('click', closeModals);
+            }
+
+            // Modal Button Listeners
+            if (btnYes) btnYes.addEventListener('click', () => { closeModals(); if (confirmActionCallback) confirmActionCallback(); });
+            if (btnNo) btnNo.addEventListener('click', closeModals);
+            if (btnOk) btnOk.addEventListener('click', closeModals);
+
+            // Initialize Date Display
+            updateDateDisplay();
+
+            // Settings Navigation (Tabs)
+            // Initialize: Show only profile section
+            const profileSection = document.getElementById('profile-section');
+            const securitySection = document.getElementById('security-section');
+            
+            if (profileSection) {
+                profileSection.classList.add('active');
+                profileSection.style.display = 'block';
+            }
+            if (securitySection) {
+                securitySection.classList.remove('active');
+                securitySection.style.display = 'none';
+            }
+
+            settingsNavItems.forEach(item => {
+                item.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    
+                    const targetSectionId = item.getAttribute('data-section');
+                    
+                    // Update active nav item
+                    settingsNavItems.forEach(navItem => navItem.classList.remove('active'));
+                    item.classList.add('active');
+                    
+                    // Hide all sections and show target
+                    settingsSections.forEach(section => {
+                        section.classList.remove('active');
+                        section.style.display = 'none';
+                    });
+                    
+                    const targetSection = document.getElementById(`${targetSectionId}-section`);
+                    if (targetSection) {
+                        targetSection.classList.add('active');
+                        targetSection.style.display = 'block';
+                    }
+                });
             });
-        });
 
-        // Settings navigation
-        const settingsNavItems = document.querySelectorAll('.settings-nav-item');
-        const settingsSections = document.querySelectorAll('.settings-section');
-
-        // Initialize: Show only profile section
-        document.getElementById('profile-section').classList.add('active');
-        document.getElementById('security-section').classList.remove('active');
-
-        settingsNavItems.forEach(item => {
-            item.addEventListener('click', (e) => {
-                e.preventDefault();
-                
-                // Get target section
-                const targetSection = item.getAttribute('data-section');
-                
-                // Update active nav item
-                settingsNavItems.forEach(navItem => {
-                    navItem.classList.remove('active');
+            // Close sidebar when clicking on a link (for mobile)
+            sidebarLinks.forEach(link => {
+                link.addEventListener('click', () => {
+                    if (window.innerWidth <= 992) {
+                        if (sidebar) sidebar.classList.remove('active');
+                        if (overlayElement) overlayElement.classList.remove('active');
+                    }
                 });
-                item.classList.add('active');
-                
-                // Hide all sections first
-                settingsSections.forEach(section => {
-                    section.classList.remove('active');
-                });
-                
-                // Show only the target section
-                document.getElementById(`${targetSection}-section`).classList.add('active');
             });
         });
 

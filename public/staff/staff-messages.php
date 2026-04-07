@@ -782,6 +782,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['mark_as_read'])) {
         }
     </style>
 </head>
+
 <body>
     <!-- Admin Header -->
     <header class="admin-header">

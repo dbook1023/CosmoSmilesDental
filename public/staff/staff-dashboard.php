@@ -561,7 +561,6 @@ try {
             display: flex;
             align-items: center;
             gap: 20px;
-            position: relative;
         }
 
 
@@ -571,7 +570,11 @@ try {
             font-size: 1.5rem;
             cursor: pointer;
             padding: 5px;
-            z-index: 1001;
+            z-index: 1100;
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
         }
 
         /* Admin Container Layout */
@@ -1088,6 +1091,22 @@ try {
         }
 
         /* Responsive Design */
+        /* Overlay */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            z-index: 1050;
+        }
+
+        .overlay.active {
+            display: block;
+        }
+
         @media (max-width: 1200px) {
             .analytics-grid {
                 grid-template-columns: 1fr;
@@ -1109,7 +1128,9 @@ try {
             
             .admin-sidebar {
                 transform: translateX(-100%);
-                z-index: 999;
+                z-index: 1080;
+                height: 100vh;
+                top: 0;
             }
             
             .admin-sidebar.active {
@@ -1129,6 +1150,7 @@ try {
                 grid-template-columns: 1fr;
             }
         }
+
 
         @media (max-width: 768px) {
             .dashboard-header {
@@ -1278,7 +1300,7 @@ try {
     </style>
 </head>
 <body>
-    <!-- Admin Header -->
+    <!-- Admin Header (Standardized) -->
     <header class="admin-header">
         <div class="container">
             <nav class="navbar">
@@ -1618,38 +1640,9 @@ try {
         document.getElementById('current-date').textContent = currentDate.toLocaleDateString('en-PH', options);
 
         // Mobile sidebar toggle
-        const hamburger = document.querySelector('.hamburger');
-        const sidebar = document.querySelector('.admin-sidebar');
-        const overlay = document.querySelector('.overlay');
 
-        hamburger.addEventListener('click', () => {
-            sidebar.classList.toggle('active');
-            overlay.classList.toggle('active');
-        });
 
-        overlay.addEventListener('click', () => {
-            sidebar.classList.remove('active');
-            overlay.classList.remove('active');
-        });
 
-        // Close sidebar when clicking on a link (for mobile)
-        const sidebarLinks = document.querySelectorAll('.sidebar-item');
-        sidebarLinks.forEach(link => {
-            link.addEventListener('click', () => {
-                if (window.innerWidth <= 992) {
-                    sidebar.classList.remove('active');
-                    overlay.classList.remove('active');
-                }
-            });
-        });
-
-        // Responsive sidebar behavior
-        window.addEventListener('resize', () => {
-            if (window.innerWidth > 992) {
-                sidebar.classList.remove('active');
-                overlay.classList.remove('active');
-            }
-        });
 
         // Filter functionality
         const applyFiltersBtn = document.getElementById('apply-filters');
@@ -1963,6 +1956,23 @@ try {
         // Initialize everything when DOM is loaded
         document.addEventListener('DOMContentLoaded', function() {
             initializeCharts();
+
+            // Sidebar Toggle
+            const hamburger = document.querySelector('.hamburger');
+            const sidebar = document.querySelector('.admin-sidebar');
+            const overlay = document.querySelector('.overlay');
+
+            if (hamburger && sidebar && overlay) {
+                hamburger.addEventListener('click', () => {
+                    sidebar.classList.toggle('active');
+                    overlay.classList.toggle('active');
+                });
+
+                overlay.addEventListener('click', () => {
+                    sidebar.classList.remove('active');
+                    overlay.classList.remove('active');
+                });
+            }
         });
     </script>
 </body>

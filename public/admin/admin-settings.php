@@ -357,14 +357,14 @@ function iconOptions($selected = '') {
         .overlay { 
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
             background: rgba(3, 7, 79, 0.6); backdrop-filter: blur(4px); 
-            z-index: 1000; display: none; opacity: 0; transition: 0.3s; 
+            z-index: 1050; display: none; opacity: 0; transition: 0.3s; 
         }
         .overlay.active { display: block; opacity: 1; }
 
         .admin-modal { 
             position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.9); 
             background: white; padding: 40px; border-radius: 16px; 
-            box-shadow: 0 20px 50px rgba(0,0,0,0.2); z-index: 1001; 
+            box-shadow: 0 20px 50px rgba(0,0,0,0.2); z-index: 1200; 
             width: 90%; max-width: 500px; display: none; opacity: 0; 
             transition: 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); text-align: center;
         }
@@ -700,7 +700,7 @@ function iconOptions($selected = '') {
                                 <div class="detail-table-row">
                                     <div class="detail-table-label">Weekday Hours</div>
                                     <div class="detail-table-value">
-                                        <input type="text" name="content[hours_week]" class="form-control" placeholder="e.g. Mon - Fri: 8:00 AM - 6:00 PM" value="<?php  echo htmlspecialchars($homeContent['hours_week'] ?? '8:00 AM - 6:00 PM'); ?>">
+                                        <input type="text" name="content[hours_week]" class="form-control" placeholder="e.g. 8:00 AM - 6:00 PM" value="<?php  echo htmlspecialchars($homeContent['hours_week'] ?? '8:00 AM - 6:00 PM'); ?>">
                                     </div>
                                 </div>
                                 <div class="detail-table-row">
@@ -1425,13 +1425,24 @@ function iconOptions($selected = '') {
         if (filterStars) filterStars.addEventListener('change', filterTestimonials);
         if (filterSearch) filterSearch.addEventListener('input', filterTestimonials);
 
-        // Sidebar Toggle
-        const sideToggle = document.querySelector('.admin-sidebar-toggle');
+        // Sidebar Toggle & Overlay Initialization
+        overlayElement = document.querySelector('.overlay');
+        const hamburger = document.querySelector('.hamburger');
         const sidebar = document.querySelector('.admin-sidebar');
-        if (sideToggle && sidebar) {
-            sideToggle.addEventListener('click', () => {
+        
+        if (hamburger && sidebar && overlayElement) {
+            hamburger.addEventListener('click', () => {
                 sidebar.classList.toggle('active');
-                if (overlayElement) overlayElement.classList.toggle('active');
+                overlayElement.classList.toggle('active');
+            });
+        }
+
+        // Close sidebar/modals on overlay click
+        if (overlayElement) {
+            overlayElement.addEventListener('click', () => {
+                closeModals();
+                if (sidebar) sidebar.classList.remove('active');
+                overlayElement.classList.remove('active');
             });
         }
 
@@ -1588,6 +1599,5 @@ function iconOptions($selected = '') {
             }
         });
     </script>
-    <div class="admin-sidebar-toggle"><i class="fas fa-bars"></i></div>
 </body>
 </html>
