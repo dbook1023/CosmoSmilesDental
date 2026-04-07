@@ -262,14 +262,15 @@ $currentDateTime = date('Y-m-d H:i:s');
                         <span class="detail-label">Duration:</span>
                         <span class="detail-value" id="modalDuration">-</span>
                     </div>
-                    <!-- Client Feedback Section -->
-                    <div id="modalFeedbackSection" style="display: none; margin-top: 15px; padding: 12px; background: #fff9f0; border: 1px solid #ffeeba; border-radius: 8px;">
-                        <h5 style="margin-bottom: 8px; color: #856404;"><i class="fas fa-star" style="color: #ffc107;"></i> Client Feedback</h5>
-                        <div class="detail-row" style="margin-bottom: 5px;">
-                            <span class="detail-label">Rating:</span>
-                            <span id="modalFeedbackRating" style="font-weight: 700; color: #ffc107;"></span>
+                    <!-- Client Feedback Section - ORGANIZED VIEW -->
+                    <div id="modalFeedbackSection" style="display: none; margin-top: 25px; padding: 20px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                            <h5 style="margin: 0; color: var(--primary); font-weight: 700; font-size: 1rem;"><i class="fas fa-comment-dots" style="margin-right: 8px; color: var(--secondary);"></i> Client Experience</h5>
+                            <div id="modalFeedbackRatingStars" style="color: #f59e0b; font-size: 0.9rem;"></div>
                         </div>
-                        <div style="font-style: italic; color: #666; font-size: 0.9rem;" id="modalFeedbackComment"></div>
+                        <div class="feedback-quote" style="position: relative; padding: 15px 20px; background: white; border-radius: 8px; border-left: 4px solid var(--secondary); margin-bottom: 0;">
+                            <div style="font-style: italic; color: #475569; line-height: 1.6; font-size: 0.95rem;" id="modalFeedbackComment"></div>
+                        </div>
                     </div>
                     <div class="detail-row">
                         <span class="detail-label">Dentist:</span>

@@ -71,6 +71,11 @@ class TestimonialController {
      * This enforces the rule: only one featured feedback per client
      */
     public function setFeaturedTestimonial($feedbackId, $clientId) {
+        // Ensure session is started and admin is authorized
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+        
         if (!isset($_SESSION['admin_id'])) {
             return ['success' => false, 'message' => 'Unauthorized'];
         }
@@ -78,43 +83,44 @@ class TestimonialController {
         try {
             $this->conn->beginTransaction();
 
-            // First, un-feature all feedbacks for this client
+            // Un-feature all feedbacks for this client
+            // Using a more standard SQL syntax for compatibility
             $unfeatureQuery = "
-                UPDATE appointment_feedbacks f
-                JOIN appointments a ON f.appointment_id = a.appointment_id
-                SET f.is_featured = 0
-                WHERE a.client_id = ?
+                UPDATE appointment_feedbacks 
+                SET is_featured = 0 
+                WHERE appointment_id IN (
+                    SELECT appointment_id FROM appointments WHERE client_id = ?
+                )
             ";
             $unfeatureStmt = $this->conn->prepare($unfeatureQuery);
             $unfeatureStmt->execute([$clientId]);
 
-            // Now, if feedbackId > 0, feature exactly that one
+            // If feedbackId > 0, set exactly that one as featured
             if ($feedbackId > 0) {
-                // Verify this feedback belongs to the client just to be safe
-                $verifyQuery = "
-                    SELECT f.id 
-                    FROM appointment_feedbacks f
+                // Verify the feedback belongs to the client and set it
+                $featureQuery = "
+                    UPDATE appointment_feedbacks f
                     JOIN appointments a ON f.appointment_id = a.appointment_id
+                    SET f.is_featured = 1 
                     WHERE f.id = ? AND a.client_id = ?
                 ";
-                $verifyStmt = $this->conn->prepare($verifyQuery);
-                $verifyStmt->execute([$feedbackId, $clientId]);
+                $featureStmt = $this->conn->prepare($featureQuery);
+                $featureStmt->execute([$feedbackId, $clientId]);
                 
-                if ($verifyStmt->rowCount() > 0) {
-                    $featureQuery = "UPDATE appointment_feedbacks SET is_featured = 1 WHERE id = ?";
-                    $featureStmt = $this->conn->prepare($featureQuery);
-                    $featureStmt->execute([$feedbackId]);
-                } else {
+                if ($featureStmt->rowCount() === 0) {
                     $this->conn->rollBack();
-                    return ['success' => false, 'message' => 'Feedback does not belong to specified client'];
+                    return ['success' => false, 'message' => 'Feedback ID invalid or does not belong to specified client'];
                 }
             }
 
             $this->conn->commit();
-            return ['success' => true, 'message' => 'Testimonial settings updated successfully'];
+            $msg = ($feedbackId > 0) ? 'Testimonial marked as featured' : 'Testimonial removed from featured';
+            return ['success' => true, 'message' => $msg];
             
         } catch (PDOException $e) {
-            $this->conn->rollBack();
+            if ($this->conn->inTransaction()) {
+                $this->conn->rollBack();
+            }
             return ['success' => false, 'message' => 'Database error: ' . $e->getMessage()];
         }
     }

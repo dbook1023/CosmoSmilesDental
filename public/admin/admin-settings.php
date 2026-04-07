@@ -398,6 +398,18 @@ function iconOptions($selected = '') {
 
         .modal-close { position: absolute; top: 15px; right: 15px; background: none; border: none; font-size: 1.2rem; color: #64748b; cursor: pointer; }
 
+        /* Pagination Styling */
+        .pagination-container { margin-top: 30px; display: flex; justify-content: center; gap: 8px; }
+        .pagination-btn {
+            min-width: 40px; height: 40px; padding: 0 12px; border-radius: 8px;
+            background: white; border: 1.5px solid var(--border); color: var(--dark);
+            font-weight: 600; cursor: pointer; transition: 0.3s;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .pagination-btn:hover:not(:disabled) { background: var(--light-accent); border-color: var(--secondary); color: var(--secondary); transform: translateY(-2px); }
+        .pagination-btn.active { background: var(--primary); color: white; border-color: var(--primary); box-shadow: 0 4px 10px rgba(3, 7, 79, 0.2); }
+        .pagination-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
         /* Icon Select Dropdown */
         .icon-select-wrap { position: relative; }
         .icon-select-wrap select { padding-left: 40px; appearance: auto; }
@@ -414,6 +426,38 @@ function iconOptions($selected = '') {
         .btn-remove-card:hover { background: #dc3545; color: white; }
         .btn-add-card { background: var(--light-accent); color: var(--secondary); border: 2px dashed var(--secondary); padding: 15px; border-radius: 10px; cursor: pointer; font-weight: 700; width: 100%; margin-top: 10px; transition: 0.2s; font-size: 0.95rem; display: flex; align-items: center; justify-content: center; gap: 8px; }
         .btn-add-card:hover { background: var(--secondary); color: white; border-color: var(--secondary); }
+
+        /* Pagination Styles */
+        .pagination-container { margin-top: 30px; display: flex; justify-content: center; align-items: center; gap: 10px; }
+        .pagination-btn {
+            background: white;
+            border: 1px solid var(--border);
+            color: var(--dark);
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: 0.3s;
+        }
+        .pagination-btn:hover:not(:disabled) {
+            border-color: var(--secondary);
+            color: var(--secondary);
+            background: var(--light-accent);
+        }
+        .pagination-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+        .pagination-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            background: #f8fafc;
+        }
 
         @media (max-width: 1024px) { 
             .settings-grid { grid-template-columns: 1fr; } 
@@ -1062,6 +1106,11 @@ function iconOptions($selected = '') {
                                     </div>
                                 </div>
                             <?php  endforeach; ?>
+                            
+                            <!-- Pagination Container -->
+                            <div id="testimonial-pagination" class="pagination-container" style="display: flex; justify-content: center; align-items: center; gap: 10px; margin-top: 30px; padding-top: 20px; border-top: 1px solid var(--border);">
+                                <!-- Dynamically populated by JS -->
+                            </div>
                         <?php  endif; ?>
                     </div>
 
@@ -1381,11 +1430,35 @@ function iconOptions($selected = '') {
             } catch(e) {}
         }
 
-        // Testimonial Toggle
+        // Testimonial Toggle - INSTANT TOGGLE UX
         document.querySelectorAll('.testimonial-toggle').forEach(toggle => {
-            toggle.addEventListener('click', () => {
-                if (toggle.classList.contains('active')) return;
-                showConfirm('Update Testimonial', 'Set this as featured?', async () => {
+            toggle.addEventListener('click', async () => {
+                const isActive = toggle.classList.contains('active');
+                const isNoneToggle = toggle.classList.contains('testimonial-none-toggle');
+                
+                // If clicking an already active toggle (and it's not the "None" one), turn it off
+                if (isActive && !isNoneToggle) {
+                    const fd = new FormData();
+                    fd.append('action', 'set_featured_testimonial');
+                    fd.append('feedback_id', '0');
+                    fd.append('client_id', toggle.dataset.clientId);
+                    try {
+                        const res = await fetch('admin-settings.php', { method: 'POST', body: fd });
+                        const data = await res.json();
+                        if (data.success) {
+                            document.querySelectorAll(`.testimonial-toggle[data-client-id="${toggle.dataset.clientId}"]`).forEach(t => t.classList.remove('active'));
+                            const noneToggle = document.querySelector(`.testimonial-none-toggle[data-client-id="${toggle.dataset.clientId}"]`);
+                            if (noneToggle) noneToggle.classList.add('active');
+                            showNotification('Testimonial removed from featured', 'success');
+                        }
+                    } catch(e) {
+                        showNotification('Error updating testimonial', 'error');
+                    }
+                    return;
+                }
+
+                // If clicking an inactive toggle, update it
+                if (!isActive) {
                     const fd = new FormData();
                     fd.append('action', 'set_featured_testimonial');
                     fd.append('feedback_id', toggle.dataset.feedbackId);
@@ -1396,34 +1469,133 @@ function iconOptions($selected = '') {
                         if (data.success) {
                             document.querySelectorAll(`.testimonial-toggle[data-client-id="${toggle.dataset.clientId}"]`).forEach(t => t.classList.remove('active'));
                             toggle.classList.add('active');
-                            showAlert('success', 'Updated', data.message);
+                            showNotification(data.message, 'success');
                         }
-                    } catch(e) {}
-                });
+                    } catch(e) {
+                        showNotification('Error updating testimonial', 'error');
+                    }
+                }
             });
         });
 
-        // Filtering
+        // Filtering & Pagination
         const filterStars = document.getElementById('test-filter-stars');
         const filterSearch = document.getElementById('test-filter-search');
+        let testimonialPage = 1;
+        const testimonialsPerPage = 5;
+
+        function updateTestimonialPagination(visibleGroups) {
+            const paginationContainer = document.getElementById('testimonial-pagination');
+            if (!paginationContainer) return;
+            
+            const totalPages = Math.ceil(visibleGroups.length / testimonialsPerPage);
+            paginationContainer.innerHTML = '';
+            
+            if (totalPages <= 1) {
+                paginationContainer.style.display = 'none';
+                return;
+            }
+            
+            paginationContainer.style.display = 'flex';
+            
+            // Previous Button
+            const prevBtn = document.createElement('button');
+            prevBtn.innerHTML = '<i class="fas fa-chevron-left"></i>';
+            prevBtn.className = 'pagination-btn';
+            prevBtn.disabled = testimonialPage === 1;
+            prevBtn.onclick = () => { 
+                testimonialPage--; 
+                applyTestimonialPagination(visibleGroups); 
+                document.getElementById('testimonials-panel').scrollIntoView({ behavior: 'smooth', block: 'start' });
+            };
+            paginationContainer.appendChild(prevBtn);
+            
+            // Page Numbers
+            for (let i = 1; i <= totalPages; i++) {
+                const pageBtn = document.createElement('button');
+                pageBtn.textContent = i;
+                pageBtn.className = `pagination-btn ${i === testimonialPage ? 'active' : ''}`;
+                pageBtn.onclick = () => { 
+                    testimonialPage = i; 
+                    applyTestimonialPagination(visibleGroups); 
+                    document.getElementById('testimonials-panel').scrollIntoView({ behavior: 'smooth', block: 'start' });
+                };
+                paginationContainer.appendChild(pageBtn);
+            }
+            
+            // Next Button
+            const nextBtn = document.createElement('button');
+            nextBtn.innerHTML = '<i class="fas fa-chevron-right"></i>';
+            nextBtn.className = 'pagination-btn';
+            nextBtn.disabled = testimonialPage === totalPages;
+            nextBtn.onclick = () => { 
+                testimonialPage++; 
+                applyTestimonialPagination(visibleGroups); 
+                document.getElementById('testimonials-panel').scrollIntoView({ behavior: 'smooth', block: 'start' });
+            };
+            paginationContainer.appendChild(nextBtn);
+        }
+
+        function applyTestimonialPagination(visibleGroups) {
+            const start = (testimonialPage - 1) * testimonialsPerPage;
+            const end = start + testimonialsPerPage;
+            
+            const allGroups = document.querySelectorAll('.testimonial-client-group');
+            allGroups.forEach(g => g.style.display = 'none'); // Hide all first
+            
+            visibleGroups.forEach((group, index) => {
+                if (index >= start && index < end) {
+                    group.style.display = 'block';
+                }
+            });
+            
+            updateTestimonialPagination(visibleGroups);
+        }
+
         function filterTestimonials() {
             if (!filterStars || !filterSearch) return;
             const starVal = filterStars.value;
             const searchVal = filterSearch.value.toLowerCase();
-            document.querySelectorAll('.testimonial-client-group').forEach(group => {
-                let hasVisible = false;
+            
+            const allGroups = Array.from(document.querySelectorAll('.testimonial-client-group'));
+            const visibleGroups = [];
+            
+            allGroups.forEach(group => {
+                let hasMatchingFeedback = false;
                 const clientName = (group.querySelector('.testimonial-client-header span')?.textContent || '').toLowerCase();
+                
                 group.querySelectorAll('.testimonial-item:not(.testimonial-none)').forEach(item => {
                     const r = parseInt(item.dataset.rating || 0);
-                    const match = ((starVal === 'all') || (r === parseInt(starVal))) && clientName.includes(searchVal);
-                    item.style.display = match ? 'flex' : 'none';
-                    if (match) hasVisible = true;
+                    const matchRating = (starVal === 'all') || (r === parseInt(starVal));
+                    const matchSearch = clientName.includes(searchVal);
+                    
+                    const isItemVisible = matchRating && matchSearch;
+                    item.style.display = isItemVisible ? 'flex' : 'none';
+                    if (isItemVisible) hasMatchingFeedback = true;
                 });
-                group.style.display = (hasVisible || (starVal === 'all' && clientName.includes(searchVal))) ? 'block' : 'none';
+                
+                // Always show the "none" option if searching by name and it matches, 
+                // but if rating filter is active, we only show group if it has feedback matching rating
+                const noneItem = group.querySelector('.testimonial-item.testimonial-none');
+                if (noneItem) noneItem.style.display = (starVal === 'all' && clientName.includes(searchVal)) ? 'flex' : 'none';
+
+                if (hasMatchingFeedback || (starVal === 'all' && clientName.includes(searchVal))) {
+                    visibleGroups.push(group);
+                }
             });
+            
+            testimonialPage = 1;
+            applyTestimonialPagination(visibleGroups);
         }
-        if (filterStars) filterStars.addEventListener('change', filterTestimonials);
-        if (filterSearch) filterSearch.addEventListener('input', filterTestimonials);
+
+        if (filterStars) filterStars.addEventListener('change', () => { testimonialPage = 1; filterTestimonials(); });
+        if (filterSearch) filterSearch.addEventListener('input', () => { testimonialPage = 1; filterTestimonials(); });
+        
+        // Initial pagination run
+        window.addEventListener('load', () => {
+            const allGroups = Array.from(document.querySelectorAll('.testimonial-client-group'));
+            applyTestimonialPagination(allGroups);
+        });
 
         // Sidebar Toggle & Overlay Initialization
         overlayElement = document.querySelector('.overlay');

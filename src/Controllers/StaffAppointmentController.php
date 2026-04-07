@@ -379,6 +379,13 @@ class StaffAppointmentController {
             $appointment['service_price'] = $serviceDetails['price'];
             $appointment['duration'] = $appointment['duration_minutes'] ?? $serviceDetails['duration'];
             
+            // Format feedback into a consistent object if it exists
+            $appointment['feedback'] = $appointment['feedback_rating'] ? [
+                'rating' => $appointment['feedback_rating'],
+                'comment' => $appointment['feedback_text'],
+                'date' => date('F j, Y', strtotime($appointment['feedback_date']))
+            ] : null;
+
             return $appointment;
 
         } catch (Exception $e) {

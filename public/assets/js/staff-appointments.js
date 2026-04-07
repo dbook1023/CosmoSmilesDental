@@ -427,6 +427,24 @@ function viewAppointment(appointmentDbId) {
                             <div class="notes-content">${appointment.notes}</div>
                         </div>
                         ` : ''}
+
+                        ${appointment.feedback ? `
+                        <!-- ORGANIZED FEEDBACK VIEW -->
+                        <div class="detail-section feedback-section" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; margin-top: 25px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                                <h4 style="margin: 0; color: var(--primary); font-weight: 700; font-size: 1rem;"><i class="fas fa-comment-dots" style="margin-right: 8px; color: var(--secondary);"></i> Client Experience</h4>
+                                <div class="feedback-rating" style="color: #f59e0b; font-size: 0.9rem;">
+                                    ${Array.from({length: 5}, (_, i) => `<i class="${i < appointment.feedback.rating ? 'fas' : 'far'} fa-star"></i>`).join('')}
+                                </div>
+                            </div>
+                            <div class="feedback-quote" style="position: relative; padding: 15px 20px; background: white; border-radius: 8px; border-left: 4px solid var(--secondary); margin-bottom: 10px;">
+                                <div style="font-style: italic; color: #475569; line-height: 1.6; font-size: 0.95rem;">"${appointment.feedback.comment}"</div>
+                            </div>
+                            <div class="feedback-meta" style="font-size: 0.8rem; color: #94a3b8; display: flex; align-items: center; gap: 5px;">
+                                <i class="far fa-clock"></i> Submitted on ${appointment.feedback.date}
+                            </div>
+                        </div>
+                        ` : ''}
                     </div>
                 `;
             } else {

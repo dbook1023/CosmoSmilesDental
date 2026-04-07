@@ -124,7 +124,8 @@ try {
             __DIR__ . '/scripts/migrate_medical_history.php',
             __DIR__ . '/scripts/migrate_records.php',
             __DIR__ . '/scripts/migrate_medical_edit.php',
-            __DIR__ . '/scripts/migrate_medical_edit_requests.php'
+            __DIR__ . '/scripts/migrate_medical_edit_requests.php',
+            __DIR__ . '/scripts/migrate_testimonials.php'
         ];
 
         foreach ($migrationFiles as $file) {

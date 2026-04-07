@@ -694,6 +694,18 @@ if ($isLoggedIn && $client_id) {
                                     </div>
                                 </div>
                             </div>
+                            <div class="swiper-slide">
+                                <div class="premium-card testimonial-card-premium">
+                                    <p class="testimonial-text">"Amazing experience! The digital diagnostics were so thorough, and I actually understood my treatment plan for the first time."</p>
+                                    <div class="author-info">
+                                        <div class="author-avatar"><i class="fas fa-user"></i></div>
+                                        <div>
+                                            <h4 style="font-size: 1rem;">Elena Rodriguez</h4>
+                                            <p style="font-size: 0.8rem; color: var(--text-muted);">Routine Care Patient</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         <?php endif; ?>
                     </div>
                     <div class="swiper-pagination"></div>
@@ -734,17 +746,32 @@ if ($isLoggedIn && $client_id) {
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
     <script src="assets/js/script.js"></script>
     <script>
-        const testimonialCount = <?php echo count($featuredTestimonials ?? []); ?>;
+        // SMART CAROUSEL INITIALIZATION
+        // Calculates slide count to avoid Swiper Loop Warnings
+        const testimonials = document.querySelectorAll('.testimonialSwiper .swiper-slide');
+        const testimonialCount = testimonials.length;
+        
         new Swiper('.testimonialSwiper', {
             slidesPerView: 1,
             spaceBetween: 30,
+            // Only loop if we have enough slides for the largest view (3)
             loop: testimonialCount > 3,
-            autoplay: testimonialCount > 3 ? { delay: 5000, disableOnInteraction: false } : false,
-            pagination: { el: '.swiper-pagination', clickable: true },
-            navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' },
+            autoplay: { 
+                delay: 5000, 
+                disableOnInteraction: false,
+                pauseOnMouseEnter: true
+            },
+            pagination: { 
+                el: '.swiper-pagination', 
+                clickable: true 
+            },
+            navigation: { 
+                nextEl: '.swiper-button-next', 
+                prevEl: '.swiper-button-prev' 
+            },
             breakpoints: {
-                768: { slidesPerView: 2, loop: testimonialCount > 2 },
-                1024: { slidesPerView: 3, loop: testimonialCount > 3 }
+                768: { slidesPerView: 2 },
+                1024: { slidesPerView: 3 }
             }
         });
     </script>

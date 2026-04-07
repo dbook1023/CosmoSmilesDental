@@ -1398,18 +1398,24 @@ async function showAppointmentDetails(appointmentId) {
             showMessage('No appointment ID provided', 'error');
             return;
         }
+
+        // Always use action=details to get full data including feedback
         const response = await fetch(`${API_BASE_URL}?action=details&appointment_id=${appointmentId}`);
         if (!response.ok) {
             throw new Error(`HTTP ${response.status}`);
         }
+
         const data = await response.json();
         if (data.success) {
             currentAppointmentDetails = data.appointment;
             currentAppointmentId = appointmentId;
+            
             if (isEditing) {
                 disableEditMode();
             }
+
             updateModalDetails(data.appointment);
+            
             const modal = document.getElementById('appointmentModal');
             const overlay = document.querySelector('.overlay');
             modal.classList.add('active');
@@ -1464,15 +1470,20 @@ function updateModalDetails(appointment) {
     modalStatus.textContent = (appointment.status || 'pending').charAt(0).toUpperCase() + (appointment.status || 'pending').slice(1).replace('_', ' ');
     document.getElementById('modalClientNotes').textContent = appointment.client_notes || 'No client notes';
     
-    // Client Feedback Display
+    // Client Feedback Display - ORGANIZED VIEW
     const feedbackSection = document.getElementById('modalFeedbackSection');
-    const feedbackRating = document.getElementById('modalFeedbackRating');
+    const feedbackRatingStars = document.getElementById('modalFeedbackRatingStars');
     const feedbackComment = document.getElementById('modalFeedbackComment');
     
     if (appointment.feedback && appointment.feedback.rating) {
         feedbackSection.style.display = 'block';
-        feedbackRating.innerHTML = '★'.repeat(appointment.feedback.rating) + '☆'.repeat(5 - appointment.feedback.rating) + ' (' + appointment.feedback.rating + '/5)';
-        feedbackComment.textContent = appointment.feedback.comment || 'No comment provided.';
+        const rating = parseInt(appointment.feedback.rating);
+        let starsHtml = '';
+        for (let i = 1; i <= 5; i++) {
+            starsHtml += `<i class="${i <= rating ? 'fas' : 'far'} fa-star"></i>`;
+        }
+        if (feedbackRatingStars) feedbackRatingStars.innerHTML = starsHtml;
+        if (feedbackComment) feedbackComment.textContent = `"${appointment.feedback.comment || 'No comment provided.'}"`;
     } else {
         feedbackSection.style.display = 'none';
     }
