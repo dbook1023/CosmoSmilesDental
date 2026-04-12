@@ -50,8 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         case 'deactivate':
             $id = (int)$_POST['id'];
             // Soft delete - just mark as inactive
-            $data = ['is_active' => 0];
-            if ($controller->updateService($id, $data)) {
+            if ($controller->toggleServiceStatus($id, 0)) {
                 $response = ['success' => true, 'message' => 'Service has been deactivated and will no longer appear in appointments'];
             } else {
                 $response = ['success' => false, 'message' => 'Failed to deactivate service'];
@@ -60,8 +59,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         case 'activate':
             $id = (int)$_POST['id'];
             // Reactivate service
-            $data = ['is_active' => 1];
-            if ($controller->updateService($id, $data)) {
+            if ($controller->toggleServiceStatus($id, 1)) {
                 $response = ['success' => true, 'message' => 'Service has been reactivated and is now available for appointments'];
             } else {
                 $response = ['success' => false, 'message' => 'Failed to activate service'];
@@ -117,6 +115,7 @@ $sidebarAdminRole = (strtolower($admin_role) === 'admin') ? 'Administrator' : uc
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin - Services Management - Cosmo Smiles Dental</title>
+    <link rel="icon" type="image/png" href="<?php echo clean_url('public/assets/images/logo1-white.png'); ?>">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <?php  include 'includes/admin-sidebar-css.php'; ?>
     <style>        

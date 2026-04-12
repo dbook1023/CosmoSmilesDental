@@ -30,8 +30,9 @@ $currentDateTime = date('Y-m-d H:i:s');
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin - My Appointments - Cosmo Smiles Dental</title>
+    <link rel="icon" type="image/png" href="<?php echo clean_url('public/assets/images/logo1-white.png'); ?>">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="../assets/css/admin-appointments.css">
+    <link rel="stylesheet" href="<?php echo clean_url('public/assets/css/admin-appointments.css'); ?>">
     <?php  include 'includes/admin-sidebar-css.php'; ?>
     <style>
         .appointments-table-container { margin-bottom: 20px !important; overflow-x: auto; }
@@ -276,7 +277,9 @@ $currentDateTime = date('Y-m-d H:i:s');
                         <span class="detail-label">Dentist:</span>
                         <span class="detail-value" id="modalDentist"><?php  echo htmlspecialchars($dentistFullName); ?></span>
                     </div>
-                    <div class="time-tracking-grid" id="timeTrackingSection" style="display: none; margin-top: 20px;">
+                    <div id="timeTrackingSection" style="display: none; margin-top: 25px; padding-top: 15px; border-top: 1px solid #eee;">
+                        <h4 style="margin-bottom: 15px;"><i class="fas fa-clock"></i> Service Completion Tracking</h4>
+                        <div class="time-tracking-grid">
                         <div class="time-tracker-item">
                             <label for="appointmentDuration">Duration (minutes)</label>
                             <select id="appointmentDuration">
@@ -294,6 +297,7 @@ $currentDateTime = date('Y-m-d H:i:s');
                         <div class="time-tracker-item">
                             <label for="endTime">End Time</label>
                             <input type="time" id="endTime" readonly>
+                        </div>
                         </div>
                     </div>
                     <div class="edit-form-container" id="editFormContainer">

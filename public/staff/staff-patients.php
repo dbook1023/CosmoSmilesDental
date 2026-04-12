@@ -226,8 +226,9 @@ if (!isset($_SESSION['csrf_token'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Patients Management - Cosmo Smiles Dental Staff</title>
+    <link rel="icon" type="image/png" href="<?php echo clean_url('public/assets/images/logo1-white.png'); ?>">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="../assets/css/staff-patients.css">
+    <link rel="stylesheet" href="<?php echo clean_url('public/assets/css/staff-patients.css'); ?>">
 </head>
 <body>
     <!-- Staff Header -->
@@ -511,12 +512,9 @@ else: ?>
         $status = $isActive ? 'Active' : 'Inactive';
         $statusClass = $isActive ? 'status-active' : 'status-inactive';
 
-        // FIXED: Normalized image path with dynamic root
+        // Standardized image path using clean_url
         $displayImage = $patient['profile_image'];
-        if (!empty($displayImage) && strpos($displayImage, 'uploads/') === false) {
-            $displayImage = 'uploads/avatar/' . $displayImage;
-        }
-        $fullImagePath = URL_ROOT . $displayImage;
+        $fullImagePath = !empty($displayImage) ? clean_url('public/uploads/avatar/' . basename($displayImage)) : '';
 
         // Get last appointment date
         $lastAppointment = $patientController->getLastAppointmentDate($patient['id']);
@@ -748,7 +746,7 @@ endif; ?>
     </div>
 
     <!-- External JavaScript -->
-    <script src="../assets/js/staff-patients.js"></script>
+    <script src="<?php echo clean_url('public/assets/js/staff-patients.js'); ?>"></script>
     <script>
         window.URL_ROOT = "<?php echo URL_ROOT; ?>";
         // Pass PHP data to JavaScript

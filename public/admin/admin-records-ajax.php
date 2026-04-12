@@ -16,7 +16,8 @@ class PatientRecordsController {
     
     public function __construct($pdo) {
         $this->pdo = $pdo;
-        $this->upload_dir = __DIR__ . '/../../../uploads/patient_records/';
+        // ADMIN-RECORDS-AJAX.PHP is in public/admin/
+        $this->upload_dir = __DIR__ . '/../uploads/patient_records/';
         
         // Create upload directory if it doesn't exist
         if (!file_exists($this->upload_dir)) {

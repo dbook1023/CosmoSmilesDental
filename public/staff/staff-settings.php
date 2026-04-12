@@ -12,6 +12,7 @@ if (!isset($_SESSION['staff_logged_in']) || $_SESSION['staff_logged_in'] !== tru
 
 // Include database configuration
 require_once __DIR__ . '/../../config/database.php';
+require_once __DIR__ . '/../../config/env.php';
 
 // Initialize database connection
 $database = new Database();
@@ -100,14 +101,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
             echo json_encode(['success' => false, 'message' => 'Current password is incorrect.']);
             exit;
         }
+        
+        // Hash new password the same way
+        $hashedNewPassword = hash('sha512', hash('sha256', $newPassword) . 'cosmo_admin_salt_2024');
 
         if ($hashedNewPassword === $pwRow['password']) {
             echo json_encode(['success' => false, 'message' => 'New password cannot be the same as current password.']);
             exit;
         }
-        
-        // Hash new password the same way
-        $hashedNewPassword = hash('sha512', hash('sha256', $newPassword) . 'cosmo_admin_salt_2024');
         
         // Update password in database
         $updateQuery = "UPDATE staff_users SET password = :new_password WHERE id = :id";
@@ -222,6 +223,7 @@ if (!empty($staff_data['created_at'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Settings - Cosmo Smiles Dental</title>
+    <link rel="icon" type="image/png" href="<?php echo clean_url('public/assets/images/logo1-white.png'); ?>">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         /* Import Google Fonts */
@@ -1974,9 +1976,10 @@ if (!empty($staff_data['created_at'])) {
             message.textContent = `A verification code has been sent to ${value}`;
             input.value = '';
             
-            if (modal && overlayElement) {
+            const overlay = document.querySelector('.overlay');
+            if (modal) {
                 modal.classList.add('active');
-                overlayElement.classList.add('active');
+                if (overlay) overlay.classList.add('active');
             }
 
             sendOTP(type, value);

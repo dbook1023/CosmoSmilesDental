@@ -283,8 +283,9 @@ if (!isset($_SESSION['csrf_token'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Staff - Appointments Management - Cosmo Smiles Dental</title>
+    <link rel="icon" type="image/png" href="<?php echo clean_url('public/assets/images/logo1-white.png'); ?>">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="../assets/css/staff-appointments.css">
+    <link rel="stylesheet" href="<?php echo clean_url('public/assets/css/staff-appointments.css'); ?>">
 </head>
 <body>
     <!-- Admin Header -->
@@ -875,7 +876,7 @@ else {
             csrfToken: <?php echo json_encode($_SESSION['csrf_token'] ?? ''); ?>
         };
     </script>
-    <script src="../assets/js/staff-appointments.js"></script>
+    <script src="<?php echo clean_url('public/assets/js/staff-appointments.js'); ?>"></script>
     <script>
         // Initialize the application
         document.addEventListener('DOMContentLoaded', function() {

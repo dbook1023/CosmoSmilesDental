@@ -188,8 +188,9 @@ $sidebarAdminRole = ($adminUser && strtolower($adminUser['role'] ?? '') === 'adm
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin - Patients Management - Cosmo Smiles Dental</title>
+    <link rel="icon" type="image/png" href="<?php echo clean_url('public/assets/images/logo1-white.png'); ?>">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="../assets/css/admin-patient.css">
+    <link rel="stylesheet" href="<?php echo clean_url('public/assets/css/admin-patient.css'); ?>">
     <?php  include 'includes/admin-sidebar-css.php'; ?>
     <style>
         /* Modal Design Enhancements */
@@ -944,7 +945,7 @@ $sidebarAdminRole = ($adminUser && strtolower($adminUser['role'] ?? '') === 'adm
                             <label for="status-filter">Status</label>
                             <select id="status-filter" name="status" class="filter-control">
                                 <option value="all" <?php  echo ($filters['status'] === 'all') ? 'selected' : ''; ?>>All Statuses</option>
-                                <option value="active" <?php  echo ($filters['status'] === 'active') ? 'selected' : ''; ?>>Active (Has pending, confirmed, or completed appointments in last 90 days)</option>
+                                <option value="active" <?php  echo ($filters['status'] === 'active') ? 'selected' : ''; ?>>Active (Has any appointment in the last 90 days)</option>
                                 <option value="inactive" <?php  echo ($filters['status'] === 'inactive') ? 'selected' : ''; ?>>Inactive (No appointments in last 90 days)</option>
                             </select>
                         </div>
@@ -1056,12 +1057,10 @@ $sidebarAdminRole = ($adminUser && strtolower($adminUser['role'] ?? '') === 'adm
                                                 <div class="patient-avatar">
                                                     <?php  
                                                     $displayImage = $patient['profile_image'];
-                                                    if (!empty($displayImage) && strpos($displayImage, 'uploads/') === false) {
-                                                        $displayImage = 'uploads/avatar/' . $displayImage;
-                                                    }
+                                                    $fullImagePath = !empty($displayImage) ? clean_url('public/uploads/avatar/' . basename($displayImage)) : '';
                                                     ?>
-                                                    <?php  if (!empty($displayImage)): ?>
-                                                        <img src="<?php  echo URL_ROOT . htmlspecialchars($displayImage); ?>" 
+                                                    <?php  if (!empty($fullImagePath)): ?>
+                                                        <img src="<?php  echo $fullImagePath; ?>" 
                                                              alt="<?php  echo htmlspecialchars($patient['first_name'] . ' ' . $patient['last_name']); ?>"
                                                              onerror="this.onerror=null; this.parentElement.innerHTML='<i class=\'fas fa-user\'></i>';">
                                                     <?php  else: ?>

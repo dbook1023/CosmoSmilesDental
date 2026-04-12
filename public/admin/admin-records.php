@@ -90,6 +90,53 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     }
     
     $result = $controller->handleAjaxRequest($_POST['action'], $data, $_SESSION['admin_id'], $uploaded_files);
+
+    // For search_patient responses, enrich the patient object with medical history data
+    // so the JS "View Medical History" button works correctly
+    if ($_POST['action'] === 'search_patient' && !empty($result['success']) && !empty($result['patient'])) {
+        $varcharClientId = $result['patient']['client_id'] ?? '';
+        
+        if (!empty($varcharClientId)) {
+            try {
+                // Get medical_history_status and edit_allowed flag
+                $stmtClient = $pdo->prepare(
+                    "SELECT medical_history_status, medical_history_edit_allowed FROM clients WHERE client_id = ? LIMIT 1"
+                );
+                $stmtClient->execute([$varcharClientId]);
+                $clientMeta = $stmtClient->fetch(PDO::FETCH_ASSOC);
+                $medStatus = $clientMeta['medical_history_status'] ?? 'pending';
+                $editAllowed = (int)($clientMeta['medical_history_edit_allowed'] ?? 0);
+
+                $result['patient']['medical_history_edit_allowed'] = $editAllowed;
+
+                if ($medStatus === 'completed') {
+                    // Fetch actual medical history
+                    $histStmt = $pdo->prepare("SELECT * FROM patient_medical_history WHERE client_id = ? LIMIT 1");
+                    $histStmt->execute([$varcharClientId]);
+                    $medHistory = $histStmt->fetch(PDO::FETCH_ASSOC);
+                    $result['patient']['medical_history'] = $medHistory ?: null;
+
+                    // Fetch pending edit request
+                    $reqStmt = $pdo->prepare(
+                        "SELECT id, status, requested_at FROM medical_edit_requests 
+                         WHERE client_id = ? AND status = 'pending' 
+                         ORDER BY requested_at DESC LIMIT 1"
+                    );
+                    $reqStmt->execute([$varcharClientId]);
+                    $result['patient']['pending_edit_request'] = $reqStmt->fetch(PDO::FETCH_ASSOC) ?: null;
+                } else {
+                    $result['patient']['medical_history'] = null;
+                    $result['patient']['pending_edit_request'] = null;
+                }
+            } catch (PDOException $e) {
+                error_log("Error enriching search_patient with medical history: " . $e->getMessage());
+                $result['patient']['medical_history'] = null;
+                $result['patient']['pending_edit_request'] = null;
+                $result['patient']['medical_history_edit_allowed'] = 0;
+            }
+        }
+    }
+
     echo json_encode($result);
     exit();
 }
@@ -134,9 +181,10 @@ $sidebarAdminRole = $admin_role;
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin - Patient Records - Cosmo Smiles Dental</title>
+    <link rel="icon" type="image/png" href="<?php echo clean_url('public/assets/images/logo1-white.png'); ?>">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="../assets/css/admin-records.css">
-    <link rel="stylesheet" href="../assets/css/odontogram.css">
+    <link rel="stylesheet" href="<?php echo clean_url('public/assets/css/admin-records.css'); ?>">
+    <link rel="stylesheet" href="<?php echo clean_url('public/assets/css/odontogram.css'); ?>">
     <?php  include 'includes/admin-sidebar-css.php'; ?>
 </head>
 <body>
@@ -718,7 +766,7 @@ $sidebarAdminRole = $admin_role;
         </div>
     </div>
 
-    <script src="../assets/js/admin-records.js"></script>
-    <script src="../assets/js/odontogram.js"></script>
+    <script src="../assets/js/admin-records.js?v=<?php echo time(); ?>"></script>
+    <script src="../assets/js/odontogram.js?v=<?php echo time(); ?>"></script>
 </body>
 </html>
