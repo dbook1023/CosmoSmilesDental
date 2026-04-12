@@ -76,7 +76,7 @@ class SiteContentController {
      * Handle Image Uploads
      * Returns the relative path to be saved in DB
      */
-    public function uploadImage($fileField, $uploadDir = '/assets/images/dynamic/') {
+    public function uploadImage($fileField, $uploadDir = '/uploads/content/') {
         $fullUploadDir = __DIR__ . '/../../public' . $uploadDir;
         
         // Create directory if it doesn't exist
@@ -96,7 +96,7 @@ class SiteContentController {
                 $destination = $fullUploadDir . $newFilename;
                 
                 if (move_uploaded_file($tmpName, $destination)) {
-                    return $uploadDir . $newFilename;
+                    return 'public' . $uploadDir . $newFilename;
                 }
             }
         }

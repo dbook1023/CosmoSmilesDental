@@ -4,6 +4,7 @@ session_start();
 
 // Include necessary files
 require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../config/env.php';
 require_once __DIR__ . '/../src/Controllers/ContactController.php';
 require_once __DIR__ . '/../src/Controllers/SiteContentController.php';
 
@@ -141,9 +142,9 @@ if (isset($_SESSION['contact_message'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" type="image/x-icon" href="assets/images/logo1-white.png">
+    <link rel="icon" type="image/x-icon" href="<?php echo clean_url('public/assets/images/logo1-white.png'); ?>">
     <title>Cosmo Smiles Dental</title>
-    <link rel="stylesheet" href="assets/css/styles.css">
+    <link rel="stylesheet" href="<?php echo clean_url('public/assets/css/styles.css'); ?>">
     <?php 
     include 'client/includes/client-header-css.php'; 
     include 'client/includes/client-common-styles.php';
@@ -366,7 +367,7 @@ if (isset($_SESSION['contact_message'])) {
             <!-- Map -->
             <div class="map-frame">
                 <iframe 
-                    src="<?php echo htmlspecialchars($contactContent['contact_map_url'] ?? 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3862.3364952044813!2d121.1913162758455!3d14.494056086012678!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3397c78876b59dd9%3A0x296b5b01ce83acbd!2sCosmo%20Smiles%20Dental%20Clinic!5e0!3m2!1sen!2sph!4v1711900000000!5m2!1sen!2sph'); ?>" 
+                    src="<?php echo htmlspecialchars($contactContent['contact_map_url'] ?? 'https://www.google.com/maps?q=14.5115122,121.1646472&z=17&output=embed'); ?>" 
                     width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade">
                 </iframe>
             </div>
@@ -375,7 +376,7 @@ if (isset($_SESSION['contact_message'])) {
 
     <?php include 'client/includes/client-footer.php'; ?>
 
-    <script src="assets/js/script.js"></script>
+    <script src="<?php echo clean_url('public/assets/js/script.js'); ?>"></script>
 
 </body>
 </html>

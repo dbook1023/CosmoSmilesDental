@@ -5,6 +5,7 @@ if (isset($_SESSION['staff_logged_in']) && $_SESSION['staff_logged_in'] === true
     exit();
 }
 require_once __DIR__ . '/../src/Services/DdosProtection.php'; 
+require_once __DIR__ . '/../config/env.php';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -12,8 +13,9 @@ require_once __DIR__ . '/../src/Services/DdosProtection.php';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Staff Login - Cosmo Smiles Dental</title>
+    <link rel="icon" type="image/png" href="<?php echo clean_url('public/assets/images/logo1-white.png'); ?>">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="assets/css/staff-login.css">
+    <link rel="stylesheet" href="<?php echo clean_url('public/assets/css/staff-login.css'); ?>">
     <?php include __DIR__ . '/client/includes/recaptcha.php'; ?>
 </head>
 <body>
@@ -30,7 +32,7 @@ require_once __DIR__ . '/../src/Services/DdosProtection.php';
 
                 <div class="sidebar-content">
                     <div class="sidebar-image">
-                        <img src="assets/images/logo-main-white-1.png" alt="Cosmo Smiles Dental">
+                        <img src="<?php echo clean_url('public/assets/images/logo-main-white-1.png'); ?>" alt="Cosmo Smiles Dental">
                     </div>
                     
                     <h1>Staff Portal</h1>
@@ -91,6 +93,6 @@ require_once __DIR__ . '/../src/Services/DdosProtection.php';
         </div>
     </div>
 
-    <script src="assets/js/staff-login.js?v=2"></script>
+    <script src="<?php echo clean_url('public/assets/js/staff-login.js'); ?>?v=2"></script>
 </body>
 </html>

@@ -1,14 +1,24 @@
 <?php
 // src/Services/DdosProtection.php
-require_once __DIR__ . '/../../config/database.php';
-require_once __DIR__ . '/../../config/config.php';
-require_once __DIR__ . '/SecurityService.php';
+if (!defined('BASE_PATH')) {
+    define('BASE_PATH', dirname(dirname(__DIR__)));
+}
 
-$database = new Database();
-$db = $database->getConnection();
-$security = new SecurityService($db);
+try {
+    require_once BASE_PATH . '/config/database.php';
+    require_once BASE_PATH . '/config/config.php';
+    require_once BASE_PATH . '/src/Services/SecurityService.php';
 
-if (!$security->checkGlobalRateLimit()) {
-    http_response_code(429);
-    die("<h1>429 Too Many Requests</h1><p>Our systems have detected an unusual amount of traffic from your IP. Please try again later.</p>");
+    $database = new Database();
+    $db = $database->getConnection();
+    
+    if ($db) {
+        $security = new SecurityService($db);
+        if (!$security->checkGlobalRateLimit()) {
+            http_response_code(429);
+            die("<h1>429 Too Many Requests</h1>");
+        }
+    }
+} catch (Exception $e) {
+    error_log("DDoS Protection Error: " . $e->getMessage());
 }

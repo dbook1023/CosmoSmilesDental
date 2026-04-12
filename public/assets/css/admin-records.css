@@ -2334,4 +2334,72 @@ select.form-control {
 .view-history-link:hover {
     text-decoration: underline;
     color: #03074f;
-}
+}
+
+#medical-history-modal {
+    display: none;
+    z-index: 10006;
+}
+
+#medical-history-modal.active {
+    display: flex !important;
+}
+
+/* FIX MEDICAL HISTORY MODAL OPACITY */
+#medical-history-modal,
+#medical-history-modal.active,
+.modal#medical-history-modal,
+.modal#medical-history-modal.active {
+    opacity: 1 !important;
+}
+
+#medical-history-modal .modal-content {
+    opacity: 1 !important;
+}
+
+/* EMERGENCY FIX FOR MEDICAL HISTORY MODAL - DO NOT REMOVE */
+#medical-history-modal,
+#medical-history-modal.modal,
+#medical-history-modal.modal.active,
+#medical-history-modal.active {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    background-color: rgba(0, 0, 0, 0.7) !important;
+    z-index: 10006 !important;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    align-items: center !important;
+    justify-content: center !important;
+    animation: none !important;
+    pointer-events: auto !important;
+}
+
+#medical-history-modal .modal-content,
+#medical-history-modal > .modal-content {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    background: white !important;
+    border-radius: 12px !important;
+    max-width: 800px !important;
+    width: 90% !important;
+    max-height: 90vh !important;
+    overflow-y: auto !important;
+    position: relative !important;
+    animation: none !important;
+    transform: none !important;
+}
+
+#medical-history-modal .modal-body,
+#medical-history-modal .medical-history-section,
+#medical-history-modal .medical-grid,
+#medical-history-modal .medical-card {
+    opacity: 1 !important;
+    visibility: visible !important;
+}

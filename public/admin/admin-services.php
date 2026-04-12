@@ -1,6 +1,7 @@
 <?php 
 session_start();
 require_once __DIR__ . '/../../config/database.php';
+require_once __DIR__ . '/../../config/env.php';
 require_once __DIR__ . '/../../src/Controllers/AdminServiceController.php';
 
 // Ensure user is logged in as admin

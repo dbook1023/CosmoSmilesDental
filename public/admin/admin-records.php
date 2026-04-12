@@ -8,6 +8,7 @@ header("X-XSS-Protection: 1; mode=block");
 
 // Correct path based on your folder structure
 require_once __DIR__ . '/../../config/database.php';
+require_once __DIR__ . '/../../config/env.php';
 
 // Controller is at: src/Controllers/PatientRecordsController.php
 require_once __DIR__ . '/../../src/Controllers/PatientRecordsController.php';
@@ -766,7 +767,7 @@ $sidebarAdminRole = $admin_role;
         </div>
     </div>
 
-    <script src="../assets/js/admin-records.js?v=<?php echo time(); ?>"></script>
-    <script src="../assets/js/odontogram.js?v=<?php echo time(); ?>"></script>
+    <script src="<?php echo clean_url('public/assets/js/admin-records.js'); ?>?v=<?php echo time(); ?>"></script>
+    <script src="<?php echo clean_url('public/assets/js/odontogram.js'); ?>?v=<?php echo time(); ?>"></script>
 </body>
 </html>

@@ -429,7 +429,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                         <div style="flex: 1; min-width: 0;">
                                             <div style="font-size: 0.85rem; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${file}</div>
                                         </div>
-                                        <a href="../../../uploads/patient_records/${file}" target="_blank" style="color: #00a65a;"><i class="fas fa-download"></i></a>
+                                        <a href="../uploads/patient_records/${file}" target="_blank" style="color: #00a65a;"><i class="fas fa-download"></i></a>
                                     </div>
                                 `).join('')}
                             </div>

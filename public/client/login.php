@@ -14,6 +14,7 @@ if (isset($_SESSION['client_logged_in']) && $_SESSION['client_logged_in'] === tr
 
 // Include database configuration and security service
 require_once '../../config/database.php';
+require_once '../../config/env.php';
 require_once '../../src/Services/DdosProtection.php';
 require_once '../../src/Services/SecurityService.php';
 
@@ -182,8 +183,9 @@ $profileImage = null;
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cosmo Smiles Dental - Login</title>
+    <link rel="icon" type="image/png" href="<?php echo clean_url('public/assets/images/logo1-white.png'); ?>">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="../assets/css/login.css">
+    <link rel="stylesheet" href="<?php echo clean_url('public/assets/css/login.css'); ?>">
     <?php include 'includes/client-header-css.php'; ?>
     <?php include 'includes/recaptcha.php'; ?>
 </head>
@@ -201,7 +203,7 @@ $profileImage = null;
 
                 <div class="sidebar-content">
                     <div class="sidebar-image">
-                        <img src="../assets/images/logo-main-white-1.png" alt="Cosmo Smiles Dental">
+                        <img src="<?php echo clean_url('public/assets/images/logo-main-white-1.png'); ?>" alt="Cosmo Smiles Dental">
                     </div>
                     
                     <ul class="features">
@@ -267,6 +269,6 @@ $profileImage = null;
         </div>
     </div>
 
-    <script src="../assets/js/login.js"></script>
+    <script src="<?php echo clean_url('public/assets/js/login.js'); ?>"></script>
 </body>
 </html>

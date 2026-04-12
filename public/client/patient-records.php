@@ -9,6 +9,7 @@ if (!isset($_SESSION['client_id']) || !isset($_SESSION['client_logged_in'])) {
 }
 
 // Include the controller
+require_once __DIR__ . '/../../config/env.php';
 require_once __DIR__ . '/../../src/Controllers/ClientRecordsController.php';
 
 // Initialize controller
@@ -51,10 +52,10 @@ $isLoggedIn = true; // They are logged in if they reached here
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="icon" type="image/x-icon" href="../assets/images/logo1-white.png">
+  <link rel="icon" type="image/x-icon" href="<?php echo clean_url('public/assets/images/logo1-white.png'); ?>">
   <title>Patient Records - Cosmo Smiles Dental</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="stylesheet" href="../assets/css/patient-records.css">
+  <link rel="stylesheet" href="<?php echo clean_url('public/assets/css/patient-records.css'); ?>">
   <?php include 'includes/client-header-css.php'; ?>
 </head>
 
@@ -392,6 +393,6 @@ $isLoggedIn = true; // They are logged in if they reached here
     </div>
   </div>
 
-<script src="../assets/js/patient-records.js"></script>
+<script src="<?php echo clean_url('public/assets/js/patient-records.js'); ?>"></script>
 </body>
 </html>

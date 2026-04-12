@@ -197,7 +197,7 @@ $currentDateTime = date('Y-m-d H:i:s');
         <div class="container">
             <nav class="navbar">
                 <div class="logo">
-                    <a href="../../../index.php"><img src="../assets/images/logo-main-white-1.png" alt="Cosmo Smiles Dental"></a>
+                    <a href="../../../index.php"><img src="<?php echo clean_url('public/assets/images/logo-main-white-1.png'); ?>" alt="Cosmo Smiles Dental"></a>
                 </div>
                 <div class="header-right">
                     <div class="hamburger">
@@ -731,6 +731,6 @@ $currentDateTime = date('Y-m-d H:i:s');
         </main>
     </div>
     <script>window.URL_ROOT = "<?php  echo URL_ROOT; ?>";</script>
-    <script src="../assets/js/admin-appointments.js"></script>
+    <script src="<?php echo clean_url('public/assets/js/admin-appointments.js'); ?>"></script>
 </body>
 </html>

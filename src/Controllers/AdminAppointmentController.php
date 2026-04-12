@@ -1,5 +1,5 @@
 <?php
-require_once '../../config/database.php';
+require_once __DIR__ . '/../../config/database.php';
 class AdminAppointmentController {
     private $conn;
     private $dentistId;
@@ -239,7 +239,7 @@ class AdminAppointmentController {
             $query .= " AND a.appointment_date >= ?";
             $params[] = $date;
         }
-        $query .= " ORDER BY a.created_at DESC, a.id DESC LIMIT 100";
+        $query .= " ORDER BY a.appointment_date DESC, a.appointment_time DESC, a.id DESC LIMIT 100";
         try {
             $stmt = $this->conn->prepare($query);
             $stmt->execute($params);
@@ -334,7 +334,7 @@ class AdminAppointmentController {
             $params[] = $date;
         }
 
-        $query .= " ORDER BY a.created_at DESC, a.id DESC LIMIT 100";
+        $query .= " ORDER BY a.appointment_date ASC, a.appointment_time ASC, a.id DESC LIMIT 100";
         
         try {
             $stmt = $this->conn->prepare($query);
@@ -405,10 +405,11 @@ class AdminAppointmentController {
             $params[] = $searchTerm;
             $params[] = $searchTerm;
         }
-        $query .= " AND DATE(a.updated_at) BETWEEN ? AND ?";
+        // Filter by scheduled appointment date instead of completion date
+        $query .= " AND a.appointment_date BETWEEN ? AND ?";
         $params[] = $startDate;
         $params[] = $endDate;
-        $query .= " ORDER BY a.created_at DESC, a.id DESC LIMIT 50";
+        $query .= " ORDER BY a.appointment_date DESC, a.appointment_time DESC, a.id DESC LIMIT 50";
         try {
             $stmt = $this->conn->prepare($query);
             $stmt->execute($params);
@@ -433,8 +434,8 @@ class AdminAppointmentController {
                     'service_id' => $appointment['service_id'],
                     'appointment_date' => $appointment['appointment_date'],
                     'appointment_time' => date('h:i A', strtotime($appointment['appointment_time'])),
-                    'date_display' => date('M j, Y', strtotime($appointment['updated_at'])),
-                    'time_display' => date('h:i A', strtotime($appointment['updated_at'])),
+                    'date_display' => date('M j, Y', strtotime($appointment['appointment_date'])),
+                    'time_display' => date('h:i A', strtotime($appointment['appointment_time'])),
                     'duration' => $appointment['duration_minutes'] ?? $serviceDetails['duration'],
                     'payment_type' => $appointment['payment_type'] ?? 'cash',
                     'client_notes' => $clientNotes,
@@ -505,6 +506,8 @@ class AdminAppointmentController {
                 'duration' => $appointment['duration_minutes'] ?? $serviceDetails['duration'],
                 'payment_type' => $appointment['payment_type'] ?? 'cash',
                 'price' => $appointment['service_price'] ?? $serviceDetails['price'],
+                'actual_start_time' => $appointment['actual_start_time'] ? date('H:i', strtotime($appointment['actual_start_time'])) : null,
+                'actual_end_time' => $appointment['actual_end_time'] ? date('H:i', strtotime($appointment['actual_end_time'])) : null,
                 'feedback' => $appointment['feedback_rating'] ? [
                     'rating' => $appointment['feedback_rating'],
                     'comment' => $appointment['feedback_text'],
@@ -790,6 +793,8 @@ class AdminAppointmentController {
                 UPDATE appointments 
                 SET status = 'completed', 
                     duration_minutes = ?,
+                    actual_start_time = ?,
+                    actual_end_time = ?,
                     admin_notes = CONCAT(IFNULL(admin_notes, ''), ?),
                     updated_at = NOW()
                 WHERE appointment_id = ?
@@ -797,6 +802,8 @@ class AdminAppointmentController {
             $updateStmt = $this->conn->prepare($updateQuery);
             $success = $updateStmt->execute([
                 $duration,
+                $startTime,
+                $endTime,
                 $completionNotes,
                 $appointmentId
             ]);

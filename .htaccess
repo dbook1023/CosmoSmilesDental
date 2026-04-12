@@ -1,26 +1,20 @@
-# Improved Apache configuration for hosting environments
-# Corrects the "403 Forbidden" error on the root domain
-
+# Cosmo Smiles Dental - Universal Hosting Redirect
 <IfModule mod_rewrite.c>
     RewriteEngine On
     # RewriteBase /
 
-    # 1. Skip rewriting if already in public/ or if it's a physical file in root
-    # This ensures your 'uploads/' folder and assets stay accessible.
-    RewriteCond %{REQUEST_URI} ^/public/ [OR]
-    RewriteCond %{REQUEST_FILENAME} -f [OR]
-    RewriteCond %{REQUEST_FILENAME} -d
-    # EXCEPT for the root URL itself (so we can redirect it to public/)
-    RewriteCond %{REQUEST_URI} !^/$
+    # 1. Prevent infinite loops
+    RewriteCond %{ENV:REDIRECT_STATUS} 200
     RewriteRule ^ - [L]
 
-    # 2. Redirect empty root to public/
-    RewriteRule ^$ public/ [L]
+    # 2. Redirect root to public/
+    RewriteRule ^$ public/index.php [L]
 
-    # 3. Transparently rewrite all other requests into the public/ directory.
-    RewriteCond %{REQUEST_URI} !^/public/
+    # 3. Handle all other internal requests
+    # Only rewrite if not already in public folder and not a physical file in root
+    RewriteCond %{REQUEST_URI} !/public/
+    RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^(.*)$ public/$1 [L]
 </IfModule>
 
-# Disable directory listing
 Options -Indexes

@@ -124,21 +124,8 @@ function initializeForm() {
     setupEventListeners();
     setupRealTimeValidation();
     
-    // If reschedule, set the price from the selected service
+    // If reschedule, initialize visual state and pre-fill data
     if (isReschedule) {
-        const serviceSelect = document.getElementById('appointment-service');
-        if (serviceSelect && serviceSelect.value) {
-            const selectedOption = serviceSelect.options[serviceSelect.selectedIndex];
-            const price = selectedOption.getAttribute('data-price') || selectedOption.getAttribute('data-selected-price');
-            selectedServicePrice = parseFloat(price) || 0;
-            
-            // Update price display
-            const priceDisplay = document.getElementById('service-price-display');
-            if (priceDisplay) {
-                priceDisplay.textContent = `Price: ₱${selectedServicePrice.toFixed(2)}`;
-            }
-        }
-        
         // Pre-select date/time if available
         if (rescheduleDate && rescheduleTime) {
             console.log('Pre-filling reschedule date/time:', rescheduleDate, rescheduleTime);
@@ -157,14 +144,14 @@ function initializeForm() {
             // Update hidden fields
             document.getElementById('selected-date').value = rescheduleDate;
             document.getElementById('selected-time').value = rescheduleTime;
-            
-            console.log('Pre-filled data:', {
-                selectedDate: selectedDate,
-                selectedTime: selectedTime,
-                hiddenDate: document.getElementById('selected-date').value,
-                hiddenTime: document.getElementById('selected-time').value
-            });
         }
+
+        // Always update total price and summary if in reschedule mode
+        // relative to any pre-filled services we just rendered in PHP
+        calculateTotalPrice();
+        updateSummary();
+        
+        console.log('Reschedule pre-fill complete');
     }
 }
 
@@ -991,6 +978,9 @@ function renderCalendar() {
                 // Update hidden field
                 document.getElementById('selected-date').value = rescheduleDate;
                 console.log('Pre-selected date for reschedule:', selectedDate);
+                
+                // FIX: Automatically load time slots for the pre-selected reschedule date
+                updateTimeSlots();
             }
         }
     }

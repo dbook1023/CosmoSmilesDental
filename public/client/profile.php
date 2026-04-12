@@ -291,9 +291,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['profile_image']) && 
             throw new Exception("Invalid file type. Only JPG, JPEG, PNG, and GIF are allowed.");
         }
         
-        // Get the project root path dynamically
+        // PROFILE.PHP is in public/client/
+        $public_root = dirname(__DIR__);
         $project_root = dirname(__DIR__, 2);
-        $upload_dir = $project_root . '/uploads/avatar/';
+        $upload_dir = $public_root . '/uploads/avatar/';
         
         if (!file_exists($upload_dir)) {
             mkdir($upload_dir, 0755, true);
@@ -303,8 +304,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['profile_image']) && 
         $upload_path = $upload_dir . $unique_filename;
         
         if (move_uploaded_file($file['tmp_name'], $upload_path)) {
-            // Save relative path
-            $image_path_db = 'uploads/avatar/' . $unique_filename;
+            // Save relative path standardized with 'public/'
+            $image_path_db = 'public/uploads/avatar/' . $unique_filename;
             
             // Delete old image if exists
             $check_sql = "SELECT profile_image FROM clients WHERE id = :id";
@@ -419,6 +420,8 @@ $isLoggedIn = isset($_SESSION['client_logged_in']) && $_SESSION['client_logged_i
 
 // Set profile image for header
 $profileImage = $profile_image;
+
+
 ?>
 
 <!DOCTYPE html>
@@ -427,8 +430,9 @@ $profileImage = $profile_image;
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Profile Settings - Cosmo Smiles Dental</title>
+  <link rel="icon" type="image/png" href="<?php echo clean_url('public/assets/images/logo1-white.png'); ?>">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="stylesheet" href="../assets/css/profile.css">
+  <link rel="stylesheet" href="<?php echo clean_url('public/assets/css/profile.css'); ?>">
   <?php include 'includes/client-header-css.php'; ?>
 </head>
 
@@ -453,17 +457,13 @@ $profileImage = $profile_image;
             <?php 
             if(!empty($profile_image) && trim($profile_image) !== '' && $profile_image !== 'NULL'): 
                 $display_image = $profile_image;
-                if (strpos($display_image, 'uploads/avatar/') === false) {
-                    if (strpos($display_image, 'avatar/') === 0) {
-                        $display_image = 'uploads/' . $display_image;
-                    } else {
-                        $display_image = 'uploads/avatar/' . $display_image;
-                    }
+                if (empty($display_image)) {
+                    $display_image = 'public/assets/images/logo1-blue.png'; // Fallback
                 }
-                $image_path = URL_ROOT . $display_image;
+                $image_url = clean_url($display_image);
                 $timestamp = time();
             ?>
-                <img src="<?php echo htmlspecialchars($image_path); ?>?t=<?php echo $timestamp; ?>" 
+                <img src="<?php echo htmlspecialchars($image_url); ?>?t=<?php echo $timestamp; ?>" 
                      id="avatarImage" 
                      alt="Profile Picture"
                      style="width: 100%; height: 100%; object-fit: cover;"
@@ -850,7 +850,7 @@ $profileImage = $profile_image;
     </div>
   </div>
 
-  <script src="../assets/js/profile.js"></script>
+  <script src="<?php echo clean_url('public/assets/js/profile.js'); ?>"></script>
   <script>
     document.addEventListener('DOMContentLoaded', function() {
         <?php if ($updateSuccess || isset($_GET['update']) && $_GET['update'] == 'success'): ?>

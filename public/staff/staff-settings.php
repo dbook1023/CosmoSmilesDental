@@ -1115,7 +1115,7 @@ if (!empty($staff_data['created_at'])) {
         <div class="container">
             <nav class="navbar">
                 <div class="logo">
-                    <a href="../index.php"><img src="../assets/images/logo-main-white-1.png" alt="Cosmo Smiles Dental"></a>
+                    <a href="../index.php"><img src="<?php echo clean_url('public/assets/images/logo-main-white-1.png'); ?>" alt="Cosmo Smiles Dental"></a>
                 </div>
                 
                 <div class="header-right">

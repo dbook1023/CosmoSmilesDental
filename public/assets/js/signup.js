@@ -490,15 +490,24 @@ document.addEventListener('DOMContentLoaded', function() {
         if (verifyEmailOtpBtn) {
             verifyEmailOtpBtn.addEventListener('click', async function() {
                 const code = getOTPCode(emailOtpContainer);
+                const emailValue = emailInput.value.trim();
+                
                 if (code.length !== 6) {
                     emailOtpError.textContent = 'Please enter the complete 6-digit code.';
                     emailOtpError.style.display = 'block';
                     setOTPError(emailOtpContainer);
                     return;
                 }
+
+                if (!emailValue) {
+                    emailOtpError.textContent = 'Email address is missing. Please go back and re-enter.';
+                    emailOtpError.style.display = 'block';
+                    return;
+                }
                 
                 emailOtpError.style.display = 'none';
                 this.disabled = true;
+                const originalText = this.textContent;
                 this.textContent = 'Verifying...';
                 
                 try {
@@ -507,10 +516,11 @@ document.addEventListener('DOMContentLoaded', function() {
                         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                         body: new URLSearchParams({
                             action: 'verify_email_otp',
-                            email: emailInput.value.trim(),
+                            email: emailValue,
                             otp_code: code
                         })
                     });
+                    
                     const result = await response.json();
                     
                     if (result.success) {
@@ -525,17 +535,18 @@ document.addEventListener('DOMContentLoaded', function() {
                         resendEmailOtpBtn.style.display = 'none';
                         emailResendTimerEl.style.display = 'none';
                     } else {
-                        emailOtpError.textContent = result.message;
+                        emailOtpError.textContent = result.message || 'Verification failed.';
                         emailOtpError.style.display = 'block';
                         setOTPError(emailOtpContainer);
                         this.disabled = false;
-                        this.textContent = 'Verify Email';
+                        this.textContent = originalText;
                     }
                 } catch (err) {
-                    emailOtpError.textContent = 'Network error. Please try again.';
+                    console.error('Verify error:', err);
+                    emailOtpError.textContent = 'Service temporarily unavailable. Please try again.';
                     emailOtpError.style.display = 'block';
                     this.disabled = false;
-                    this.textContent = 'Verify Email';
+                    this.textContent = originalText;
                 }
             });
         }

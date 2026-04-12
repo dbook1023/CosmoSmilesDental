@@ -79,8 +79,7 @@ class StaffPatientController {
             $activeQuery = "SELECT COUNT(DISTINCT c.id) as total 
                            FROM clients c 
                            INNER JOIN appointments a ON c.client_id = a.client_id 
-                           WHERE a.appointment_date >= DATE_SUB(CURDATE(), INTERVAL 90 DAY)
-                           AND a.status IN ('pending', 'confirmed', 'completed')";
+                           WHERE a.appointment_date >= DATE_SUB(CURDATE(), INTERVAL 90 DAY)";
             $activeStmt = $this->conn->prepare($activeQuery);
             $activeStmt->execute();
             $activeResult = $activeStmt->fetch(PDO::FETCH_ASSOC);
@@ -101,7 +100,6 @@ class StaffPatientController {
                              FROM clients c 
                              LEFT JOIN appointments a ON c.client_id = a.client_id 
                                  AND a.appointment_date >= DATE_SUB(CURDATE(), INTERVAL 90 DAY)
-                                 AND a.status IN ('pending', 'confirmed', 'completed')
                              WHERE a.id IS NULL";
             $inactiveStmt = $this->conn->prepare($inactiveQuery);
             $inactiveStmt->execute();
@@ -117,8 +115,7 @@ class StaffPatientController {
                 $activeIdsQuery = "SELECT DISTINCT c.id 
                                   FROM clients c 
                                   INNER JOIN appointments a ON c.client_id = a.client_id 
-                                  WHERE a.appointment_date >= DATE_SUB(CURDATE(), INTERVAL 90 DAY)
-                                  AND a.status IN ('pending', 'confirmed', 'completed')";
+                                  WHERE a.appointment_date >= DATE_SUB(CURDATE(), INTERVAL 90 DAY)";
                 $activeIdsStmt = $this->conn->prepare($activeIdsQuery);
                 $activeIdsStmt->execute();
                 $activeIds = $activeIdsStmt->fetchAll(PDO::FETCH_COLUMN);
@@ -172,8 +169,7 @@ class StaffPatientController {
             $query = "SELECT COUNT(*) as count 
                      FROM appointments 
                      WHERE client_id = ? 
-                     AND appointment_date >= DATE_SUB(CURDATE(), INTERVAL 90 DAY)
-                     AND status IN ('pending', 'confirmed', 'completed')";
+                     AND appointment_date >= DATE_SUB(CURDATE(), INTERVAL 90 DAY)";
             
             $stmt = $this->conn->prepare($query);
             $stmt->bindValue(1, $client['client_id'], PDO::PARAM_STR);
@@ -279,6 +275,23 @@ class StaffPatientController {
                 );
             }
 
+            // Apply status filter - Based on appointments in last 90 days
+            if (!empty($filters['status']) && $filters['status'] !== 'all') {
+                if ($filters['status'] === 'active') {
+                    $query .= " AND EXISTS (
+                        SELECT 1 FROM appointments a 
+                        WHERE a.client_id = clients.client_id 
+                        AND a.appointment_date >= DATE_SUB(CURDATE(), INTERVAL 90 DAY)
+                    )";
+                } elseif ($filters['status'] === 'inactive') {
+                    $query .= " AND NOT EXISTS (
+                        SELECT 1 FROM appointments a 
+                        WHERE a.client_id = clients.client_id 
+                        AND a.appointment_date >= DATE_SUB(CURDATE(), INTERVAL 90 DAY)
+                    )";
+                }
+            }
+
             // Apply gender filter
             if (!empty($filters['gender']) && $filters['gender'] !== 'all') {
                 $query .= " AND gender = ?";
@@ -354,6 +367,23 @@ class StaffPatientController {
                 $params = array_merge($params, 
                     [$searchTerm, $searchTerm, $searchTerm, $searchTerm, $searchTerm, $searchTerm]
                 );
+            }
+
+            // Apply status filter
+            if (!empty($filters['status']) && $filters['status'] !== 'all') {
+                if ($filters['status'] === 'active') {
+                    $query .= " AND EXISTS (
+                        SELECT 1 FROM appointments a 
+                        WHERE a.client_id = clients.client_id 
+                        AND a.appointment_date >= DATE_SUB(CURDATE(), INTERVAL 90 DAY)
+                    )";
+                } elseif ($filters['status'] === 'inactive') {
+                    $query .= " AND NOT EXISTS (
+                        SELECT 1 FROM appointments a 
+                        WHERE a.client_id = clients.client_id 
+                        AND a.appointment_date >= DATE_SUB(CURDATE(), INTERVAL 90 DAY)
+                    )";
+                }
             }
 
             if (!empty($filters['gender']) && $filters['gender'] !== 'all') {

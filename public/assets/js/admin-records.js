@@ -227,15 +227,17 @@ patientIdInput.addEventListener('keypress', (e) => {
 });
 
 // Back to search functionality
-backToSearchBtn.addEventListener('click', () => {
+if (backToSearchBtn) backToSearchBtn.addEventListener('click', () => {
     recordsContainer.style.display = 'none';
     searchSection.style.display = 'block';
     patientIdInput.value = '';
     patientIdInput.focus();
     resetFilterButtons();
     showArchived = false;
-    showArchivedBtn.innerHTML = '<i class="fas fa-archive"></i> Archived';
-    showArchivedBtn.classList.remove('btn-primary');
+    if (showArchivedBtn) {
+        showArchivedBtn.innerHTML = '<i class="fas fa-archive"></i> Archived';
+        showArchivedBtn.classList.remove('btn-primary');
+    }
 });
 
 // Search patient in database - UPDATED WITH SIMPLE FETCH
@@ -259,7 +261,9 @@ function searchPatient(patientId) {
         })
         .then(data => {
             showLoading(false);
-
+            console.log('--- SEARCH DEBUG ---');
+            console.log('Search response data:', data);
+            
             if (data.success && data.patient) {
                 searchSection.style.display = 'none';
                 recordsContainer.style.display = 'block';
@@ -273,13 +277,10 @@ function searchPatient(patientId) {
                 const initialsEl = document.getElementById('patient-initials');
 
                 if (data.patient.profile_image) {
-                    // Image path is stored relative to project root (e.g., uploads/avatar/file.jpg)
-                    // From public/assets/admin/admin-records.php, we need to go up 3 levels to reach root
                     patientProfileImg.src = `../../${data.patient.profile_image}`;
                     patientProfileImg.style.display = 'block';
                     patientInitials.style.display = 'none';
 
-                    // Fallback if image fails to load
                     patientProfileImg.onerror = function () {
                         this.style.display = 'none';
                         patientInitials.textContent = initials;
@@ -300,27 +301,51 @@ function searchPatient(patientId) {
                     editRequestContainer.innerHTML = '';
                 }
 
-                if (data.patient.medical_history) {
-                    viewMedicalHistoryBtn.style.display = 'flex';
-                    viewMedicalHistoryBtn.onclick = () => displayMedicalHistory(data.patient.medical_history);
+                console.log('Checking medical history for button visibility:', data.patient.medical_history);
+                viewMedicalHistoryBtn.style.setProperty('display', 'none', 'important');
+
+                if (data.patient.medical_history && Object.keys(data.patient.medical_history).length > 0) {
+                    console.log('Medical history found, showing button');
+                    
+                    // Show the button
+                    viewMedicalHistoryBtn.style.setProperty('display', 'flex', 'important');
+                    viewMedicalHistoryBtn.style.setProperty('color', '#ffffff', 'important');
+                    
+                    // Remove any existing event listeners by replacing the button
+                    const newBtn = viewMedicalHistoryBtn.cloneNode(true);
+                    viewMedicalHistoryBtn.parentNode.replaceChild(newBtn, viewMedicalHistoryBtn);
+                    
+                    // Get the new button reference
+                    const updatedBtn = document.getElementById('view-medical-history-btn');
+                    
+                    // Add click event
+                    updatedBtn.onclick = function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        console.log('Opening medical history for:', data.patient.full_name);
+                        if (data.patient.medical_history) {
+                            displayMedicalHistory(data.patient.medical_history);
+                        } else {
+                            showNotification('error', 'Error', 'No medical history data available');
+                        }
+                    };
 
                     // Check for pending edit requests
                     if (data.patient.pending_edit_request) {
                         if (editRequestContainer) {
-                            editRequestContainer.style.display = 'flex';
+                            editRequestContainer.style.setProperty('display', 'flex', 'important');
                             editRequestContainer.innerHTML = `
-                            <span class="badge" style="background-color: #ffc107; color: #000; padding: 4px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: bold; margin-left: 10px;">
-                                <i class="fas fa-exclamation-circle"></i> Update Requested
-                            </span>
-                            <button class="btn btn-success btn-sm approve-med-edit-btn" data-request-id="${data.patient.pending_edit_request.id}" style="padding: 2px 8px; font-size: 0.75rem; border-radius: 12px;">
-                                Approve
-                            </button>
-                            <button class="btn btn-danger btn-sm deny-med-edit-btn" data-request-id="${data.patient.pending_edit_request.id}" style="padding: 2px 8px; font-size: 0.75rem; border-radius: 12px;">
-                                Deny
-                            </button>
-                        `;
+                                <span class="badge" style="background-color: #ffc107; color: #000; padding: 4px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: bold; margin-left: 10px;">
+                                    <i class="fas fa-exclamation-circle"></i> Update Requested
+                                </span>
+                                <button class="btn btn-success btn-sm approve-med-edit-btn" data-request-id="${data.patient.pending_edit_request.id}" style="padding: 2px 8px; font-size: 0.75rem; border-radius: 12px;">
+                                    Approve
+                                </button>
+                                <button class="btn btn-danger btn-sm deny-med-edit-btn" data-request-id="${data.patient.pending_edit_request.id}" style="padding: 2px 8px; font-size: 0.75rem; border-radius: 12px;">
+                                    Deny
+                                </button>
+                            `;
 
-                            // Add event listeners for the buttons
                             const approveBtn = editRequestContainer.querySelector('.approve-med-edit-btn');
                             const denyBtn = editRequestContainer.querySelector('.deny-med-edit-btn');
 
@@ -342,14 +367,15 @@ function searchPatient(patientId) {
                         if (editRequestContainer) {
                             editRequestContainer.style.display = 'flex';
                             editRequestContainer.innerHTML = `
-                            <span class="badge" style="background-color: #28a745; color: #fff; padding: 4px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: bold; margin-left: 10px;">
-                                <i class="fas fa-check-circle"></i> Edit Access Granted
-                            </span>
-                        `;
+                                <span class="badge" style="background-color: #28a745; color: #fff; padding: 4px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: bold; margin-left: 10px;">
+                                    <i class="fas fa-check-circle"></i> Edit Access Granted
+                                </span>
+                            `;
                         }
                     }
                 } else {
-                    viewMedicalHistoryBtn.style.display = 'none';
+                    console.log('No medical history found for this patient.');
+                    viewMedicalHistoryBtn.style.setProperty('display', 'none', 'important');
                 }
 
                 if (data.patient.last_updated) {
@@ -433,7 +459,7 @@ function handleMedicalEditRequest(requestId, action) {
         showAdminActionModal(
             'Deny Update Request',
             'Please provide a reason for denying the request (optional):',
-            true, // isPrompt
+            true,
             (notes) => {
                 processMedicalEditRequest(requestId, action, notes);
             }
@@ -442,7 +468,7 @@ function handleMedicalEditRequest(requestId, action) {
         showAdminActionModal(
             'Approve Update Request',
             'Are you sure you want to approve this edit request?\n\nThe patient will be able to update their medical history one time.',
-            false, // isPrompt
+            false,
             () => {
                 processMedicalEditRequest(requestId, action, '');
             }
@@ -472,7 +498,6 @@ function processMedicalEditRequest(requestId, action, notes = '') {
         .then(data => {
             if (data.success) {
                 showNotification('success', 'Success', data.message || `Medical update request ${action}d.`);
-                // Refresh patient data to update UI
                 searchPatient(currentPatientId);
             } else {
                 showNotification('error', 'Error', data.message || `Failed to ${action} request.`);
@@ -519,7 +544,7 @@ function loadPatientRecords() {
             if (data.success) {
                 currentRecords = data.records || [];
                 displayRecords(currentRecords);
-                const activeRecords = currentRecords.filter(record => !record.is_archived);
+                const activeRecords = currentRecords.filter(record => record.is_archived == 0);
                 totalRecords.textContent = activeRecords.length;
             } else {
                 showNotification('error', 'Load Error', data.message || 'Failed to load records.');
@@ -547,7 +572,6 @@ function displayRecords(records) {
     emptyState.style.display = 'none';
     recordsList.style.display = 'flex';
 
-    // Sort records by date
     records.sort((a, b) => {
         const dateA = new Date(a.record_date + ' ' + a.record_time);
         const dateB = new Date(b.record_date + ' ' + b.record_time);
@@ -681,10 +705,9 @@ function getTypeLabel(type) {
 function formatDate(dateString) {
     if (!dateString) return 'Unknown date';
     try {
-        // Fix iOS/Safari formatting issues by converting "YYYY-MM-DD HH:MM:SS" to "YYYY-MM-DDTHH:MM:SS"
         const safeDateString = dateString.replace(' ', 'T');
         const date = new Date(safeDateString);
-        if (isNaN(date.getTime())) return dateString; // Fallback to raw string instead of Invalid 
+        if (isNaN(date.getTime())) return dateString;
         const options = { month: 'long', day: 'numeric', year: 'numeric' };
         return date.toLocaleDateString('en-US', options);
     } catch (e) {
@@ -730,7 +753,7 @@ function resetFilterButtons() {
 }
 
 // Toggle archived records view
-showArchivedBtn.addEventListener('click', () => {
+if (showArchivedBtn) showArchivedBtn.addEventListener('click', () => {
     showArchived = !showArchived;
     showArchivedBtn.innerHTML = showArchived ?
         '<i class="fas fa-eye-slash"></i> Hide Archived' :
@@ -1012,18 +1035,18 @@ function getSurfaceIcon(surface) {
 }
 
 // Close view modal
-closeViewModal.addEventListener('click', () => {
+if (closeViewModal) closeViewModal.addEventListener('click', () => {
     viewRecordModal.classList.remove('active');
     currentViewRecord = null;
 });
 
-closeViewRecord.addEventListener('click', () => {
+if (closeViewRecord) closeViewRecord.addEventListener('click', () => {
     viewRecordModal.classList.remove('active');
     currentViewRecord = null;
 });
 
 // Archive/Restore button in the view modal
-archiveRecordModalBtn.addEventListener('click', () => {
+if (archiveRecordModalBtn) archiveRecordModalBtn.addEventListener('click', () => {
     if (!currentViewRecord) return;
 
     if (currentViewRecord.is_archived == 1) {
@@ -1169,13 +1192,6 @@ function performRestoreRecord(recordId) {
         });
 }
 
-// // Edit record - Open the edit modal
-editRecordBtn.addEventListener('click', () => {
-    if (currentViewRecord) {
-        editRecord(currentViewRecord);
-    }
-});
-
 // Create Record Modal functionality
 
 // Set default date to today and time to current hour
@@ -1187,7 +1203,6 @@ recordTimeInput.value = `${now.getHours().toString().padStart(2, '0')}:${now.get
 createRecordBtn.addEventListener('click', () => {
     createRecordModal.classList.add('active');
 
-    // Reset and populate appointment selection dropdown
     const aptContainer = document.getElementById('appointment-selection-container');
     const aptSelect = document.getElementById('completed-appointment-select');
     if (aptContainer && aptSelect) {
@@ -1215,7 +1230,6 @@ createRecordBtn.addEventListener('click', () => {
         document.getElementById('record-patient-id').value = currentPatientId;
         document.getElementById('record-patient-id').readOnly = true;
 
-        // Show medical alerts if available
         if (currentPatientData && currentPatientData.medical_history) {
             updateMedicalAlerts(currentPatientData.medical_history);
         } else {
@@ -1227,13 +1241,11 @@ createRecordBtn.addEventListener('click', () => {
     }
 });
 
-// Auto-fill form when appointment is selected from dropdown
 const aptSelect = document.getElementById('completed-appointment-select');
 if (aptSelect) {
     aptSelect.addEventListener('change', function() {
         const selectedId = this.value;
         if (!selectedId) {
-            // Reset to current time if no appointment selected
             const now = new Date();
             document.getElementById('record-date').value = now.toISOString().split('T')[0];
             document.getElementById('record-time').value = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
@@ -1259,7 +1271,6 @@ if (aptSelect) {
     });
 }
 
-// Open create record modal from empty state button
 emptyCreateBtn.addEventListener('click', () => {
     createRecordModal.classList.add('active');
     if (currentPatientId) {
@@ -1270,7 +1281,6 @@ emptyCreateBtn.addEventListener('click', () => {
     }
 });
 
-// Close create record modal
 closeCreateModal.addEventListener('click', () => {
     createRecordModal.classList.remove('active');
     resetCreateRecordForm();
@@ -1281,7 +1291,6 @@ cancelCreateRecord.addEventListener('click', () => {
     resetCreateRecordForm();
 });
 
-// Modal drag and drop functionality
 ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
     modalUploadArea.addEventListener(eventName, preventDefaultsModal, false);
 });
@@ -1325,13 +1334,11 @@ function handleModalFiles(files) {
     for (let i = 0; i < files.length; i++) {
         const file = files[i];
 
-        // Validate file size
         if (file.size > 10 * 1024 * 1024) {
             showNotification('error', 'File Too Large', `File "${file.name}" exceeds 10MB size limit.`);
             continue;
         }
 
-        // Validate file type
         const validTypes = [
             'application/pdf',
             'application/msword',
@@ -1393,7 +1400,6 @@ function updateModalFilePreview() {
     }
 }
 
-// Remove individual file from modal
 modalPreviewGrid.addEventListener('click', (e) => {
     if (e.target.closest('.modal-preview-remove')) {
         const button = e.target.closest('.modal-preview-remove');
@@ -1403,7 +1409,6 @@ modalPreviewGrid.addEventListener('click', (e) => {
     }
 });
 
-// Auto-fill duration when procedure is selected or typed
 procedureInput.addEventListener('change', function () {
     const procedureName = this.value.trim();
     if (procedureName) {
@@ -1422,7 +1427,6 @@ procedureInput.addEventListener('input', function () {
     }
 });
 
-// Function to fetch duration for procedure - UPDATED WITH SIMPLE FETCH
 function fetchDurationForProcedure(procedureName, durationElementId) {
     if (!procedureName.trim()) {
         document.getElementById(durationElementId).value = '';
@@ -1452,7 +1456,6 @@ function fetchDurationForProcedure(procedureName, durationElementId) {
         });
 }
 
-// Save record functionality - UPDATED WITH SIMPLE FETCH
 saveRecordBtn.addEventListener('click', () => {
     const patientId = document.getElementById('record-patient-id').value.trim().toUpperCase();
     const recordType = document.getElementById('record-type').value;
@@ -1467,11 +1470,9 @@ saveRecordBtn.addEventListener('click', () => {
     const recordNotes = document.getElementById('record-notes').value.trim();
     const recordFollowup = document.getElementById('record-followup').value.trim();
 
-    // Get tooth numbers and surfaces from odontogram functions (if available)
     const toothNumbers = window.getSelectedToothNumbers ? window.getSelectedToothNumbers() : [];
     const surfaces = window.getSelectedSurfaces ? window.getSelectedSurfaces() : [];
 
-    // Validation
     const requiredFields = [
         { field: patientId, name: 'Patient ID', element: 'record-patient-id' },
         { field: recordType, name: 'record type', element: 'record-type' },
@@ -1490,7 +1491,6 @@ saveRecordBtn.addEventListener('click', () => {
         }
     }
 
-    // Validate Patient ID format
     if (!/^[A-Z0-9]+$/.test(patientId)) {
         showNotification('error', 'Invalid Format', 'Patient ID can only contain letters and numbers');
         document.getElementById('record-patient-id').focus();
@@ -1520,13 +1520,11 @@ saveRecordBtn.addEventListener('click', () => {
 
     showLoading(true);
 
-    // Create FormData for file upload
     const formData = new FormData();
     formData.append('csrf_token', getCsrfToken());
     formData.append('action', 'create_record');
     formData.append('record_data', JSON.stringify(recordData));
 
-    // Add files to FormData
     modalUploadedFiles.forEach((file, index) => {
         formData.append('files[]', file);
     });
@@ -1586,7 +1584,6 @@ function hideMessages() {
     errorMessage.classList.remove('active');
 }
 
-// Reset create record form
 function resetCreateRecordForm() {
     createRecordForm.reset();
     modalUploadedFiles = [];
@@ -1620,12 +1617,52 @@ function formatFileSize(bytes) {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
 }
 
-// Download file
+if (downloadRecordBtn) {
+    downloadRecordBtn.addEventListener('click', () => {
+        if (!currentViewRecord) return;
+        const formData = new FormData();
+        formData.append('csrf_token', getCsrfToken());
+        formData.append('action', 'download_record');
+        formData.append('record_id', currentViewRecord.record_id);
+
+        showNotification('info', 'Preparing Download', 'Generating PDF for record ' + currentViewRecord.record_id + '...');
+
+        fetch('admin-records.php', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => {
+            if (!response.ok) throw new Error('Server error');
+            return response.blob();
+        })
+        .then(blob => {
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `record-${currentViewRecord.record_id}.pdf`;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            window.URL.revokeObjectURL(url);
+        })
+        .catch(() => {
+            showNotification('error', 'Download Failed', 'Could not generate PDF. Please try again.');
+        });
+    });
+}
+
+const refreshBtn = document.getElementById('refresh-btn');
+if (refreshBtn) {
+    refreshBtn.addEventListener('click', () => {
+        loadPatientRecords();
+        showNotification('info', 'Refreshed', 'Records list has been refreshed.');
+    });
+}
+
 function downloadFile(filename) {
     showNotification('info', 'Download Started', `Downloading: ${filename}`);
 }
 
-// Show loading state
 function showLoading(show) {
     const loader = document.getElementById('loading-overlay') || createLoader();
     loader.style.display = show ? 'flex' : 'none';
@@ -1667,7 +1704,6 @@ function createLoader() {
     return loader;
 }
 
-// Load services from database - UPDATED WITH SIMPLE FETCH
 function loadServices() {
     const formData = new FormData();
     formData.append('csrf_token', getCsrfToken());
@@ -1695,107 +1731,387 @@ function loadServices() {
         });
 }
 
-// Function to display Medical History
+// Function to display Medical History - WITH IMPROVED LAYOUT
 function displayMedicalHistory(history) {
-    if (!history) return;
+    if (!history) {
+        console.error('No medical history data provided');
+        showNotification('error', 'Error', 'No medical history data available');
+        return;
+    }
 
-    medicalHistoryContent.innerHTML = `
-        <div class="medical-history-section">
-            <div class="medical-grid">
-                <div class="medical-card ${history.heart_disease == 1 ? 'critical' : ''}">
-                    <h5>
-                        <i class="fas fa-heartbeat"></i> Heart Disease
-                        <span class="medical-badge ${history.heart_disease == 1 ? 'badge-yes' : 'badge-no'}">
-                            ${history.heart_disease == 1 ? 'Yes' : 'No'}
-                        </span>
-                    </h5>
-                    ${history.heart_disease_details ? `
-                        <div class="exam-details-text">${history.heart_disease_details}</div>
-                    ` : ''}
-                </div>
+    console.log('Creating medical history modal');
 
-                <div class="medical-card ${history.high_blood_pressure == 1 ? 'critical' : ''}">
-                    <h5>
-                        <i class="fas fa-tint"></i> Blood Pressure
-                        <span class="medical-badge ${history.high_blood_pressure == 1 ? 'badge-yes' : 'badge-no'}">
-                            ${history.high_blood_pressure == 1 ? 'High' : 'Normal'}
-                        </span>
-                    </h5>
-                </div>
+    // Check if there's already a floating modal and remove it
+    const existingFloatingModal = document.getElementById('floating-medical-modal');
+    if (existingFloatingModal) {
+        existingFloatingModal.remove();
+    }
 
-                <div class="medical-card ${history.diabetes == 1 ? 'critical' : ''}">
-                    <h5>
-                        <i class="fas fa-disease"></i> Diabetes
-                        <span class="medical-badge ${history.diabetes == 1 ? 'badge-yes' : 'badge-no'}">
-                            ${history.diabetes == 1 ? 'Yes' : 'No'}
-                        </span>
-                    </h5>
-                </div>
+    // Create new modal element
+    const floatingModal = document.createElement('div');
+    floatingModal.id = 'floating-medical-modal';
+    floatingModal.style.cssText = `
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        background-color: rgba(0, 0, 0, 0.7) !important;
+        z-index: 10006 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        backdrop-filter: blur(5px) !important;
+    `;
 
-                ${history.is_pregnant == 1 ? `
-                <div class="medical-card critical">
-                    <h5>
-                        <i class="fas fa-baby"></i> Pregnancy Status
-                        <span class="medical-badge badge-yes">Pregnant</span>
-                    </h5>
+    // Create modal content
+    const modalContent = document.createElement('div');
+    modalContent.style.cssText = `
+        background: white !important;
+        border-radius: 12px !important;
+        width: 90% !important;
+        max-width: 900px !important;
+        max-height: 90vh !important;
+        overflow: hidden !important;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3) !important;
+        animation: modalSlideIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+    `;
+
+    // Create header
+    const modalHeader = document.createElement('div');
+    modalHeader.style.cssText = `
+        padding: 25px 30px !important;
+        border-bottom: 1px solid #e1e5e9 !important;
+        background: linear-gradient(135deg, #03074f, #0d5bb9) !important;
+        color: white !important;
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        border-radius: 12px 12px 0 0 !important;
+    `;
+    modalHeader.innerHTML = `
+        <h3 style="margin: 0; font-size: 1.5rem; font-family: 'Inter', sans-serif; font-weight: 700; display: flex; align-items: center; gap: 12px;">
+            <i class="fas fa-notes-medical" style="color: #00a65a;"></i> Patient Medical History
+        </h3>
+        <button id="close-floating-modal" style="background: rgba(255,255,255,0.1); border: none; font-size: 1.8rem; color: white; cursor: pointer; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 50%; transition: all 0.3s ease;">&times;</button>
+    `;
+
+    // Create body
+    const modalBody = document.createElement('div');
+    modalBody.style.cssText = `
+        padding: 30px !important;
+        max-height: 60vh !important;
+        overflow-y: auto !important;
+    `;
+
+    modalBody.style.cssText += `
+        scrollbar-width: thin !important;
+        scrollbar-color: #0d5bb9 #f1f1f1 !important;
+    `;
+
+    // Build HTML content with improved layout
+    modalBody.innerHTML = `
+        <style>
+            #floating-medical-modal .medical-grid {
+                display: flex;
+                flex-direction: column;
+                gap: 15px;
+            }
+            #floating-medical-modal .medical-card {
+                background: #f8fafc;
+                border-radius: 10px;
+                padding: 0;
+                border-left: 4px solid #0d5bb9;
+                transition: all 0.3s ease;
+                overflow: hidden;
+            }
+            #floating-medical-modal .medical-card.critical {
+                border-left-color: #dc3545;
+                background: #fff5f5;
+            }
+            #floating-medical-modal .card-header {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: 15px 20px;
+                background: rgba(0,0,0,0.02);
+                border-bottom: 1px solid #e2e8f0;
+            }
+            #floating-medical-modal .card-title {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                font-weight: 700;
+                font-size: 1rem;
+                color: #03074f;
+            }
+            #floating-medical-modal .card-title i {
+                font-size: 1.2rem;
+                width: 24px;
+            }
+            #floating-medical-modal .medical-card.critical .card-title {
+                color: #991b1b;
+            }
+            #floating-medical-modal .medical-card.critical .card-title i {
+                color: #dc3545;
+            }
+            #floating-medical-modal .medical-badge {
+                padding: 4px 12px;
+                border-radius: 20px;
+                font-size: 0.75rem;
+                font-weight: 700;
+                text-transform: uppercase;
+            }
+            #floating-medical-modal .badge-yes {
+                background: #dc3545;
+                color: white;
+            }
+            #floating-medical-modal .badge-no {
+                background: #28a745;
+                color: white;
+            }
+            #floating-medical-modal .card-content {
+                padding: 15px 20px;
+            }
+            #floating-medical-modal .exam-details-text {
+                background: rgba(255,255,255,0.8);
+                border-radius: 6px;
+                font-size: 0.9rem;
+                color: #555;
+                line-height: 1.6;
+            }
+            #floating-medical-modal .exam-date {
+                margin-top: 20px;
+                font-size: 0.85rem;
+                color: #64748b;
+                text-align: right;
+                border-top: 1px solid #e2e8f0;
+                padding-top: 15px;
+            }
+            #floating-medical-modal .modal-footer-custom {
+                padding: 20px 30px;
+                border-top: 1px solid #e1e5e9;
+                display: flex;
+                justify-content: flex-end;
+                background: #f8fafc;
+                border-radius: 0 0 12px 12px;
+            }
+            #floating-medical-modal .btn-close {
+                background: linear-gradient(135deg, #03074f, #0d5bb9);
+                color: white;
+                border: none;
+                padding: 10px 24px;
+                border-radius: 6px;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                font-family: 'Open Sans', sans-serif;
+                font-size: 0.9rem;
+            }
+            #floating-medical-modal .btn-close:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 4px 12px rgba(13, 91, 185, 0.3);
+            }
+            #floating-medical-modal .condition-text {
+                margin-top: 8px;
+                font-size: 0.9rem;
+                color: #555;
+                line-height: 1.6;
+            }
+        </style>
+        <div class="medical-grid">
+            <!-- Heart Disease -->
+            <div class="medical-card ${history.heart_disease == 1 ? 'critical' : ''}">
+                <div class="card-header">
+                    <div class="card-title">
+                        <i class="fas fa-heartbeat"></i>
+                        <span>Heart Disease</span>
+                    </div>
+                    <span class="medical-badge ${history.heart_disease == 1 ? 'badge-yes' : 'badge-no'}">
+                        ${history.heart_disease == 1 ? 'Yes' : 'No'}
+                    </span>
                 </div>
+                ${history.heart_disease_details ? `
+                    <div class="card-content">
+                        <div class="exam-details-text">${sanitizeHtml(history.heart_disease_details)}</div>
+                    </div>
                 ` : ''}
+            </div>
 
-                <div class="medical-card ${history.allergies ? 'critical' : ''}">
-                    <h5><i class="fas fa-allergies"></i> Allergies</h5>
-                    <p>${history.allergies || 'None reported'}</p>
-                </div>
-
-                <div class="medical-card">
-                    <h5><i class="fas fa-pills"></i> Medications</h5>
-                    <p>${history.current_medications || 'None'}</p>
-                </div>
-
-                <div class="medical-card">
-                    <h5><i class="fas fa-history"></i> Past Surgeries</h5>
-                    <p>${history.past_surgeries || 'None'}</p>
-                </div>
-
-                <div class="medical-card">
-                    <h5><i class="fas fa-file-medical-alt"></i> Other Conditions</h5>
-                    <p>${history.other_conditions || 'None'}</p>
+            <!-- Blood Pressure -->
+            <div class="medical-card ${history.high_blood_pressure == 1 ? 'critical' : ''}">
+                <div class="card-header">
+                    <div class="card-title">
+                        <i class="fas fa-tint"></i>
+                        <span>Blood Pressure</span>
+                    </div>
+                    <span class="medical-badge ${history.high_blood_pressure == 1 ? 'badge-yes' : 'badge-no'}">
+                        ${history.high_blood_pressure == 1 ? 'High' : 'Normal'}
+                    </span>
                 </div>
             </div>
-            <p style="margin-top: 20px; font-size: 0.85rem; color: #64748b; text-align: right; border-top: 1px solid #e2e8f0; padding-top: 10px;">
-                <i class="fas fa-clock"></i> Exam Date: ${(() => {
-            if (!history.updated_at) return 'Unknown date';
-            const safeDateString = history.updated_at.replace(' ', 'T');
-            const d = new Date(safeDateString);
-            if (isNaN(d.getTime())) return history.updated_at;
-            return d.toLocaleString('en-US', { month: 'long', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' });
-        })()}
-            </p>
+
+            <!-- Diabetes -->
+            <div class="medical-card ${history.diabetes == 1 ? 'critical' : ''}">
+                <div class="card-header">
+                    <div class="card-title">
+                        <i class="fas fa-disease"></i>
+                        <span>Diabetes</span>
+                    </div>
+                    <span class="medical-badge ${history.diabetes == 1 ? 'badge-yes' : 'badge-no'}">
+                        ${history.diabetes == 1 ? 'Yes' : 'No'}
+                    </span>
+                </div>
+            </div>
+
+            ${history.is_pregnant == 1 ? `
+            <div class="medical-card critical">
+                <div class="card-header">
+                    <div class="card-title">
+                        <i class="fas fa-baby"></i>
+                        <span>Pregnancy Status</span>
+                    </div>
+                    <span class="medical-badge badge-yes">Pregnant</span>
+                </div>
+            </div>
+            ` : ''}
+
+            <!-- Allergies -->
+            <div class="medical-card ${history.allergies ? 'critical' : ''}">
+                <div class="card-header">
+                    <div class="card-title">
+                        <i class="fas fa-allergies"></i>
+                        <span>Allergies</span>
+                    </div>
+                    <span class="medical-badge ${history.allergies ? 'badge-yes' : 'badge-no'}">
+                        ${history.allergies ? 'Yes' : 'No'}
+                    </span>
+                </div>
+                ${history.allergies ? `
+                    <div class="card-content">
+                        <div class="condition-text">${sanitizeHtml(history.allergies)}</div>
+                    </div>
+                ` : ''}
+            </div>
+
+            <!-- Current Medications -->
+            <div class="medical-card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <i class="fas fa-pills"></i>
+                        <span>Current Medications</span>
+                    </div>
+                </div>
+                <div class="card-content">
+                    <div class="condition-text">${sanitizeHtml(history.current_medications || 'None reported')}</div>
+                </div>
+            </div>
+
+            <!-- Past Surgeries -->
+            <div class="medical-card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <i class="fas fa-history"></i>
+                        <span>Past Surgeries</span>
+                    </div>
+                </div>
+                <div class="card-content">
+                    <div class="condition-text">${sanitizeHtml(history.past_surgeries || 'None reported')}</div>
+                </div>
+            </div>
+
+            <!-- Other Conditions -->
+            <div class="medical-card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <i class="fas fa-file-medical-alt"></i>
+                        <span>Other Medical Conditions</span>
+                    </div>
+                </div>
+                <div class="card-content">
+                    <div class="condition-text">${sanitizeHtml(history.other_conditions || 'None reported')}</div>
+                </div>
+            </div>
+        </div>
+        <div class="exam-date">
+            <i class="fas fa-clock"></i> Last Exam Date: ${(() => {
+                try {
+                    if (!history.updated_at) return 'Unknown date';
+                    const safeDateString = history.updated_at.replace(' ', 'T');
+                    const d = new Date(safeDateString);
+                    if (isNaN(d.getTime())) return history.updated_at;
+                    return d.toLocaleString('en-US', { month: 'long', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' });
+                } catch (e) {
+                    return history.updated_at || 'Unknown date';
+                }
+            })()}
         </div>
     `;
 
-    medicalHistoryModal.classList.add('active');
+    // Create footer
+    const modalFooter = document.createElement('div');
+    modalFooter.className = 'modal-footer-custom';
+    modalFooter.innerHTML = `<button class="btn-close" id="close-floating-modal-btn"><i class="fas fa-times"></i> Close</button>`;
+
+    // Assemble modal
+    modalContent.appendChild(modalHeader);
+    modalContent.appendChild(modalBody);
+    modalContent.appendChild(modalFooter);
+    floatingModal.appendChild(modalContent);
+    document.body.appendChild(floatingModal);
+
+    // Add close functionality
+    const closeBtn1 = document.getElementById('close-floating-modal');
+    const closeBtn2 = document.getElementById('close-floating-modal-btn');
+    
+    const closeModal = () => {
+        floatingModal.style.animation = 'modalFadeOut 0.3s ease';
+        setTimeout(() => floatingModal.remove(), 300);
+    };
+    
+    if (closeBtn1) closeBtn1.onclick = closeModal;
+    if (closeBtn2) closeBtn2.onclick = closeModal;
+    
+    // Close on background click
+    floatingModal.onclick = (e) => {
+        if (e.target === floatingModal) {
+            closeModal();
+        }
+    };
+
+    // Add hover effect for close button
+    if (closeBtn1) {
+        closeBtn1.onmouseover = () => {
+            closeBtn1.style.background = 'rgba(255,255,255,0.2)';
+            closeBtn1.style.transform = 'rotate(90deg)';
+        };
+        closeBtn1.onmouseout = () => {
+            closeBtn1.style.background = 'rgba(255,255,255,0.1)';
+            closeBtn1.style.transform = 'rotate(0deg)';
+        };
+    }
+    
+    console.log('Medical history modal created successfully');
 }
 
 // Medical History Modal Events
-if (typeof closeMedicalHistoryModal !== 'undefined' && closeMedicalHistoryModal) {
+if (closeMedicalHistoryModal) {
     closeMedicalHistoryModal.addEventListener('click', () => {
         medicalHistoryModal.classList.remove('active');
     });
 }
-if (typeof closeMedicalHistoryBtn !== 'undefined' && closeMedicalHistoryBtn) {
+if (closeMedicalHistoryBtn) {
     closeMedicalHistoryBtn.addEventListener('click', () => {
         medicalHistoryModal.classList.remove('active');
     });
 }
 
-// Close on outside click
 window.addEventListener('click', (e) => {
     if (e.target === medicalHistoryModal) {
         medicalHistoryModal.classList.remove('active');
     }
 });
 
-// Function to update medical alerts in Create Record modal
 function updateMedicalAlerts(history) {
     const container = document.getElementById('create-record-medical-alerts');
     if (!container) return;
@@ -1815,61 +2131,38 @@ function updateMedicalAlerts(history) {
     if (alerts.length > 0) {
         container.innerHTML = `
             <div class="medical-alert-banner">
-                <div class="alert-icon">
-                    <i class="fas fa-exclamation-triangle"></i>
-                </div>
+                <div class="alert-icon"><i class="fas fa-exclamation-triangle"></i></div>
                 <div class="alert-content">
                     <div class="alert-title">Medical Alert: Critical Conditions Detected</div>
-                    <div class="alert-list">
-                        ${alerts.map(alert => `<span class="alert-badge">${alert}</span>`).join('')}
-                    </div>
-                    <div class="view-history-link-container">
-                        <a href="javascript:void(0)" class="view-history-link" id="view-history-from-alert">
-                            <i class="fas fa-file-medical"></i> View Full Medical History
-                        </a>
-                    </div>
+                    <div class="alert-list">${alerts.map(alert => `<span class="alert-badge">${alert}</span>`).join('')}</div>
+                    <div class="view-history-link-container"><a href="javascript:void(0)" class="view-history-link" id="view-history-from-alert"><i class="fas fa-file-medical"></i> View Full Medical History</a></div>
                 </div>
             </div>
         `;
         container.classList.add('active');
-
-        document.getElementById('view-history-from-alert').onclick = () => {
-            displayMedicalHistory(history);
-        };
+        document.getElementById('view-history-from-alert').onclick = () => { displayMedicalHistory(history); };
     } else {
         container.innerHTML = `
             <div class="medical-alert-banner" style="border-left-color: var(--success); background: #f0fff4; border-color: #c6f6d5;">
-                <div class="alert-icon" style="color: var(--success);">
-                    <i class="fas fa-check-circle"></i>
-                </div>
+                <div class="alert-icon" style="color: var(--success);"><i class="fas fa-check-circle"></i></div>
                 <div class="alert-content">
                     <div class="alert-title" style="color: #22543d;">No Critical Medical Conditions Reported</div>
-                    <div class="view-history-link-container" style="border-top-color: #c6f6d5;">
-                        <a href="javascript:void(0)" class="view-history-link" id="view-history-from-alert">
-                            <i class="fas fa-file-medical"></i> Review Health Assessment
-                        </a>
-                    </div>
+                    <div class="view-history-link-container" style="border-top-color: #c6f6d5;"><a href="javascript:void(0)" class="view-history-link" id="view-history-from-alert"><i class="fas fa-file-medical"></i> Review Health Assessment</a></div>
                 </div>
             </div>
         `;
         container.classList.add('active');
-        document.getElementById('view-history-from-alert').onclick = () => {
-            displayMedicalHistory(history);
-        };
+        document.getElementById('view-history-from-alert').onclick = () => { displayMedicalHistory(history); };
     }
 }
 
-// ==========================================
 // EDIT RECORD FUNCTIONALITY
-// ==========================================
-
 const editRecordModal = document.getElementById('edit-record-modal');
 const closeEditModalBtn = document.getElementById('close-edit-modal');
 const cancelEditRecordBtn = document.getElementById('cancel-edit-record');
 const editRecordForm = document.getElementById('edit-record-form');
 const updateRecordBtn = document.getElementById('update-record-btn');
 
-// Also hook up the Edit Record button inside the View Details modal
 const viewEditRecordBtn = document.getElementById('edit-record-btn');
 if (viewEditRecordBtn) {
     viewEditRecordBtn.addEventListener('click', () => {
@@ -1884,38 +2177,30 @@ if (closeEditModalBtn) closeEditModalBtn.addEventListener('click', () => editRec
 if (cancelEditRecordBtn) cancelEditRecordBtn.addEventListener('click', (e) => { e.preventDefault(); editRecordModal.classList.remove('active'); });
 
 function editRecord(record) {
-    // Check if record is archived
     if (record.is_archived == 1) {
         showNotification('warning', 'Cannot Edit', 'Archived records cannot be edited. Please restore the record first.');
         return;
     }
 
-    // Populate the form fields
     document.getElementById('edit-record-id').value = record.record_id;
     document.getElementById('edit-record-patient-id').value = record.client_id;
-
-    // Procedure/Record details
     document.getElementById('edit-record-type').value = record.record_type;
     document.getElementById('edit-record-title').value = record.record_title;
     document.getElementById('edit-record-date').value = record.record_date;
     document.getElementById('edit-record-time').value = record.record_time;
     document.getElementById('edit-record-duration').value = record.duration || '';
     document.getElementById('edit-record-procedure').value = record.procedure || '';
-
-    // Text areas
     document.getElementById('edit-record-description').value = record.description || '';
     document.getElementById('edit-record-findings').value = record.findings || '';
     document.getElementById('edit-record-notes').value = record.notes || '';
     document.getElementById('edit-record-followup').value = record.followup_instructions || '';
 
-    // Handle Teeth
     let toothNumbers = [];
     try { toothNumbers = JSON.parse(record.tooth_numbers || '[]'); } catch (e) { }
 
     const editToothGrid = document.getElementById('edit-tooth-grid');
     if (editToothGrid) {
         editToothGrid.innerHTML = '';
-        // Reuse logic from odontogram.js roughly
         for (let i = 1; i <= 32; i++) {
             const btn = document.createElement('button');
             btn.type = 'button';
@@ -1927,8 +2212,7 @@ function editRecord(record) {
             btn.textContent = i;
             btn.addEventListener('click', function () {
                 this.classList.toggle('selected');
-                const selected = Array.from(editToothGrid.querySelectorAll('.tooth-btn.selected'))
-                    .map(b => b.dataset.tooth);
+                const selected = Array.from(editToothGrid.querySelectorAll('.tooth-btn.selected')).map(b => b.dataset.tooth);
                 updateEditSelectedTeethDisplay(selected);
             });
             editToothGrid.appendChild(btn);
@@ -1936,7 +2220,6 @@ function editRecord(record) {
         updateEditSelectedTeethDisplay(toothNumbers);
     }
 
-    // Handle Surfaces
     let surfaces = [];
     try { surfaces = JSON.parse(record.surfaces || '[]'); } catch (e) { }
 
@@ -1946,15 +2229,12 @@ function editRecord(record) {
     });
     document.getElementById('edit-record-surfaces').value = JSON.stringify(surfaces);
 
-    // Auto-update hidden inputs on change
     if (editToothGrid) {
         editToothGrid.addEventListener('click', (e) => {
             const btn = e.target.closest('.tooth-btn');
             if (!btn) return;
-            // The tooth grid logic toggles "selected" class, we just gather them
             setTimeout(() => {
-                const selectedList = Array.from(editToothGrid.querySelectorAll('.tooth-btn.selected'))
-                    .map(b => b.dataset.tooth);
+                const selectedList = Array.from(editToothGrid.querySelectorAll('.tooth-btn.selected')).map(b => b.dataset.tooth);
                 updateEditSelectedTeethDisplay(selectedList);
             }, 50);
         });
@@ -1963,43 +2243,29 @@ function editRecord(record) {
     const checkboxesContainer = document.getElementById('edit-surface-checkboxes');
     if (checkboxesContainer) {
         checkboxesContainer.addEventListener('change', () => {
-            const selectedSurfaces = Array.from(document.querySelectorAll('input[name="edit_surfaces[]"]:checked'))
-                .map(cb => cb.value);
+            const selectedSurfaces = Array.from(document.querySelectorAll('input[name="edit_surfaces[]"]:checked')).map(cb => cb.value);
             document.getElementById('edit-record-surfaces').value = JSON.stringify(selectedSurfaces);
         });
     }
 
-    // Show the modal
     editRecordModal.classList.add('active');
 }
 
 function updateEditSelectedTeethDisplay(teeth) {
     const list = document.getElementById('edit-selected-teeth-list');
     const input = document.getElementById('edit-record-tooth-numbers');
-    if (list) {
-        list.textContent = teeth.length > 0 ? teeth.join(', ') : 'None';
-    }
-    if (input) {
-        input.value = JSON.stringify(teeth);
-    }
+    if (list) list.textContent = teeth.length > 0 ? teeth.join(', ') : 'None';
+    if (input) input.value = JSON.stringify(teeth);
 }
 
-// // Handle Form Submission
 if (editRecordForm) {
     editRecordForm.addEventListener('submit', function (e) {
         e.preventDefault();
-
-        // Show loading
         showLoading(true);
-
-        // Disable button
         const originalText = updateRecordBtn.innerHTML;
         updateRecordBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Updating...';
         updateRecordBtn.disabled = true;
 
-        const formData = new FormData(this);
-        
-        // Explicitly gather record data for reliability
         const recordData = {
             record_id: document.getElementById('edit-record-id').value,
             client_id: document.getElementById('edit-record-patient-id').value,
@@ -2043,11 +2309,10 @@ if (editRecordForm) {
                 showLoading(false);
                 updateRecordBtn.innerHTML = originalText;
                 updateRecordBtn.disabled = false;
-
                 if (data.success) {
                     editRecordModal.classList.remove('active');
                     showNotification('success', 'Success', 'Patient record updated successfully');
-                    loadPatientRecords(); // Refresh the list
+                    loadPatientRecords();
                 } else {
                     showNotification('error', 'Update Failed', data.message || 'An error occurred during update');
                 }

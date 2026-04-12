@@ -1,6 +1,7 @@
 const PH_TIMEZONE = 'Asia/Manila';
 let currentView = 'month';
 let currentPeriodStart = new Date();
+currentPeriodStart.setHours(0, 0, 0, 0); // Initialize to midnight to avoid rollover issues
 let confirmedAppointmentsData = [];
 let completedAppointmentsData = [];
 let allAppointmentsData = [];
@@ -430,7 +431,8 @@ function createCalendarDay(date, isOtherMonth) {
     dayNumber.className = 'day-number';
     dayNumber.textContent = date.getDate();
     dayElement.appendChild(dayNumber);
-    const dateStr = date.toISOString().split('T')[0];
+    // FIX: Avoid toISOString() which shifts to UTC. Use local components for YYYY-MM-DD.
+    const dateStr = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')}`;
     const dayAppointments = calendarAppointmentsData
         .filter(appt => {
             try {
@@ -691,7 +693,8 @@ function updateConfirmedTable() {
                     return;
                 }
                 const appointmentId = e.currentTarget.getAttribute('data-id');
-                updateAppointmentStatus(appointmentId, 'completed');
+                // Open modal instead of direct completion to ensure time tracking is filled
+                showAppointmentDetails(appointmentId);
             });
         });
     }, 100);
@@ -743,7 +746,7 @@ function updateCompletedTable() {
                         </div>
                     </div>
                 </td>
-                <td class="appointment-date">${appointment.date_display || formatDateForDisplay(appointment.completed_date || appointment.date)}</td>
+                <td class="appointment-date">${appointment.date_display || formatDateForDisplay(appointment.appointment_date || appointment.date)}</td>
                 <td class="service-name">${appointment.service || 'Dental Service'}</td>
                 <td class="duration">${appointment.duration || 30} min</td>
                 <td>
@@ -977,7 +980,8 @@ function updateAllAppointmentsTable() {
                     return;
                 }
                 const appointmentId = e.currentTarget.getAttribute('data-id');
-                updateAppointmentStatus(appointmentId, 'completed');
+                // Open modal instead of direct completion to ensure time tracking is filled
+                showAppointmentDetails(appointmentId);
             });
         });
         document.querySelectorAll('#allAppointmentsTableBody .action-btn-small.followup').forEach(btn => {
@@ -1454,12 +1458,22 @@ function updateModalDetails(appointment) {
         modalDuration.textContent = `${appointment.duration || 30} minutes`;
         timeTrackingSection.style.display = 'grid';
         document.getElementById('appointmentDuration').value = appointment.duration || 30;
+        if (document.getElementById('startTime')) {
+            document.getElementById('startTime').value = appointment.actual_start_time || '';
+        }
+        if (document.getElementById('endTime')) {
+            document.getElementById('endTime').value = appointment.actual_end_time || '';
+        }
     } else {
         durationRow.style.display = 'none';
         modalDuration.textContent = '';
         if (appointment.status === 'confirmed') {
             timeTrackingSection.style.display = 'grid';
             document.getElementById('appointmentDuration').value = 30;
+            const startTimeInput = document.getElementById('startTime');
+            if (startTimeInput && appointment.time) {
+                startTimeInput.value = convertTimeTo24Hour(appointment.time);
+            }
         } else {
             timeTrackingSection.style.display = 'none';
         }

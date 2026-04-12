@@ -62,9 +62,9 @@ if ($isLoggedIn) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" type="image/x-icon" href="assets/images/logo1-white.png">
+    <link rel="icon" type="image/x-icon" href="<?php echo clean_url('public/assets/images/logo1-white.png'); ?>">
     <title>Cosmo Smiles Dental</title>
-    <link rel="stylesheet" href="assets/css/styles.css">
+    <link rel="stylesheet" href="<?php echo clean_url('public/assets/css/styles.css'); ?>">
     <?php 
     include 'client/includes/client-header-css.php'; 
     include 'client/includes/client-common-styles.php';
@@ -283,6 +283,6 @@ if ($isLoggedIn) {
 
     <?php include 'client/includes/client-footer.php'; ?>
 
-    <script src="assets/js/script.js"></script>
+    <script src="<?php echo clean_url('public/assets/js/script.js'); ?>"></script>
 </body>
 </html>

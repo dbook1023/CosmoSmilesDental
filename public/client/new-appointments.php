@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../../config/database.php';
+require_once __DIR__ . '/../../config/env.php';
 require_once __DIR__ . '/../../src/Controllers/AppointmentController.php';
 
 // Start session
@@ -322,8 +323,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo $isReschedule ? 'Reschedule Appointment' : 'New Appointment'; ?> - Cosmo Smiles Dental</title>
+    <link rel="icon" type="image/png" href="<?php echo clean_url('public/assets/images/logo1-white.png'); ?>">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="../assets/css/new-appointment.css">
+    <link rel="stylesheet" href="<?php echo clean_url('public/assets/css/new-appointment.css'); ?>">
     <?php include 'includes/client-header-css.php'; ?>
 </head>
 <body>
@@ -477,29 +479,43 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             </div>
                             
                             <div id="services-container">
+                                <?php 
+                                // Parse service IDs for rescheduling
+                                $rescheduleServiceIds = [];
+                                if ($isReschedule && isset($rescheduleData['service_id'])) {
+                                    $rescheduleServiceIds = array_filter(array_map('trim', explode(',', $rescheduleData['service_id'])));
+                                }
+                                
+                                // If not rescheduling or if no services found (fallback), show at least one row
+                                if (empty($rescheduleServiceIds)) {
+                                    $rescheduleServiceIds = [null];
+                                }
+                                
+                                foreach ($rescheduleServiceIds as $index => $currentServiceId):
+                                ?>
                                 <div class="service-row">
                                     <div class="form-group service-select-group">
-                                        <select id="appointment-service" name="service_id[]" class="form-control service-selection" required <?php echo $isReschedule ? 'readonly onfocus="this.blur()" style="pointer-events: none; background-color: #f5f5f5;"' : ''; ?>>
-                                            <option value="" disabled selected>Select service type</option>
+                                        <select <?php echo $index === 0 ? 'id="appointment-service"' : ''; ?> name="service_id[]" class="form-control service-selection" required <?php echo $isReschedule ? 'readonly onfocus="this.blur()" style="pointer-events: none; background-color: #f5f5f5;"' : ''; ?>>
+                                            <option value="" disabled <?php echo !$currentServiceId ? 'selected' : ''; ?>>Select service type</option>
                                             <?php foreach ($services as $service): 
-                                                $isSelected = $isReschedule && isset($rescheduleData['service_id']) && $service['id'] == $rescheduleData['service_id'];
+                                                $isSelected = ($currentServiceId && $service['id'] == $currentServiceId);
                                                 $price = $service['price'];
-                                                $selectedPrice = $isReschedule && isset($rescheduleData['service_price']) ? $rescheduleData['service_price'] : $price;
                                             ?>
                                                 <option value="<?php echo $service['id']; ?>" 
                                                     data-price="<?php echo $price; ?>"
-                                                    <?php echo $isSelected ? 'selected' : ''; ?>
-                                                    <?php if($isSelected): ?>
-                                                        data-selected-price="<?php echo $selectedPrice; ?>"
-                                                    <?php endif; ?>>
+                                                    <?php echo $isSelected ? 'selected' : ''; ?>>
                                                     <?php echo htmlspecialchars($service['name']); ?> - ₱<?php echo number_format($price, 2); ?>
                                                 </option>
                                             <?php endforeach; ?>
                                         </select>
-                                        <label for="appointment-service">Service Type</label>
+                                        <label>Service Type</label>
                                         <span class="validation-message"></span>
                                     </div>
+                                    <?php if($isReschedule && count($rescheduleServiceIds) > 1): ?>
+                                    <!-- No remove button for rescheduling multiple services to prevent accidental changes -->
+                                    <?php endif; ?>
                                 </div>
+                                <?php endforeach; ?>
                             </div>
                             
                             <?php if(!$isReschedule): ?>
@@ -717,7 +733,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
     </section>
 
-    <script src="../assets/js/new-appointments.js"></script>
+    <script src="<?php echo clean_url('public/assets/js/new-appointments.js'); ?>"></script>
     <script>
         // Pass PHP variables to JavaScript
         window.isReschedule = <?php echo $isReschedule ? 'true' : 'false'; ?>;

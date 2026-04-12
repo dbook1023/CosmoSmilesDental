@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../../config/database.php';
+require_once __DIR__ . '/../../config/env.php';
 require_once __DIR__ . '/../../src/Controllers/AppointmentController.php';
 require_once __DIR__ . '/../../src/Controllers/MedicalHistoryController.php';
 
@@ -225,10 +226,10 @@ if (isset($_GET['action'])) {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="icon" type="image/x-icon" href="../assets/images/logo1-white.png">
+  <link rel="icon" type="image/png" href="<?php echo clean_url('public/assets/images/logo1-white.png'); ?>">
   <title>Appointments - Cosmo Smiles Dental</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="stylesheet" href="../assets/css/appointments.css">
+  <link rel="stylesheet" href="<?php echo clean_url('public/assets/css/appointments.css'); ?>">
   <?php include 'includes/client-header-css.php'; ?>
 </head>
 
@@ -469,6 +470,6 @@ if (isset($_GET['action'])) {
         </div>
     </div>
 
-    <script src="../assets/js/appointments.js"></script>
+    <script src="<?php echo clean_url('public/assets/js/appointments.js'); ?>"></script>
 </body>
 </html>

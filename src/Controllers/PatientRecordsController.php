@@ -25,7 +25,7 @@ class PatientRecordsController {
     
     public function __construct($pdo) {
         $this->pdo = $pdo;
-        $this->upload_dir = __DIR__ . '/../../uploads/patient_records/';
+        $this->upload_dir = __DIR__ . '/../../public/uploads/patient_records/';
         
         $this->sms_enabled = env('SMS_ENABLED', true);
         $this->sms_base_url = env('SMS_BASE_URL', 'https://api.textbee.dev/api/v1');
@@ -1019,14 +1019,8 @@ class PatientRecordsController {
         }
     }
     
-    public function handleAjaxRequest($action, $data, $admin_id) {
-        // Validate CSRF token
-        if (!$this->validateCsrfToken()) {
-            return [
-                'success' => false,
-                'message' => 'Invalid security token'
-            ];
-        }
+    public function handleAjaxRequest($action, $data, $admin_id, $uploaded_files = []) {
+        // Redundant CSRF validation removed as it is handled in admin-records.php
         
         $admin_name = $this->getAdminName($admin_id);
         

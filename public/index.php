@@ -2,6 +2,11 @@
 // index.php is in: Cosmo Smiles Dental/public/assets/index.php
 ob_start();
 session_start();
+
+// Define base path for the project
+if (!defined('BASE_PATH')) {
+    define('BASE_PATH', dirname(__DIR__));
+}
 require_once __DIR__ . '/../src/Services/DdosProtection.php';
 
 // Include necessary files
@@ -146,9 +151,9 @@ if ($isLoggedIn && $client_id) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" type="image/x-icon" href="assets/images/logo1-white.png">
+    <link rel="icon" type="image/x-icon" href="<?php echo clean_url('public/assets/images/logo1-white.png'); ?>">
     <title>Cosmo Smiles Dental</title>
-    <link rel="stylesheet" href="assets/css/styles.css">
+    <link rel="stylesheet" href="<?php echo clean_url('public/assets/css/styles.css'); ?>">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
     <?php 
     include 'client/includes/client-header-css.php'; 
@@ -465,15 +470,14 @@ if ($isLoggedIn && $client_id) {
             </div>
             <div class="hero-image">
                 <?php 
-                $heroImgExists = false;
+                $finalHeroImage = clean_url('public/assets/images/csdc.jpg'); // Default fallback
                 if (!empty($homeContent['hero_bg_image'])) {
-                    $heroPath = __DIR__ . '/..' . $homeContent['hero_bg_image'];
-                    if (file_exists($heroPath)) {
-                        $heroImgExists = true;
-                    }
+                    $heroDbPath = $homeContent['hero_bg_image'];
+                    // The path in DB now includes 'public/'
+                    $finalHeroImage = clean_url($heroDbPath);
                 }
                 ?>
-                <img src="<?php echo $heroImgExists ? URL_ROOT . ltrim($homeContent['hero_bg_image'], '/') : 'assets/images/csdc.jpg'; ?>" alt="Cosmo Smiles Dental Clinic">
+                <img src="<?php echo $finalHeroImage; ?>" alt="Cosmo Smiles Dental Clinic">
             </div>
         </div>
     </section>
@@ -586,7 +590,7 @@ if ($isLoggedIn && $client_id) {
                         }
                         ?>
                         <?php if($teamImgExists): ?>
-                            <div class="team-img-premium" style="background-image: url('<?php echo htmlspecialchars(ltrim($homeContent['team_'.$i.'_img'], '/')); ?>');"></div>
+                            <div class="team-img-premium" style="background-image: url('<?php echo htmlspecialchars(clean_url($homeContent['team_'.$i.'_img'])); ?>');"></div>
                         <?php else: ?>
                             <div class="team-img-premium"><i class="fas fa-user-doctor"></i></div>
                         <?php endif; ?>
@@ -630,7 +634,7 @@ if ($isLoggedIn && $client_id) {
     </section>
 
     <!-- Testimonials Section -->
-    <section class="section-full" style="background: linear-gradient(rgba(10, 25, 47, 0.8), rgba(10, 25, 47, 0.8)), url('<?php echo URL_ROOT . ltrim($homeContent['hero_bg_image'], '/'); ?>') center/cover no-repeat fixed;">
+    <section class="section-full" style="background: linear-gradient(rgba(10, 25, 47, 0.8), rgba(10, 25, 47, 0.8)), url('<?php echo $finalHeroImage; ?>') center/cover no-repeat fixed;">
         <div class="container">
             <div class="section-header">
                 <span class="section-tag" style="background: rgba(255,255,255,0.1); color: white;">Success Stories</span>
@@ -648,7 +652,7 @@ if ($isLoggedIn && $client_id) {
                                     <div class="author-info">
                                         <div class="author-avatar">
                                             <?php if(!empty($t['profile_image'])): ?>
-                                                <img src="<?php echo URL_ROOT . htmlspecialchars($t['profile_image']); ?>" 
+                                                <img src="<?php echo clean_url($t['profile_image']); ?>" 
                                                      alt="Profile" 
                                                      onerror="this.onerror=null; this.parentElement.innerHTML='<i class=\'fas fa-user\'></i>';">
                                             <?php else: ?>
@@ -721,7 +725,7 @@ if ($isLoggedIn && $client_id) {
         <div class="container">
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 80px; align-items: center;">
                 <div class="premium-card" style="padding: 50px; background: var(--primary); color: white; border: none;">
-                    <h3 style="font-size: 2rem; margin-bottom: 30px;">Facility Hours</h3>
+                    <h3 style="font-size: 2rem; margin-bottom: 30px; color: var(--secondary);";">Facility Hours</h3>
                     <div style="display: flex; justify-content: space-between; padding: 15px 0; border-bottom: 1px solid rgba(255,255,255,0.1);">
                         <span>Mon - Fri</span><span><?php echo htmlspecialchars(str_replace(['Mon - Fri: ', 'Mon-Fri: '], '', $homeContent['hours_week'] ?? '8:00 AM - 6:00 PM')); ?></span>
                     </div>
@@ -744,7 +748,7 @@ if ($isLoggedIn && $client_id) {
     <?php include 'client/includes/client-footer.php'; ?>
 
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
-    <script src="assets/js/script.js"></script>
+    <script src="<?php echo clean_url('public/assets/js/script.js'); ?>"></script>
     <script>
         // SMART CAROUSEL INITIALIZATION
         // Calculates slide count to avoid Swiper Loop Warnings

@@ -1,0 +1,38 @@
+
+-------------------------------------------------------------------------------
+   ROBOCOPY     ::     Robust File Copy for Windows                              
+-------------------------------------------------------------------------------
+
+  Started : Sunday, April 12, 2026 11:42:59 AM
+   Source : d:\prog\htdocs\Cosmo_Smiles_Dental_Clinic\public\assets\images\dynamic\
+     Dest : d:\prog\htdocs\Cosmo_Smiles_Dental_Clinic\public\uploads\content\
+
+    Files : *.*
+	    
+  Options : *.* /V /S /E /DCOPY:DA /COPY:DAT /MOVE /R:1000000 /W:30 
+
+------------------------------------------------------------------------------
+
+	  New Dir          8	d:\prog\htdocs\Cosmo_Smiles_Dental_Clinic\public\assets\images\dynamic\
+	    New File  		   75618	img_69cd293b0bae5.jpg 99%  100%  
+	    New File  		  407347	img_69cd3cda1266f.jpg 32%   64%   96%   99%  100%  
+	    New File  		  355638	img_69cd3cda29e46.jpg 36%   73%   99%  100%  
+	    New File  		  407347	img_69cd3d2e3a460.jpg 32%   64%   96%   99%  100%  
+	    New File  		  317335	img_69cd3d5cdc0d0.jpg 41%   82%   99%  100%  
+	    New File  		  317335	img_69cd3d7260082.jpg 41%   82%   99%  100%  
+	    New File  		  330510	img_69cd3d726a66d.jpg 39%   79%   99%  100%  
+	    New File  		   50928	img_69cd3f2b0e17a.jpg 99%  100%  
+
+------------------------------------------------------------------------------
+
+               Total    Copied   Skipped  Mismatch    FAILED    Extras
+    Dirs :         1         1         0         0         0         0
+   Files :         8         8         0         0         0         0
+   Bytes :    2.15 m    2.15 m         0         0         0         0
+   Times :   0:00:00   0:00:00                       0:00:00   0:00:00
+
+
+   Speed :           4,742,259 Bytes/sec.
+   Speed :             271.354 MegaBytes/min.
+   Ended : Sunday, April 12, 2026 11:43:00 AM
+

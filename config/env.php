@@ -66,30 +66,59 @@ function env($key, $default = null) {
 
 
 /**
- * Dynamically determines the project root URL path (the directory containing public/ and uploads/).
- * 
- * Logic:
- * 1. Look for '/public/' in the current script name.
- * 2. If found, return everything up to the project folder (before '/public/').
- * 3. Fallback to '/' if no '/public/' is found (e.g., if already in root).
- * 
- * @return string The base URL path with a trailing slash.
+ * Dynamically determines the project root URL path.
+ * In dev: /ProjectName/
+ * In production: /
+ */
+/**
+ * Dynamically determines the project root URL path.
+ * Automatically handles subdirectory development and production 'public-as-root' setups.
  */
 function getProjectRoot() {
-    $scriptName = $_SERVER['SCRIPT_NAME'] ?? '';
+    $scriptName = $_SERVER['SCRIPT_NAME'] ?? '/';
+    $scriptFileName = str_replace('\\', '/', $_SERVER['SCRIPT_FILENAME'] ?? '');
     
-    // Find the position of '/public/' in the path
+    // Case 1: Subdirectory development setup (e.g., /Cosmo_Smiles_Dental_Clinic/public/...)
     $publicPos = strpos($scriptName, '/public/');
-    
     if ($publicPos !== false) {
-        // Return everything before '/public/' plus a trailing slash
-        $root = substr($scriptName, 0, $publicPos + 1);
-        return rtrim($root, '/') . '/';
+        return rtrim(substr($scriptName, 0, $publicPos + 1), '/') . '/';
     }
     
-    // Fallback: If no '/public/' is found, use the directory of the script
-    $dir = dirname($scriptName);
-    return rtrim(str_replace('\\', '/', $dir), '/') . '/';
+    // Case 2: Production setup where 'public/' is the document root or mapped to a subdirectory
+    $publicPosPhysical = strpos($scriptFileName, '/public/');
+    if ($publicPosPhysical !== false) {
+        $pathAfterPublic = substr($scriptFileName, $publicPosPhysical + 8); // e.g. client/profile.php
+        $relativeScriptName = ltrim($scriptName, '/'); 
+        
+        if (!empty($pathAfterPublic) && strpos($relativeScriptName, $pathAfterPublic) !== false) {
+             $urlRoot = substr($relativeScriptName, 0, strpos($relativeScriptName, $pathAfterPublic));
+             return '/' . rtrim($urlRoot, '/') . (empty($urlRoot) ? '' : '/');
+        }
+    }
+    
+    return '/';
+}
+
+/**
+ * Helper function to clean asset URLs for hosting.
+ * Automatically strips the 'public/' prefix in production environments.
+ */
+if (!function_exists('clean_url')) {
+    function clean_url($path) {
+        if (empty($path)) return '';
+        $path = ltrim($path, '/');
+        
+        $scriptName = $_SERVER['SCRIPT_NAME'] ?? '';
+        $publicInUrl = (strpos($scriptName, '/public/') !== false);
+        
+        // Strip 'public/' prefix if it's NOT in the current browser URL (Production mode)
+        if (!$publicInUrl && substr($path, 0, 7) === 'public/') {
+            $path = substr($path, 7);
+        }
+        
+        $root = defined('URL_ROOT') ? URL_ROOT : '/';
+        return rtrim($root, '/') . '/' . ltrim($path, '/');
+    }
 }
 
 define('URL_ROOT', getProjectRoot());

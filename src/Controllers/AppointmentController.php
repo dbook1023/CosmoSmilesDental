@@ -1041,6 +1041,8 @@ class AppointmentController {
                     'original_appointment_date' => $appointment['appointment_date'],
                     'original_appointment_time' => $appointment['appointment_time'],
                     'original_appointment_time_display' => $appointment['time_display'],
+                    'patient_first_name' => $appointment['patient_first_name'],
+                    'patient_last_name' => $appointment['patient_last_name'],
                     'service_id' => $appointment['service_id'],
                     'service_name' => $appointment['service_name'],
                     'dentist_id' => $appointment['dentist_id'],

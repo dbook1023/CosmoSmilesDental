@@ -1283,6 +1283,6 @@ $sidebarAdminRole = ($adminUser && strtolower($adminUser['role'] ?? '') === 'adm
         }
     </script>
     <script>window.URL_ROOT = "<?php echo URL_ROOT; ?>";</script>
-    <script src="../assets/js/admin-patient.js"></script>
+    <script src="<?php echo clean_url('public/assets/js/admin-patient.js'); ?>"></script>
 </body>
 </html>

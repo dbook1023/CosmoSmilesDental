@@ -1,20 +1,40 @@
 <?php
-// Enable error reporting for debugging
+// 1. Diagnostic Shield & Error Reporting
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-session_start();
-require_once __DIR__ . '/../../src/Services/DdosProtection.php';
-require_once __DIR__ . '/../../src/Services/SecurityService.php';
-
-// Redirect to index.php if user is already logged in
-if (isset($_SESSION['client_logged_in']) && $_SESSION['client_logged_in'] === true) {
-    header("Location: ../index.php");
-    exit();
+// Define the Absolute Root once
+if (!defined('BASE_PATH')) {
+    define('BASE_PATH', dirname(dirname(__DIR__))); 
 }
 
-// Include database configuration
-require_once '../../config/database.php';
+try {
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
+    
+    // 2. Load Services using the solid BASE_PATH
+    if (!file_exists(BASE_PATH . "/src/Services/DdosProtection.php")) throw new Exception("DdosProtection service missing.");
+    if (!file_exists(BASE_PATH . "/config/database.php")) throw new Exception("Database config missing.");
+    
+    require_once BASE_PATH . "/src/Services/DdosProtection.php";
+    require_once BASE_PATH . "/src/Services/SecurityService.php";
+    require_once BASE_PATH . "/config/database.php";
+    require_once BASE_PATH . "/config/env.php";
+
+    // Redirect to index.php if user is already logged in
+    if (isset($_SESSION['client_logged_in']) && $_SESSION['client_logged_in'] === true) {
+        header("Location: ../index.php");
+        exit();
+    }
+
+} catch (Throwable $e) {
+    die("<div style='padding:25px; border:2px solid #ef4444; background:#fef2f2; color:#b91c1c; font-family:sans-serif; border-radius:12px; max-width:800px; margin:40px auto;'>
+        <h3 style='margin-top:0;'>Signup System Diagnostic</h3>
+        <p><strong>Fatal Error:</strong> " . htmlspecialchars($e->getMessage()) . "</p>
+        <p><strong>Looked in:</strong> <code>" . BASE_PATH . "</code></p>
+    </div>");
+}
 
 // Display any errors from social login
 if (isset($_SESSION['error'])) {
@@ -261,11 +281,13 @@ if($_SERVER['REQUEST_METHOD'] === 'POST') {
                     if($isMinor && isset($_FILES['parental_signature']) && $_FILES['parental_signature']['error'] === UPLOAD_ERR_OK) {
                         $ext = pathinfo($_FILES['parental_signature']['name'], PATHINFO_EXTENSION);
                         $signatureFilename = 'sig_' . time() . '_' . uniqid() . '.' . $ext;
-                        $uploadDir = __DIR__ . '/../../../uploads/signatures/';
+                        // SIGNUP.PHP is in public/client/
+                        $uploadDir = __DIR__ . '/../uploads/signatures/';
                         if(!is_dir($uploadDir)) {
                             mkdir($uploadDir, 0755, true);
                         }
                         move_uploaded_file($_FILES['parental_signature']['tmp_name'], $uploadDir . $signatureFilename);
+                        $parentalSignature = 'public/uploads/signatures/' . $signatureFilename;
                     }
                     
                     // Bind parameters
@@ -334,8 +356,9 @@ $profileImage = null;
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cosmo Smiles Dental - Sign Up</title>
+    <link rel="icon" type="image/png" href="<?php echo clean_url('public/assets/images/logo1-white.png'); ?>">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="../assets/css/signup.css">
+    <link rel="stylesheet" href="<?php echo clean_url('public/assets/css/signup.css'); ?>">
     <?php include 'includes/recaptcha.php'; ?>
     <?php include 'includes/client-header-css.php'; ?>
 </head>
@@ -353,7 +376,7 @@ $profileImage = null;
 
                 <div class="sidebar-content">
                     <div class="sidebar-image">
-                        <img src="../assets/images/logo-main-white-1.png" alt="Cosmo Smiles Dental">
+                        <img src="<?php echo clean_url('public/assets/images/logo-main-white-1.png'); ?>" alt="Cosmo Smiles Dental">
                     </div>
                     
                     <ul class="features">
@@ -407,7 +430,7 @@ $profileImage = null;
                     </div>
                 </div>
                 
-                <form id="signupForm" method="POST" enctype="multipart/form-data">
+                <form id="signupForm" method="POST" enctype="multipart/form-data" novalidate>
                     <!-- Step 1: Personal Information -->
                     <div class="form-step active" id="step-1">
                         <div class="form-section">
@@ -676,6 +699,6 @@ $profileImage = null;
         </div>
     </div>
 
-    <script src="../assets/js/signup.js"></script>
+    <script src="<?php echo clean_url('public/assets/js/signup.js'); ?>"></script>
 </body>
 </html>

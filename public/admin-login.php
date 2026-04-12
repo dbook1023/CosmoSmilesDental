@@ -4,6 +4,7 @@ if (isset($_SESSION['admin_logged_in']) && $_SESSION['admin_logged_in'] === true
     header("Location: admin/admin-dashboard.php");
     exit();
 }
+require_once __DIR__ . '/../config/env.php';
 require_once __DIR__ . '/../src/Services/DdosProtection.php'; 
 ?>
 <!DOCTYPE html>
@@ -12,8 +13,9 @@ require_once __DIR__ . '/../src/Services/DdosProtection.php';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Login - Cosmo Smiles Dental</title>
+    <link rel="icon" type="image/png" href="<?php echo clean_url('public/assets/images/logo1-white.png'); ?>">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="assets/css/admin-login.css">
+    <link rel="stylesheet" href="<?php echo clean_url('public/assets/css/admin-login.css'); ?>">
     <?php include __DIR__ . '/client/includes/recaptcha.php'; ?>
 </head>
 <body>
@@ -29,7 +31,7 @@ require_once __DIR__ . '/../src/Services/DdosProtection.php';
 
                 <div class="sidebar-content">
                     <div class="sidebar-image">
-                        <img src="assets/images/logo-main-white-1.png" alt="Cosmo Smiles Dental">
+                        <img src="<?php echo clean_url('public/assets/images/logo-main-white-1.png'); ?>" alt="Cosmo Smiles Dental">
                     </div>
                     
                     <h1>Admin Portal</h1>
@@ -47,7 +49,7 @@ require_once __DIR__ . '/../src/Services/DdosProtection.php';
             <!-- Login Form -->
             <div class="login-form">
                 <div class="form-header">
-                    <h2>Sign In</h2>
+                    <h2>Welcome Back, Admin!</h2>
                     <p>Enter your credentials to access the admin panel</p>
                 </div>
                 
@@ -90,6 +92,6 @@ require_once __DIR__ . '/../src/Services/DdosProtection.php';
         </div>
     </div>
 
-    <script src="assets/js/admin-login.js?v=2"></script>
+    <script src="<?php echo clean_url('public/assets/js/admin-login.js'); ?>?v=2"></script>
 </body>
 </html>

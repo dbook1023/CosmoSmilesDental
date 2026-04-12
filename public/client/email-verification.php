@@ -1,6 +1,7 @@
 <?php
 session_start();
 require_once '../../config/database.php';
+require_once '../../config/env.php';
 
 $message = '';
 $messageType = '';
@@ -196,7 +197,7 @@ if (isset($_GET['token'])) {
 <body>
     <div class="verification-container">
         <div class="logo">
-            <img src="../assets/images/logo-main-white-1.png" alt="Cosmo Smiles Dental" style="filter: brightness(0) invert(1);">
+            <img src="<?php echo clean_url('public/assets/images/logo-main-white-1.png'); ?>" alt="Cosmo Smiles Dental" style="filter: brightness(0) invert(1);">
         </div>
         
         <div class="verification-icon <?php echo $messageType === 'success' ? 'success-icon' : 'error-icon'; ?>">

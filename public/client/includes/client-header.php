@@ -30,7 +30,7 @@ if ($userName && $userName !== 'My Account') {
     <div class="container">
         <nav class="navbar">
             <div class="logo">
-                <a href="<?php echo $baseDir; ?>index.php"><img src="<?php echo $baseDir; ?>assets/images/logo-main-white-1.png" alt="Cosmo Smiles Dental"></a>
+                <a href="<?php echo $baseDir; ?>index.php"><img src="<?php echo clean_url('public/assets/images/logo-main-white-1.png'); ?>" alt="Cosmo Smiles Dental"></a>
             </div>
             
             <div class="nav-center">
@@ -46,19 +46,16 @@ if ($userName && $userName !== 'My Account') {
                 <div class="user-menu">
                     <button class="user-btn">
                         <?php 
-require_once __DIR__ . '/../../../config/env.php';
-
-$displayImage = $profileImage;
-if ($displayImage && strpos($displayImage, 'uploads/avatar/') === false) {
-    if (strpos($displayImage, 'avatar/') === 0) {
-        $displayImage = 'uploads/' . $displayImage;
-    } else {
-        $displayImage = 'uploads/avatar/' . $displayImage;
-    }
-}
-?>
+                        $displayImage = null;
+                        if ($isLoggedIn && $profileImage) {
+                            // Standardize path using global clean_url and avatars/ folder
+                            $filename = ltrim(basename($profileImage), '/');
+                            $finalPath = 'public/uploads/avatar/' . $filename;
+                            $displayImage = clean_url($finalPath);
+                        }
+                        ?>
                         <?php if ($isLoggedIn && $displayImage): ?>
-                            <img src="<?php echo URL_ROOT . ltrim($displayImage, '/'); ?>" 
+                            <img src="<?php echo $displayImage; ?>" 
                                  alt="Profile" 
                                  class="user-profile-img"
                                  id="headerAvatarImg"

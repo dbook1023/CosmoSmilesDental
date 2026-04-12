@@ -55,123 +55,81 @@ class AdminPatientController {
         }
     }
 
-    // Get patient statistics - FIXED to match table filter exactly
     public function getPatientStatistics() {
         try {
             $stats = [];
             
-            // Total Patients - count all clients
-            $totalQuery = "SELECT COUNT(*) as total FROM clients";
-            $totalStmt = $this->conn->prepare($totalQuery);
-            $totalStmt->execute();
-            $totalResult = $totalStmt->fetch(PDO::FETCH_ASSOC);
-            $stats['total_patients'] = $totalResult['total'] ?? 0;
-            
-            // ACTIVE PATIENTS: Patients with appointments in the last 90 days
-            // Using DISTINCT to avoid counting a patient multiple times if they have multiple appointments
-            $activeQuery = "SELECT COUNT(DISTINCT c.id) as total 
-                           FROM clients c 
-                           INNER JOIN appointments a ON c.client_id = a.client_id 
-                           WHERE a.appointment_date >= DATE_SUB(CURDATE(), INTERVAL 90 DAY)
-                           AND a.status IN ('pending', 'confirmed', 'completed')";
-            $activeStmt = $this->conn->prepare($activeQuery);
-            $activeStmt->execute();
-            $activeResult = $activeStmt->fetch(PDO::FETCH_ASSOC);
-            $stats['active_patients'] = $activeResult['total'] ?? 0;
-            
-            // INACTIVE PATIENTS: Patients with NO appointments in the last 90 days
-            // Using a LEFT JOIN and checking for NULL appointments
-            // This EXACT logic matches the status filter in getAllPatients()
-            $inactiveQuery = "SELECT COUNT(DISTINCT c.id) as total 
-                             FROM clients c 
-                             LEFT JOIN appointments a ON c.client_id = a.client_id 
-                                 AND a.appointment_date >= DATE_SUB(CURDATE(), INTERVAL 90 DAY)
-                                 AND a.status IN ('pending', 'confirmed', 'completed')
-                             WHERE a.id IS NULL";
-            $inactiveStmt = $this->conn->prepare($inactiveQuery);
-            $inactiveStmt->execute();
-            $inactiveResult = $inactiveStmt->fetch(PDO::FETCH_ASSOC);
-            $stats['inactive_patients'] = $inactiveResult['total'] ?? 0;
-            
-            // VERIFICATION: Log if there's a mismatch
-            $calculatedTotal = $stats['active_patients'] + $stats['inactive_patients'];
-            if ($stats['total_patients'] != $calculatedTotal) {
-                error_log("PATIENT COUNT MISMATCH - Total: {$stats['total_patients']}, Active: {$stats['active_patients']}, Inactive: {$stats['inactive_patients']}, Sum: {$calculatedTotal}");
-                
-                // FIX: Recalculate using a more reliable method
-                // Get all active patient IDs first
-                $activeIdsQuery = "SELECT DISTINCT c.id 
-                                  FROM clients c 
-                                  INNER JOIN appointments a ON c.client_id = a.client_id 
-                                  WHERE a.appointment_date >= DATE_SUB(CURDATE(), INTERVAL 90 DAY)
-                                  AND a.status IN ('pending', 'confirmed', 'completed')";
-                $activeIdsStmt = $this->conn->prepare($activeIdsQuery);
-                $activeIdsStmt->execute();
-                $activeIds = $activeIdsStmt->fetchAll(PDO::FETCH_COLUMN);
-                
-                // Active count is the number of distinct IDs
-                $stats['active_patients'] = count($activeIds);
-                
-                // Inactive count is total minus active
-                $stats['inactive_patients'] = $stats['total_patients'] - $stats['active_patients'];
-                
-                error_log("RECALCULATED - Active: {$stats['active_patients']}, Inactive: {$stats['inactive_patients']}");
+            // Log connection status
+            if (!$this->conn) {
+                 error_log("CRITICAL: Database connection is NULL in getPatientStatistics");
+                 return $this->getFallbackStats();
             }
+
+            // 1. Total Patients
+            $stmt = $this->conn->prepare("SELECT COUNT(*) as total FROM clients");
+            $stmt->execute();
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            $stats['total_patients'] = (int)($result['total'] ?? 0);
             
-            // New Patients This Month - based on created_at date
-            $newQuery = "SELECT COUNT(*) as total FROM clients 
+            // 2. Active Patients: Patients with ANY appointment in the last 90 days
+            $activeQuery = "SELECT COUNT(DISTINCT client_id) as total 
+                           FROM appointments 
+                           WHERE appointment_date >= DATE_SUB(CURDATE(), INTERVAL 90 DAY)";
+            $stmt = $this->conn->prepare($activeQuery);
+            $stmt->execute();
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            $stats['active_patients'] = (int)($result['total'] ?? 0);
+            
+            // 3. Inactive Patients: Simple calculation for robustness
+            $stats['inactive_patients'] = max(0, $stats['total_patients'] - $stats['active_patients']);
+            
+            // 4. New This Month
+            $stmt = $this->conn->prepare("SELECT COUNT(*) as total FROM clients 
                         WHERE MONTH(created_at) = MONTH(CURDATE()) 
-                        AND YEAR(created_at) = YEAR(CURDATE())";
-            $newStmt = $this->conn->prepare($newQuery);
-            $newStmt->execute();
-            $newResult = $newStmt->fetch(PDO::FETCH_ASSOC);
-            $stats['new_this_month'] = $newResult['total'] ?? 0;
+                        AND YEAR(created_at) = YEAR(CURDATE())");
+            $stmt->execute();
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            $stats['new_this_month'] = (int)($result['total'] ?? 0);
             
-            // Appointments Today
-            $appointmentsQuery = "SELECT COUNT(*) as total FROM appointments 
+            // 5. Appointments Today & Trends
+            $stmt = $this->conn->prepare("SELECT COUNT(*) as total FROM appointments 
                                  WHERE DATE(appointment_date) = CURDATE() 
-                                 AND status IN ('pending', 'confirmed')";
-            $appointmentsStmt = $this->conn->prepare($appointmentsQuery);
-            $appointmentsStmt->execute();
-            $appointmentsResult = $appointmentsStmt->fetch(PDO::FETCH_ASSOC);
-            $stats['appointments_today'] = $appointmentsResult['total'] ?? 0;
+                                 AND status IN ('pending', 'confirmed')");
+            $stmt->execute();
+            $stats['appointments_today'] = (int)($stmt->fetch(PDO::FETCH_ASSOC)['total'] ?? 0);
             
-            // Appointments Yesterday
-            $yesterdayQuery = "SELECT COUNT(*) as total FROM appointments 
+            $stmt = $this->conn->prepare("SELECT COUNT(*) as total FROM appointments 
                               WHERE DATE(appointment_date) = DATE_SUB(CURDATE(), INTERVAL 1 DAY) 
-                              AND status IN ('pending', 'confirmed', 'completed')";
-            $yesterdayStmt = $this->conn->prepare($yesterdayQuery);
-            $yesterdayStmt->execute();
-            $yesterdayResult = $yesterdayStmt->fetch(PDO::FETCH_ASSOC);
-            $yesterdayTotal = $yesterdayResult['total'] ?? 0;
-            
+                              AND status IN ('pending', 'confirmed', 'completed')");
+            $stmt->execute();
+            $yesterdayTotal = (int)($stmt->fetch(PDO::FETCH_ASSOC)['total'] ?? 0);
             $stats['appointments_change'] = $stats['appointments_today'] - $yesterdayTotal;
             
-            // New patients from last month for comparison
-            $lastMonthQuery = "SELECT COUNT(*) as total FROM clients 
+            $stmt = $this->conn->prepare("SELECT COUNT(*) as total FROM clients 
                               WHERE MONTH(created_at) = MONTH(DATE_SUB(CURDATE(), INTERVAL 1 MONTH)) 
-                              AND YEAR(created_at) = YEAR(DATE_SUB(CURDATE(), INTERVAL 1 MONTH))";
-            $lastMonthStmt = $this->conn->prepare($lastMonthQuery);
-            $lastMonthStmt->execute();
-            $lastMonthResult = $lastMonthStmt->fetch(PDO::FETCH_ASSOC);
-            $lastMonthTotal = $lastMonthResult['total'] ?? 0;
-            
+                              AND YEAR(created_at) = YEAR(DATE_SUB(CURDATE(), INTERVAL 1 MONTH))");
+            $stmt->execute();
+            $lastMonthTotal = (int)($stmt->fetch(PDO::FETCH_ASSOC)['total'] ?? 0);
             $stats['new_change'] = $stats['new_this_month'] - $lastMonthTotal;
             
             return $stats;
             
-        } catch (Exception $e) {
-            error_log("Error getting patient statistics: " . $e->getMessage());
-            return [
-                'total_patients' => 0,
-                'active_patients' => 0,
-                'new_this_month' => 0,
-                'inactive_patients' => 0,
-                'appointments_today' => 0,
-                'appointments_change' => 0,
-                'new_change' => 0
-            ];
+        } catch (Throwable $e) {
+            error_log("CRITICAL ERROR in getPatientStatistics: " . $e->getMessage() . " in " . $e->getFile() . ":" . $e->getLine());
+            return $this->getFallbackStats();
         }
+    }
+
+    private function getFallbackStats() {
+        return [
+            'total_patients' => 0,
+            'active_patients' => 0,
+            'new_this_month' => 0,
+            'inactive_patients' => 0,
+            'appointments_today' => 0,
+            'appointments_change' => 0,
+            'new_change' => 0
+        ];
     }
 
     // Check if patient is active based on appointments in the last 90 days
@@ -193,8 +151,7 @@ class AdminPatientController {
             $query = "SELECT COUNT(*) as count 
                      FROM appointments 
                      WHERE client_id = ? 
-                     AND appointment_date >= DATE_SUB(CURDATE(), INTERVAL 90 DAY)
-                     AND status IN ('pending', 'confirmed', 'completed')";
+                     AND appointment_date >= DATE_SUB(CURDATE(), INTERVAL 90 DAY)";
             
             $stmt = $this->conn->prepare($query);
             $stmt->bindValue(1, $client['client_id'], PDO::PARAM_STR);
@@ -253,7 +210,6 @@ class AdminPatientController {
                     SELECT a.appointment_date 
                     FROM appointments a 
                     WHERE a.client_id = c.client_id 
-                    AND a.status IN ('pending', 'confirmed', 'completed')
                     ORDER BY a.appointment_date DESC 
                     LIMIT 1
                 ) as last_visit
@@ -285,14 +241,12 @@ class AdminPatientController {
                         SELECT 1 FROM appointments a 
                         WHERE a.client_id = c.client_id 
                         AND a.appointment_date >= DATE_SUB(CURDATE(), INTERVAL 90 DAY)
-                        AND a.status IN ('pending', 'confirmed', 'completed')
                     )";
                 } elseif ($filters['status'] === 'inactive') {
                     $query .= " AND NOT EXISTS (
                         SELECT 1 FROM appointments a 
                         WHERE a.client_id = c.client_id 
                         AND a.appointment_date >= DATE_SUB(CURDATE(), INTERVAL 90 DAY)
-                        AND a.status IN ('pending', 'confirmed', 'completed')
                     )";
                 }
             }
@@ -381,14 +335,12 @@ class AdminPatientController {
                         SELECT 1 FROM appointments a 
                         WHERE a.client_id = c.client_id 
                         AND a.appointment_date >= DATE_SUB(CURDATE(), INTERVAL 90 DAY)
-                        AND a.status IN ('pending', 'confirmed', 'completed')
                     )";
                 } elseif ($filters['status'] === 'inactive') {
                     $query .= " AND NOT EXISTS (
                         SELECT 1 FROM appointments a 
                         WHERE a.client_id = c.client_id 
                         AND a.appointment_date >= DATE_SUB(CURDATE(), INTERVAL 90 DAY)
-                        AND a.status IN ('pending', 'confirmed', 'completed')
                     )";
                 }
             }
@@ -451,7 +403,6 @@ class AdminPatientController {
                     SELECT a.appointment_date 
                     FROM appointments a 
                     WHERE a.client_id = c.client_id 
-                    AND a.status IN ('pending', 'confirmed', 'completed')
                     ORDER BY a.appointment_date DESC 
                     LIMIT 1
                 ) as last_visit

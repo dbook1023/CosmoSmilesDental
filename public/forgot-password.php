@@ -3,6 +3,7 @@
 session_start();
 ?>
 <?php 
+require_once __DIR__ . '/../config/env.php';
 require_once __DIR__ . '/../src/Services/DdosProtection.php'; 
 ?>
 <!DOCTYPE html>
@@ -11,8 +12,9 @@ require_once __DIR__ . '/../src/Services/DdosProtection.php';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Forgot Password - Cosmo Smiles Dental</title>
+    <link rel="icon" type="image/x-icon" href="<?php echo clean_url('public/assets/images/logo1-white.png'); ?>">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="assets/css/login.css">
+    <link rel="stylesheet" href="<?php echo clean_url('public/assets/css/login.css'); ?>">
     <?php include 'client/includes/recaptcha.php'; ?>
 </head>
 <body>
@@ -27,7 +29,7 @@ require_once __DIR__ . '/../src/Services/DdosProtection.php';
                 </div>
                 <div class="sidebar-content">
                     <div class="sidebar-image">
-                        <img src="assets/images/logo-main-white-1.png" alt="Cosmo Smiles Dental">
+                        <img src="<?php echo clean_url('public/assets/images/logo-main-white-1.png'); ?>" alt="Cosmo Smiles Dental">
                     </div>
                     <h1 style="color: #fff; font-weight: 600; font-size: 24px;">Forgot Password</h1>
                     <p style="color: #fff; font-weight: 400; font-size: 14px;">Enter your Registered ID to receive a password reset link in your email.</p>
@@ -61,6 +63,6 @@ require_once __DIR__ . '/../src/Services/DdosProtection.php';
         </div>
     </div>
 
-    <script src="assets/js/forgot-password.js?v=2"></script>
+    <script src="<?php echo clean_url('public/assets/js/forgot-password.js'); ?>?v=2"></script>
 </body>
 </html>

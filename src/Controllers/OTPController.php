@@ -5,9 +5,14 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-require_once __DIR__ . '/../../config/database.php';
-require_once __DIR__ . '/../Services/EmailService.php';
-require_once __DIR__ . '/../Services/TextBeeSMSService.php';
+// Ensure BASE_PATH is available if this is loaded independently
+if (!defined('BASE_PATH')) {
+    define('BASE_PATH', dirname(dirname(__DIR__))); 
+}
+
+require_once BASE_PATH . '/config/database.php';
+require_once BASE_PATH . '/src/Services/EmailService.php';
+require_once BASE_PATH . '/src/Services/TextBeeSMSService.php';
 
 class OTPController {
     private $db;
